@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { resources, type SubjectTag } from "@/lib/data";
-import { DownloadIcon, SearchIcon } from "@/components/ui-icons";
+import { BookIcon, DownloadIcon, SearchIcon } from "@/components/ui-icons";
 
 const subjects: SubjectTag[] = ["Physics", "Chemistry", "Mathematics"];
-const categories = ["Roadmaps", "Strategies", "Notes", "Books", "Problems", "PYQs"] as const;
+const categories = ["Roadmaps", "Strategies", "Notes", "Books", "PYQs"] as const;
 
 export default function ResourcesPage() {
   const [query, setQuery] = useState("");
@@ -38,7 +38,7 @@ export default function ResourcesPage() {
     <section className="page">
       <div className="page-head">
         <p className="eyebrow">Resources</p>
-        <h1>Roadmaps, Strategies, Notes, Books, Problems, and PYQs</h1>
+        <h1>Roadmaps, Strategies, Notes, Books, and PYQs</h1>
       </div>
 
       <div className="search-row card tests-search-box">
@@ -72,7 +72,7 @@ export default function ResourcesPage() {
         <section key={section.category} className="resource-section">
           <div className="section-head">
             <p className="eyebrow">{section.category}</p>
-            <h2>{section.category} Library</h2>
+            <h2>{section.category === "Strategies" ? "Strategy Articles" : `${section.category} Library`}</h2>
           </div>
 
           <div className="grid-2">
@@ -85,10 +85,21 @@ export default function ResourcesPage() {
                 </div>
                 <h3>{resource.title}</h3>
                 <p className="muted">{resource.preview}</p>
+                {resource.checklist?.length ? (
+                  <ul className="resource-checklist">
+                    {resource.checklist.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : null}
                 <div className="resource-foot">
                   <span className="muted">{resource.size}</span>
-                  <a className="resource-download" href={resource.href} aria-label={`Download ${resource.title}`}>
-                    <DownloadIcon size={16} />
+                  <a
+                    className="resource-download"
+                    href={resource.href}
+                    aria-label={resource.type === "Article" ? `Read ${resource.title}` : `Download ${resource.title}`}
+                  >
+                    {resource.type === "Article" ? <BookIcon size={16} /> : <DownloadIcon size={16} />}
                   </a>
                 </div>
               </article>

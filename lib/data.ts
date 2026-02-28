@@ -35,8 +35,9 @@ export type ResourceItem = {
   type: string;
   size: string;
   subject: SubjectTag;
-  category: "Roadmaps" | "Strategies" | "Notes" | "Books" | "Problems" | "PYQs";
+  category: "Roadmaps" | "Strategies" | "Notes" | "Books" | "PYQs";
   preview: string;
+  checklist?: string[];
   href: string;
 };
 
@@ -153,21 +154,25 @@ export const leaderboard = [
 
 export const resources: ResourceItem[] = [
   {
-    title: "JEE 90-Day Master Roadmap",
-    type: "PDF",
-    size: "1.2 MB",
+    title: "JEE 90-Day Master Roadmap (Math)",
+    type: "Article",
+    size: "8 min read",
     subject: "Mathematics",
     category: "Roadmaps",
-    preview: "Week-by-week roadmap for full syllabus completion and spaced revisions.",
+    preview:
+      "A week-by-week completion checklist to finish core Mathematics chapters with revision cycles and test slots.",
+    checklist: ["Weeks 1-3: Algebra + Sequence", "Weeks 4-6: Calculus Core", "Weeks 7-9: Coordinate + Revision"],
     href: "#"
   },
   {
-    title: "Last 30 Days Strategy Playbook",
-    type: "PDF",
-    size: "980 KB",
+    title: "Last 30 Days Score Improvement Strategy",
+    type: "Article",
+    size: "7 min read",
     subject: "Physics",
     category: "Strategies",
-    preview: "Daily strategy blocks for mocks, analysis, and high-retention revision loops.",
+    preview:
+      "A practical daily plan to improve marks in the final month with mock scheduling, analysis windows, and revision priorities.",
+    checklist: ["Daily 1 mock block", "90-minute error log review", "Night revision of weak topics"],
     href: "#"
   },
   {
@@ -198,15 +203,6 @@ export const resources: ResourceItem[] = [
     href: "#"
   },
   {
-    title: "Top 300 Mixed Problems",
-    type: "PDF",
-    size: "2.0 MB",
-    subject: "Mathematics",
-    category: "Problems",
-    preview: "Curated mixed-level problems with time targets and solving approach hints.",
-    href: "#"
-  },
-  {
     title: "JEE Main PYQ Pack (2019-2025)",
     type: "PDF",
     size: "4.8 MB",
@@ -226,20 +222,24 @@ export const resources: ResourceItem[] = [
   },
   {
     title: "Physics Revision Sprint Roadmap",
-    type: "PDF",
-    size: "1.0 MB",
+    type: "Article",
+    size: "6 min read",
     subject: "Physics",
     category: "Roadmaps",
-    preview: "Fast-track roadmap to revise complete physics in structured weekly blocks.",
+    preview:
+      "A compact roadmap to complete high-yield Physics revision with chapter sequencing and timed practice milestones.",
+    checklist: ["Mechanics + Modern Physics first", "2-day formula revision loops", "Full test after each sprint"],
     href: "#"
   },
   {
-    title: "Exam Hall Time Strategy Sheet",
-    type: "PDF",
-    size: "720 KB",
+    title: "Exam Hall Time Management Strategy",
+    type: "Article",
+    size: "5 min read",
     subject: "Mathematics",
     category: "Strategies",
-    preview: "High-pressure time strategy for section ordering and smart question selection.",
+    preview:
+      "A clear section-order and timing framework to maximize score under pressure and avoid negative-marking traps.",
+    checklist: ["Round 1: sure-shot questions", "Round 2: medium confidence", "Last 20 mins: review + marked doubts"],
     href: "#"
   },
   {
@@ -249,15 +249,6 @@ export const resources: ResourceItem[] = [
     subject: "Chemistry",
     category: "Notes",
     preview: "Memory-friendly inorganic chemistry blocks with periodic trend maps.",
-    href: "#"
-  },
-  {
-    title: "Physics Problem Marathon Set",
-    type: "PDF",
-    size: "2.4 MB",
-    subject: "Physics",
-    category: "Problems",
-    preview: "Mixed chapter challenge set designed for speed plus conceptual stability.",
     href: "#"
   },
   {
