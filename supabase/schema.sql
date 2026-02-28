@@ -165,7 +165,7 @@ begin
   update public.user_profiles
   set
     tests_completed = coalesce(tests_completed, 0) + 1,
-    points = coalesce(points, 0) + greatest(10, floor(new.score / 2)::int),
+    points = coalesce(points, 0) + coalesce(new.score, 0)::int,
     current_streak = coalesce(current_streak, 0) + 1,
     updated_at = now()
   where user_id = new.user_id;
@@ -203,6 +203,22 @@ insert into public.user_analytics (
 select u.id, null, null, null, null, 'Not available'
 from auth.users u
 on conflict (user_id) do nothing;
+
+-- Recompute points/tests from actual attempts only (no synthetic scoring).
+update public.user_profiles p
+set
+  tests_completed = coalesce(a.tests_count, 0),
+  points = coalesce(a.score_sum, 0),
+  updated_at = now()
+from (
+  select
+    user_id,
+    count(*)::int as tests_count,
+    sum(score)::int as score_sum
+  from public.test_attempts
+  group by user_id
+) a
+where p.user_id = a.user_id;
 
 -- Seed tests catalog.
 insert into public.tests_catalog (id, name, subject, type, avg_score, difficulty, attempts, icon)
