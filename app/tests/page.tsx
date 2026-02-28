@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/components/auth-provider";
 import { AwardIcon, SearchIcon } from "@/components/ui-icons";
+import { createTestAttempt } from "@/lib/supabase-db";
 
 type LocalTest = {
   id: string;
@@ -102,6 +104,7 @@ function TestCardView({ test, onAttempt }: { test: LocalTest; onAttempt: (test: 
 }
 
 export default function TestsPage() {
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"All" | "General" | "Basic">("All");
   const [activeTest, setActiveTest] = useState<LocalTest | null>(null);
@@ -110,6 +113,8 @@ export default function TestsPage() {
   const [finished, setFinished] = useState(false);
   const [correct, setCorrect] = useState(0);
   const [savedAttempts, setSavedAttempts] = useState<SavedAttempt[]>([]);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState("");
 
   useEffect(() => {
     const raw = window.localStorage.getItem(LOCAL_ATTEMPTS_KEY);
@@ -148,9 +153,11 @@ export default function TestsPage() {
     setSelected("");
     setFinished(false);
     setCorrect(0);
+    setSyncing(false);
+    setSyncMessage("");
   };
 
-  const onNext = () => {
+  const onNext = async () => {
     const current = demoQuestions[questionIndex];
     const isCorrect = current.options[current.answerIndex] === selected;
     const nextCorrect = correct + (isCorrect ? 1 : 0);
@@ -171,6 +178,26 @@ export default function TestsPage() {
         const updated = [saved, ...savedAttempts].slice(0, 10);
         setSavedAttempts(updated);
         window.localStorage.setItem(LOCAL_ATTEMPTS_KEY, JSON.stringify(updated));
+
+        if (user.id) {
+          setSyncing(true);
+          setSyncMessage("");
+          try {
+            await createTestAttempt({
+              userId: user.id,
+              testName: activeTest.name,
+              score,
+              percentile
+            });
+            setSyncMessage("Score synced to Supabase.");
+          } catch (error) {
+            setSyncMessage(error instanceof Error ? `Supabase sync failed: ${error.message}` : "Supabase sync failed.");
+          } finally {
+            setSyncing(false);
+          }
+        } else {
+          setSyncMessage("Login to sync this score to Supabase.");
+        }
       }
       return;
     }
@@ -323,12 +350,14 @@ export default function TestsPage() {
                   <button className="btn btn-outline" onClick={closeDemo}>
                     Exit Demo
                   </button>
-                  <button className="btn btn-solid" onClick={onNext} disabled={!selected}>
+                  <button className="btn btn-solid" onClick={() => void onNext()} disabled={!selected}>
                     {questionIndex === demoQuestions.length - 1 ? "Submit" : "Next"}
                   </button>
                 </div>
               </>
             )}
+            {syncing ? <p className="muted">Syncing score to Supabase...</p> : null}
+            {syncMessage ? <p className="muted">{syncMessage}</p> : null}
           </div>
         </div>
       ) : null}
