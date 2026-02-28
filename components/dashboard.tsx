@@ -150,7 +150,7 @@ export function Dashboard() {
             ? `${analytics.predicted_rank_low.toLocaleString()} - ${analytics.predicted_rank_high.toLocaleString()}`
             : "???"}
         </h2>
-        <p className="muted">{analytics ? "Live from Supabase analytics." : "???"}</p>
+        <p className="muted">{analytics ? "Live from Supabase analytics." : "Take a full test to generate rank prediction."}</p>
       </section>
 
       <section className="card stat-card stat-score">
@@ -160,7 +160,7 @@ export function Dashboard() {
             ? `${analytics.estimated_score_low} - ${analytics.estimated_score_high}`
             : "???"}
         </h2>
-        <p className="muted">Confidence: {analytics?.confidence_label || "???"}</p>
+        <p className="muted">Confidence: {analytics?.confidence_label || "Take a test"}</p>
       </section>
 
       <section className="card badge-card">
@@ -178,7 +178,7 @@ export function Dashboard() {
               </div>
             ))
           ) : (
-            <p className="muted">???</p>
+            <p className="muted">Take a test to start earning badges.</p>
           )}
         </div>
       </section>
@@ -190,7 +190,7 @@ export function Dashboard() {
           <polyline className="graph-path" points={graphPath} />
         </svg>
         <p className="muted">
-          {growth === null ? "???" : `Last trend change: ${growth >= 0 ? "+" : ""}${growth.toFixed(1)} marks`}
+          {growth === null ? "Take a test to unlock performance trend." : `Last trend change: ${growth >= 0 ? "+" : ""}${growth.toFixed(1)} marks`}
         </p>
       </section>
 
@@ -219,7 +219,7 @@ export function Dashboard() {
               ) : (
                 <tr>
                   <td colSpan={4} className="muted">
-                    ???
+                    Take a test to populate this section.
                   </td>
                 </tr>
               )}
@@ -234,7 +234,7 @@ export function Dashboard() {
           {data.insights.length > 0 ? (
             data.insights.map((item) => <li key={item.id}>{item.insight}</li>)
           ) : (
-            <li className="muted">???</li>
+            <li className="muted">Take a test to generate AI insights.</li>
           )}
         </ul>
         <div className="cta-row">
