@@ -3,12 +3,21 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { SendIcon } from "@/components/ui-icons";
 import { Fragment, ReactNode } from "react";
+import Script from "next/script";
 
 type Message = {
   id: string;
   role: "user" | "assistant";
   text: string;
 };
+
+declare global {
+  interface Window {
+    MathJax?: {
+      typesetPromise?: (elements?: HTMLElement[]) => Promise<void>;
+    };
+  }
+}
 
 function renderInline(text: string): ReactNode[] {
   const nodes: ReactNode[] = [];
@@ -45,84 +54,122 @@ function renderInline(text: string): ReactNode[] {
 function MarkdownBlock({ text }: { text: string }) {
   const blocks: ReactNode[] = [];
   const codeRegex = /```(\w+)?\n?([\s\S]*?)```/g;
+  const displayMathRegex = /\\\[[\s\S]*?\\\]/g;
   let last = 0;
   let codeIdx = 0;
   let match: RegExpExecArray | null;
 
   const pushTextBlocks = (chunk: string, baseKey: string) => {
-    const lines = chunk.split("\n");
+    const segments: Array<{ type: "text" | "math"; value: string }> = [];
+    let segmentLast = 0;
+    let segmentMatch: RegExpExecArray | null;
+
+    while ((segmentMatch = displayMathRegex.exec(chunk)) !== null) {
+      if (segmentMatch.index > segmentLast) {
+        segments.push({
+          type: "text",
+          value: chunk.slice(segmentLast, segmentMatch.index)
+        });
+      }
+      segments.push({
+        type: "math",
+        value: segmentMatch[0]
+      });
+      segmentLast = segmentMatch.index + segmentMatch[0].length;
+    }
+    if (segmentLast < chunk.length) {
+      segments.push({
+        type: "text",
+        value: chunk.slice(segmentLast)
+      });
+    }
+
     const local: ReactNode[] = [];
+    let lineBase = 0;
 
-    for (let i = 0; i < lines.length; i += 1) {
-      const line = lines[i].trimEnd();
-      if (!line.trim()) {
-        continue;
-      }
-
-      if (line.startsWith("### ")) {
+    for (const segment of segments) {
+      if (segment.type === "math") {
         local.push(
-          <h4 key={`${baseKey}-h3-${i}`} className="md-h3">
-            {renderInline(line.slice(4))}
-          </h4>
+          <div key={`${baseKey}-math-${lineBase++}`} className="md-math-block">
+            {segment.value}
+          </div>
         );
         continue;
       }
 
-      if (line.startsWith("## ")) {
-        local.push(
-          <h3 key={`${baseKey}-h2-${i}`} className="md-h2">
-            {renderInline(line.slice(3))}
-          </h3>
-        );
-        continue;
-      }
-
-      if (line.startsWith("# ")) {
-        local.push(
-          <h2 key={`${baseKey}-h1-${i}`} className="md-h1">
-            {renderInline(line.slice(2))}
-          </h2>
-        );
-        continue;
-      }
-
-      if (/^[-*]\s+/.test(line)) {
-        const items: string[] = [line.replace(/^[-*]\s+/, "")];
-        while (i + 1 < lines.length && /^[-*]\s+/.test(lines[i + 1].trimEnd())) {
-          i += 1;
-          items.push(lines[i].trimEnd().replace(/^[-*]\s+/, ""));
+      const lines = segment.value.split("\n");
+      for (let i = 0; i < lines.length; i += 1) {
+        const line = lines[i].trimEnd();
+        if (!line.trim()) {
+          continue;
         }
-        local.push(
-          <ul key={`${baseKey}-ul-${i}`} className="md-list">
-            {items.map((item, idx) => (
-              <li key={`${baseKey}-uli-${i}-${idx}`}>{renderInline(item)}</li>
-            ))}
-          </ul>
-        );
-        continue;
-      }
 
-      if (/^\d+\.\s+/.test(line)) {
-        const items: string[] = [line.replace(/^\d+\.\s+/, "")];
-        while (i + 1 < lines.length && /^\d+\.\s+/.test(lines[i + 1].trimEnd())) {
-          i += 1;
-          items.push(lines[i].trimEnd().replace(/^\d+\.\s+/, ""));
+        if (line.startsWith("### ")) {
+          local.push(
+            <h4 key={`${baseKey}-h3-${lineBase}-${i}`} className="md-h3">
+              {renderInline(line.slice(4))}
+            </h4>
+          );
+          continue;
         }
-        local.push(
-          <ol key={`${baseKey}-ol-${i}`} className="md-list md-ordered">
-            {items.map((item, idx) => (
-              <li key={`${baseKey}-oli-${i}-${idx}`}>{renderInline(item)}</li>
-            ))}
-          </ol>
-        );
-        continue;
-      }
 
-      local.push(
-        <p key={`${baseKey}-p-${i}`} className="md-p">
-          {renderInline(line)}
-        </p>
-      );
+        if (line.startsWith("## ")) {
+          local.push(
+            <h3 key={`${baseKey}-h2-${lineBase}-${i}`} className="md-h2">
+              {renderInline(line.slice(3))}
+            </h3>
+          );
+          continue;
+        }
+
+        if (line.startsWith("# ")) {
+          local.push(
+            <h2 key={`${baseKey}-h1-${lineBase}-${i}`} className="md-h1">
+              {renderInline(line.slice(2))}
+            </h2>
+          );
+          continue;
+        }
+
+        if (/^[-*]\s+/.test(line)) {
+          const items: string[] = [line.replace(/^[-*]\s+/, "")];
+          while (i + 1 < lines.length && /^[-*]\s+/.test(lines[i + 1].trimEnd())) {
+            i += 1;
+            items.push(lines[i].trimEnd().replace(/^[-*]\s+/, ""));
+          }
+          local.push(
+            <ul key={`${baseKey}-ul-${lineBase}-${i}`} className="md-list">
+              {items.map((item, idx) => (
+                <li key={`${baseKey}-uli-${lineBase}-${i}-${idx}`}>{renderInline(item)}</li>
+              ))}
+            </ul>
+          );
+          continue;
+        }
+
+        if (/^\d+\.\s+/.test(line)) {
+          const items: string[] = [line.replace(/^\d+\.\s+/, "")];
+          while (i + 1 < lines.length && /^\d+\.\s+/.test(lines[i + 1].trimEnd())) {
+            i += 1;
+            items.push(lines[i].trimEnd().replace(/^\d+\.\s+/, ""));
+          }
+          local.push(
+            <ol key={`${baseKey}-ol-${lineBase}-${i}`} className="md-list md-ordered">
+              {items.map((item, idx) => (
+                <li key={`${baseKey}-oli-${lineBase}-${i}-${idx}`}>{renderInline(item)}</li>
+              ))}
+            </ol>
+          );
+          continue;
+        }
+
+        local.push(
+          <p key={`${baseKey}-p-${lineBase}-${i}`} className="md-p">
+            {renderInline(line)}
+          </p>
+        );
+      }
+      lineBase += 1;
     }
 
     blocks.push(...local);
@@ -233,6 +280,13 @@ export default function ProblemsPage() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
 
+  useEffect(() => {
+    if (!window.MathJax?.typesetPromise) {
+      return;
+    }
+    void window.MathJax.typesetPromise();
+  }, [messages, loading]);
+
   const handleTextChange = (value: string, element: HTMLTextAreaElement) => {
     setInput(value);
     element.style.height = "0px";
@@ -241,6 +295,22 @@ export default function ProblemsPage() {
 
   return (
     <section className={`page problems-center ${messages.length === 0 ? "initial" : "active"}`}>
+      <Script id="mathjax-config" strategy="beforeInteractive">
+        {`window.MathJax = {
+          tex: {
+            inlineMath: [['\\\\(', '\\\\)']],
+            displayMath: [['\\\\[', '\\\\]']]
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };`}
+      </Script>
+      <Script
+        id="mathjax-script"
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+        strategy="afterInteractive"
+      />
       <div className="chatbot-shell">
         {messages.length > 0 ? (
           <div className="chat-window chat-window-premium">

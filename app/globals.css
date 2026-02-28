@@ -1003,6 +1003,11 @@ button.subject-tag {
   list-style: decimal;
 }
 
+.md-math-block {
+  overflow-x: auto;
+  padding: 4px 0;
+}
+
 .md-code-block {
   margin: 0;
   padding: 10px 12px;
