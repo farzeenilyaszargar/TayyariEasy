@@ -1155,7 +1155,9 @@ button.subject-tag {
 .login-page {
   display: grid;
   place-items: center;
-  min-height: calc(100vh - 220px);
+  min-height: calc(100dvh - 96px);
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .login-shell {

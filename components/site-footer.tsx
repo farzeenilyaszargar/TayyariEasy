@@ -8,7 +8,7 @@ export function SiteFooter() {
   const pathname = usePathname();
   const currentYear = new Date().getFullYear();
 
-  if (pathname === "/problems") {
+  if (pathname === "/problems" || pathname === "/login") {
     return null;
   }
 
