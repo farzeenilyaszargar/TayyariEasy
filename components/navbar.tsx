@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
@@ -21,8 +22,8 @@ export function Navbar() {
     <header className="site-header">
       <div className="container nav-wrap">
         <Link href="/" className="brand">
+          <Image src="/logo.png" alt="Tayyari logo" width={28} height={28} className="brand-logo" priority />
           <span className="brand-main">Tayyari</span>
-          <span className="brand-chip">JEE</span>
         </Link>
         <nav className="nav-links" aria-label="Main navigation">
           {links.map((link) => {

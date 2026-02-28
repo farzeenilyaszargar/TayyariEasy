@@ -1,0 +1,21 @@
+{
+  "name": "Tayyari",
+  "short_name": "Tayyari",
+  "description": "JEE rank predictor, mock tests, AI doubt solver, and preparation analytics platform.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f2f3f5",
+  "theme_color": "#131417",
+  "icons": [
+    {
+      "src": "/logo.ico",
+      "sizes": "48x48 64x64 128x128 256x256",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
