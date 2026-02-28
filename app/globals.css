@@ -507,7 +507,7 @@ small {
 .feature-stack {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 30px;
 }
 
 .feature-row {
