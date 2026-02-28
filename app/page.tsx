@@ -68,6 +68,18 @@ const reviews = [
   }
 ];
 
+const badgePreviews = [
+  { id: "precision", name: "Precision Pilot", how: "Maintain 85%+ accuracy across 5 tests." },
+  { id: "streak14", name: "Streak Builder", how: "Study or test for 14 consecutive days." },
+  { id: "speed50", name: "Speed Solver", how: "Solve 50 timed questions under target." },
+  { id: "mock3", name: "Mock Marathon", how: "Complete 3 full mocks in one week." },
+  { id: "physics", name: "Physics Pro", how: "Score 90+ in two Physics tests in a row." },
+  { id: "chemistry", name: "Chem Master", how: "Score 90+ in two Chemistry tests in a row." },
+  { id: "math", name: "Math Ace", how: "Score 90+ in two Math tests in a row." },
+  { id: "comeback", name: "Comeback Clutch", how: "Improve total score by 30+ marks in 7 days." },
+  { id: "consistency", name: "Consistency Crown", how: "Keep score variance under 10 marks for 5 tests." }
+];
+
 function Hero() {
   const [query, setQuery] = useState("");
   const [allItems, setAllItems] = useState<string[]>([]);
@@ -151,20 +163,20 @@ function Hero() {
           </article>
           <article className="card">
             <h3>Achievements and Badges</h3>
-            <ul className="achievement-list">
-              <li>
-                <span className="badge-pill"><AwardIcon size={14} /> Precision Pilot</span>
-                <small>85%+ accuracy in recent mocks</small>
-              </li>
-              <li>
-                <span className="badge-pill"><TrendIcon size={14} /> Consistency Streak</span>
-                <small>14-day focused revision streak</small>
-              </li>
-              <li>
-                <span className="badge-pill"><TargetIcon size={14} /> Speed Solver</span>
-                <small>50 timed problems under target</small>
-              </li>
-            </ul>
+            <p className="muted">Hover each badge to see what it means and how to unlock it.</p>
+            <div className="badge-preview-grid">
+              {badgePreviews.map((badge) => (
+                <div key={badge.id} className="badge-preview-item" aria-label={badge.name}>
+                  <span className="badge-placeholder">
+                    <AwardIcon size={16} />
+                  </span>
+                  <div className="badge-tooltip">
+                    <strong>{badge.name}</strong>
+                    <small>{badge.how}</small>
+                  </div>
+                </div>
+              ))}
+            </div>
           </article>
         </div>
       </section>
@@ -181,9 +193,6 @@ function Hero() {
               <article key={item.title} className={`feature-row ${idx % 2 === 1 ? "feature-row-alt" : ""}`}>
                 <div className="feature-image-slot">Feature Image</div>
                 <div className="feature-copy">
-                  <span className="feature-emoji">
-                    <Icon size={18} />
-                  </span>
                   <h3>{item.title}</h3>
                   <p>{item.detail}</p>
                 </div>
