@@ -132,8 +132,8 @@ function Hero() {
             <Link href="/tests" className="btn btn-solid">
               Start Practicing
             </Link>
-            <Link href="/marketing" className="btn btn-outline">
-              See Platform Tour
+            <Link href="#core-features" className="btn btn-outline">
+              View Features
             </Link>
           </div>
         </div>
@@ -205,7 +205,7 @@ function Hero() {
         </div>
       </section>
 
-      <section className="home-section">
+      <section className="home-section" id="core-features">
         <div className="section-head">
           <p className="eyebrow">Core Features</p>
           <h2>Market-Leading Tools for Competitive Prep</h2>
