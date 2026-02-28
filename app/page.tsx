@@ -18,32 +18,20 @@ const highlights = [
   {
     icon: TrendIcon,
     title: "Rank Intelligence Engine",
-    detail: "Track projected AIR bands and score confidence after every test cycle.",
-    points: [
-      "Live improvement trajectory from your mock history",
-      "Topic-level signal on rank movement impact",
-      "Confidence flag for stable vs volatile estimates"
-    ]
+    detail:
+      "Get a clear rank projection after every mock with confidence-based updates. Track movement quickly and decide your next revision focus with certainty."
   },
   {
     icon: BrainIcon,
     title: "AI Study Signals",
-    detail: "See what to revise next based on mistakes, speed, and accuracy patterns.",
-    points: [
-      "Mistake clusters grouped by concept type",
-      "Priority suggestions for revision sessions",
-      "Speed vs accuracy optimization prompts"
-    ]
+    detail:
+      "AI highlights your biggest score leaks from mistakes, speed, and accuracy patterns. You get practical next actions instead of generic advice."
   },
   {
     icon: TargetIcon,
     title: "Exam-Ready Practice",
-    detail: "Move from chapter-level drills to full-mock pressure in one workflow.",
-    points: [
-      "Topic drills for weak-chapter correction",
-      "Full mocks for exam endurance and pacing",
-      "Post-test analysis loop with next-step actions"
-    ]
+    detail:
+      "Switch smoothly from chapter drills to full exam simulations in one workflow. Practice, review, and improve in a loop built for rank gains."
   }
 ];
 
@@ -111,16 +99,12 @@ function Hero() {
 
   return (
     <section className="hero">
-      <div className="proof-strip">
-        <span>12,000+ aspirants onboard</span>
-        <span>91% better test consistency reported</span>
-        <span>350+ curated practice assets</span>
-      </div>
+    
 
       <div className="hero-grid">
         <div>
           <p className="eyebrow">Built for serious JEE aspirants</p>
-          <h1>
+          <h1 className="accent-head-1">
             Make Every Test Count.
             <span className="accent-head">Predict Rank with Confidence.</span>
           </h1>
@@ -148,27 +132,7 @@ function Hero() {
         </aside>
       </div>
 
-      <div className="search-row card home-search">
-        <div className="search-input-wrap">
-          <SearchIcon size={18} />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search tests and resources (chapters, books, mock tests)"
-          />
-        </div>
-        <div className="search-suggestions">
-          {suggestions.length === 0 ? (
-            <span className="muted">No matches yet</span>
-          ) : (
-            suggestions.map((item) => (
-              <span key={item} className="search-chip">
-                {item}
-              </span>
-            ))
-          )}
-        </div>
-      </div>
+      
 
       <section className="home-section">
         <div className="section-head">
@@ -211,22 +175,17 @@ function Hero() {
           <h2>Market-Leading Tools for Competitive Prep</h2>
         </div>
         <div className="feature-stack">
-          {highlights.map((item) => {
+          {highlights.map((item, idx) => {
             const Icon = item.icon;
             return (
-              <article key={item.title} className="feature-row">
+              <article key={item.title} className={`feature-row ${idx % 2 === 1 ? "feature-row-alt" : ""}`}>
                 <div className="feature-image-slot">Feature Image</div>
                 <div className="feature-copy">
                   <span className="feature-emoji">
-                    <Icon size={20} />
+                    <Icon size={18} />
                   </span>
                   <h3>{item.title}</h3>
                   <p>{item.detail}</p>
-                  <ul className="feature-bullets">
-                    {item.points.map((point) => (
-                      <li key={point}>{point}</li>
-                    ))}
-                  </ul>
                 </div>
               </article>
             );

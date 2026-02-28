@@ -452,6 +452,18 @@ small {
   align-items: center;
 }
 
+.feature-row.feature-row-alt {
+  grid-template-columns: 1.2fr 0.8fr;
+}
+
+.feature-row.feature-row-alt .feature-image-slot {
+  order: 2;
+}
+
+.feature-row.feature-row-alt .feature-copy {
+  order: 1;
+}
+
 .feature-copy {
   display: grid;
   gap: 10px;
