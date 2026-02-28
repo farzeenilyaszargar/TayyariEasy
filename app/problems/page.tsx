@@ -235,6 +235,7 @@ export default function ProblemsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState("");
+  const [voiceSupported, setVoiceSupported] = useState(true);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const dictationBaseRef = useRef("");
@@ -341,12 +342,13 @@ export default function ProblemsPage() {
 
     const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognitionCtor) {
+      setVoiceSupported(false);
       return;
     }
 
     const recognition = new SpeechRecognitionCtor();
     recognition.lang = "en-US";
-    recognition.continuous = true;
+    recognition.continuous = false;
     recognition.interimResults = true;
 
     recognition.onstart = () => {
@@ -360,7 +362,16 @@ export default function ProblemsPage() {
     };
 
     recognition.onerror = (event) => {
-      setVoiceError(event.error || "Voice input failed.");
+      const code = event.error || "unknown";
+      if (code === "network") {
+        setVoiceError("Voice recognition needs internet access in this browser. Check your connection and try again.");
+      } else if (code === "not-allowed" || code === "service-not-allowed") {
+        setVoiceError("Microphone permission is blocked. Allow mic access in browser settings.");
+      } else if (code === "no-speech") {
+        setVoiceError("No speech detected. Try speaking again.");
+      } else {
+        setVoiceError("Voice input failed. Please try again.");
+      }
       setIsListening(false);
     };
 
@@ -427,6 +438,16 @@ export default function ProblemsPage() {
   };
 
   const toggleVoiceInput = () => {
+    if (!voiceSupported) {
+      setVoiceError("Voice input is not supported in this browser.");
+      return;
+    }
+
+    if (!navigator.onLine) {
+      setVoiceError("You appear offline. Connect to the internet and try voice input again.");
+      return;
+    }
+
     const recognition = recognitionRef.current;
     if (!recognition) {
       setVoiceError("Voice input is not supported in this browser.");
@@ -439,7 +460,11 @@ export default function ProblemsPage() {
       return;
     }
     dictationBaseRef.current = inputRef.current;
-    recognition.start();
+    try {
+      recognition.start();
+    } catch {
+      setVoiceError("Could not start microphone capture. Please retry.");
+    }
   };
 
   return (
