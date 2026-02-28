@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { MicIcon, SendIcon } from "@/components/ui-icons";
 import { Fragment, ReactNode } from "react";
 import Script from "next/script";
@@ -437,6 +437,22 @@ export default function ProblemsPage() {
     element.style.height = `${Math.min(element.scrollHeight, 220)}px`;
   };
 
+  const handleInputKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    // Shift+Enter and Cmd+Enter should create a newline.
+    if (event.shiftKey || event.metaKey) {
+      return;
+    }
+
+    event.preventDefault();
+    if (!loading && input.trim()) {
+      event.currentTarget.form?.requestSubmit();
+    }
+  };
+
   const toggleVoiceInput = () => {
     if (!voiceSupported) {
       setVoiceError("Voice input is not supported in this browser.");
@@ -509,6 +525,7 @@ export default function ProblemsPage() {
               value={input}
               rows={1}
               onChange={(event) => handleTextChange(event.target.value, event.currentTarget)}
+              onKeyDown={handleInputKeyDown}
               placeholder={placeholderText || " "}
             />
             <button
@@ -531,6 +548,7 @@ export default function ProblemsPage() {
             value={input}
             rows={1}
             onChange={(event) => handleTextChange(event.target.value, event.currentTarget)}
+            onKeyDown={handleInputKeyDown}
             placeholder={placeholderText || " "}
           />
           <button
