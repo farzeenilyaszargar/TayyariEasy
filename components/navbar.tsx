@@ -44,7 +44,7 @@ export function Navbar() {
         </nav>
         <div className="nav-right">
           {isLoggedIn ? <span className="pill">{user.points} pts</span> : null}
-          <button className="btn btn-outline" onClick={isLoggedIn ? logout : login}>
+          <button className={`btn ${isLoggedIn ? "btn-outline" : "btn-solid"}`} onClick={isLoggedIn ? logout : login}>
             {isLoggedIn ? "Logout" : "Login"}
           </button>
         </div>
