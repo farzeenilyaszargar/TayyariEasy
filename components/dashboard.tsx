@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { fetchDashboardData, type DashboardPayload } from "@/lib/supabase-db";
@@ -225,6 +226,11 @@ export function Dashboard() {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="cta-row">
+          <Link href="/tests" className="btn btn-solid">
+            Take Test
+          </Link>
         </div>
       </section>
 
