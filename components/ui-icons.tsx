@@ -193,3 +193,13 @@ export function UserIcon(props: IconProps) {
     </BaseIcon>
   );
 }
+
+export function MicIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <rect x="9" y="3" width="6" height="11" rx="3" />
+      <path d="M6 10v1a6 6 0 1 0 12 0v-1" />
+      <path d="M12 17v4" />
+    </BaseIcon>
+  );
+}

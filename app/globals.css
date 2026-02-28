@@ -1012,6 +1012,19 @@ button.subject-tag {
   flex: 0 0 48px;
 }
 
+.voice-btn {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  flex: 0 0 48px;
+}
+
+.voice-btn-live {
+  border-color: #d85a4f;
+  color: #d85a4f;
+  background: #fff3f1;
+}
+
 .chat-form-initial textarea {
   padding: 15px 14px;
   min-height: 56px;
@@ -1019,6 +1032,12 @@ button.subject-tag {
 }
 
 .chat-form-initial .send-btn {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+}
+
+.chat-form-initial .voice-btn {
   width: 56px;
   height: 56px;
   flex: 0 0 56px;
@@ -1036,6 +1055,17 @@ button.subject-tag {
   background: #ffffff;
   z-index: 60;
   box-shadow: 0 14px 34px rgba(18, 21, 28, 0.12);
+}
+
+.voice-error {
+  position: fixed;
+  left: 50%;
+  bottom: 86px;
+  transform: translateX(-50%);
+  width: min(900px, 92vw);
+  margin: 0;
+  color: #9b2f22;
+  font-size: 0.85rem;
 }
 
 .md-content {

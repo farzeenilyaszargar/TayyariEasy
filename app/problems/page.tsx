@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { SendIcon } from "@/components/ui-icons";
+import { MicIcon, SendIcon } from "@/components/ui-icons";
 import { Fragment, ReactNode } from "react";
 import Script from "next/script";
 
@@ -12,6 +12,33 @@ type Message = {
 };
 
 declare global {
+  interface Window {
+    webkitSpeechRecognition?: new () => SpeechRecognition;
+    SpeechRecognition?: new () => SpeechRecognition;
+  }
+
+  interface SpeechRecognition extends EventTarget {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    start: () => void;
+    stop: () => void;
+    onstart: (() => void) | null;
+    onend: (() => void) | null;
+    onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+    onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  }
+
+  interface SpeechRecognitionEvent extends Event {
+    resultIndex: number;
+    results: SpeechRecognitionResultList;
+  }
+
+  interface SpeechRecognitionErrorEvent extends Event {
+    error: string;
+    message: string;
+  }
+
   interface Window {
     MathJax?: {
       typesetPromise?: (elements?: HTMLElement[]) => Promise<void>;
@@ -206,7 +233,12 @@ export default function ProblemsPage() {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderText, setPlaceholderText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const dictationBaseRef = useRef("");
+  const inputRef = useRef("");
   const placeholderExamples = [
     "Doubt: How to improve rank from 15k to 8k in 60 days?",
     "Doubt: Explain why SN1 prefers polar protic solvents.",
@@ -226,6 +258,7 @@ export default function ProblemsPage() {
     const assistantId = crypto.randomUUID();
     setMessages((prev) => [...prev, userMessage, { id: assistantId, role: "assistant", text: "" }]);
     setInput("");
+    inputRef.current = "";
     setLoading(true);
 
     try {
@@ -298,6 +331,57 @@ export default function ProblemsPage() {
   }, [messages, loading]);
 
   useEffect(() => {
+    inputRef.current = input;
+  }, [input]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor) {
+      return;
+    }
+
+    const recognition = new SpeechRecognitionCtor();
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceError("");
+      dictationBaseRef.current = inputRef.current;
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event) => {
+      setVoiceError(event.error || "Voice input failed.");
+      setIsListening(false);
+    };
+
+    recognition.onresult = (event) => {
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        transcript += event.results[i][0]?.transcript ?? "";
+      }
+      const merged = `${dictationBaseRef.current} ${transcript}`.trim();
+      setInput(merged);
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      recognition.stop();
+      recognitionRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
     const current = placeholderExamples[placeholderIndex];
     const doneTyping = placeholderText === current;
     const doneDeleting = placeholderText.length === 0;
@@ -336,8 +420,26 @@ export default function ProblemsPage() {
 
   const handleTextChange = (value: string, element: HTMLTextAreaElement) => {
     setInput(value);
+    dictationBaseRef.current = value;
+    inputRef.current = value;
     element.style.height = "0px";
     element.style.height = `${Math.min(element.scrollHeight, 220)}px`;
+  };
+
+  const toggleVoiceInput = () => {
+    const recognition = recognitionRef.current;
+    if (!recognition) {
+      setVoiceError("Voice input is not supported in this browser.");
+      return;
+    }
+
+    setVoiceError("");
+    if (isListening) {
+      recognition.stop();
+      return;
+    }
+    dictationBaseRef.current = inputRef.current;
+    recognition.start();
   };
 
   return (
@@ -384,6 +486,14 @@ export default function ProblemsPage() {
               onChange={(event) => handleTextChange(event.target.value, event.currentTarget)}
               placeholder={placeholderText || " "}
             />
+            <button
+              className={`btn btn-outline voice-btn ${isListening ? "voice-btn-live" : ""}`}
+              type="button"
+              aria-label="Voice to text"
+              onClick={toggleVoiceInput}
+            >
+              <MicIcon size={16} />
+            </button>
             <button className="btn btn-solid send-btn" type="submit" aria-label="Send prompt" disabled={loading}>
               <SendIcon size={16} />
             </button>
@@ -398,11 +508,20 @@ export default function ProblemsPage() {
             onChange={(event) => handleTextChange(event.target.value, event.currentTarget)}
             placeholder={placeholderText || " "}
           />
+          <button
+            className={`btn btn-outline voice-btn ${isListening ? "voice-btn-live" : ""}`}
+            type="button"
+            aria-label="Voice to text"
+            onClick={toggleVoiceInput}
+          >
+            <MicIcon size={16} />
+          </button>
           <button className="btn btn-solid send-btn" type="submit" aria-label="Send prompt" disabled={loading}>
             <SendIcon size={16} />
           </button>
         </form>
       ) : null}
+      {voiceError ? <p className="voice-error">{voiceError}</p> : null}
     </section>
   );
 }
