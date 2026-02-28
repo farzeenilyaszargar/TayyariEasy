@@ -534,6 +534,10 @@ small {
   gap: 10px;
 }
 
+.feature-copy h3 {
+  font-size: 1.4rem;
+}
+
 .review-card {
   display: grid;
   gap: 10px;
