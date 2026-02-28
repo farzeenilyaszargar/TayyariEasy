@@ -1,9 +1,10 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
-import { BoltIcon, SearchIcon } from "@/components/ui-icons";
+import { BoltIcon } from "@/components/ui-icons";
 import {
   getOAuthErrorFromHash,
   hasSupabaseConfig,
@@ -96,7 +97,7 @@ export default function LoginPage() {
 
           <div className="login-actions">
             <button className="btn btn-solid login-google" onClick={onGoogleSignIn} disabled={loading !== null}>
-              <SearchIcon size={15} />
+              <Image src="/google.png" alt="" width={16} height={16} className="login-google-icon" />
               {loading === "google" ? "Redirecting..." : "Continue with Google"}
             </button>
           </div>

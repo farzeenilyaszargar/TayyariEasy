@@ -1181,6 +1181,12 @@ button.subject-tag {
   gap: 8px;
 }
 
+.login-google-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
 .login-divider {
   display: flex;
   align-items: center;
