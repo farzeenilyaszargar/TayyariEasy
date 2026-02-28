@@ -1,41 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { resources, type SubjectTag } from "@/lib/data";
 import { DownloadIcon, SearchIcon } from "@/components/ui-icons";
-import { fetchPublicResources, type ResourceRow, type SubjectTag } from "@/lib/supabase-db";
+
+const subjects: SubjectTag[] = ["Physics", "Chemistry", "Mathematics"];
+const categories = ["Roadmaps", "Strategies", "Notes", "Books", "Problems", "PYQs"] as const;
 
 export default function ResourcesPage() {
   const [query, setQuery] = useState("");
   const [subject, setSubject] = useState<SubjectTag | "All">("All");
-  const [resources, setResources] = useState<ResourceRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    let alive = true;
-    const run = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const rows = await fetchPublicResources();
-        if (alive) {
-          setResources(rows);
-        }
-      } catch (err) {
-        if (alive) {
-          setError(err instanceof Error ? err.message : "Failed to load resources from Supabase.");
-        }
-      } finally {
-        if (alive) {
-          setLoading(false);
-        }
-      }
-    };
-    void run();
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   const filteredResources = useMemo(
     () =>
@@ -46,17 +20,7 @@ export default function ResourcesPage() {
             resource.category.toLowerCase().includes(query.toLowerCase())) &&
           (subject === "All" || resource.subject === subject)
       ),
-    [resources, query, subject]
-  );
-
-  const subjects = useMemo(
-    () => Array.from(new Set(resources.map((item) => item.subject))) as SubjectTag[],
-    [resources]
-  );
-
-  const categories = useMemo(
-    () => Array.from(new Set(filteredResources.map((item) => item.category))),
-    [filteredResources]
+    [query, subject]
   );
 
   const grouped = useMemo(
@@ -102,9 +66,7 @@ export default function ResourcesPage() {
         </div>
       </div>
 
-      {loading ? <article className="card">Loading resources from Supabase...</article> : null}
-      {error ? <article className="card">{error}</article> : null}
-      {!loading && grouped.length === 0 ? <article className="card empty-state">No resources found.</article> : null}
+      {grouped.length === 0 ? <article className="card empty-state">No resources found.</article> : null}
 
       {grouped.map((section) => (
         <section key={section.category} className="resource-section">
@@ -115,7 +77,7 @@ export default function ResourcesPage() {
 
           <div className="grid-2">
             {section.items.map((resource) => (
-              <article key={resource.id} className="card resource-card resource-rich-card">
+              <article key={resource.title} className="card resource-card resource-rich-card">
                 <div className="resource-head">
                   <span className={`tiny-icon subject-dot ${resource.subject.toLowerCase()}`}>{resource.subject[0]}</span>
                   <span className={`subject-tag ${resource.subject.toLowerCase()}`}>{resource.subject}</span>
