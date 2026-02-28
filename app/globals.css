@@ -594,6 +594,20 @@ small {
   grid-column: span 6;
 }
 
+.dashboard-half {
+  grid-column: span 6;
+  min-height: 300px;
+}
+
+.dashboard-tests,
+.dashboard-ai {
+  min-width: 0;
+}
+
+.dashboard-status {
+  grid-column: span 12;
+}
+
 .point-meter {
   margin: 14px 0 20px;
   padding: 14px;
@@ -632,6 +646,7 @@ small {
 
 .table-wrap {
   overflow-x: auto;
+  width: 100%;
 }
 
 table {
@@ -1709,6 +1724,8 @@ button.subject-tag {
 
   .stat-card,
   .badge-card,
+  .dashboard-half,
+  .dashboard-status,
   .dashboard-grid > .card:nth-child(4),
   .dashboard-grid > .card:nth-child(5) {
     grid-column: span 1;

@@ -84,11 +84,11 @@ export function Dashboard() {
   const rankRange =
     analytics && analytics.predicted_rank_low != null && analytics.predicted_rank_high != null
       ? `${analytics.predicted_rank_low} - ${analytics.predicted_rank_high}`
-      : "Not available";
+      : "Take a test";
   const scoreRange =
     analytics && analytics.estimated_score_low != null && analytics.estimated_score_high != null
       ? `${analytics.estimated_score_low} - ${analytics.estimated_score_high}`
-      : "Not available";
+      : "Take a test";
 
   const runCoachAnalysis = async () => {
     setCoachLoading(true);
@@ -149,9 +149,9 @@ export function Dashboard() {
         <h2>
           {analytics && analytics.predicted_rank_low != null && analytics.predicted_rank_high != null
             ? `${analytics.predicted_rank_low.toLocaleString()} - ${analytics.predicted_rank_high.toLocaleString()}`
-            : "Not available"}
+            : "Take a test"}
         </h2>
-        <p className="muted">Live from Supabase analytics.</p>
+        <p className="muted">{analytics ? "Live from Supabase analytics." : "Take a full test to generate rank prediction."}</p>
       </section>
 
       <section className="card stat-card stat-score">
@@ -160,9 +160,9 @@ export function Dashboard() {
         <h2>
           {analytics && analytics.estimated_score_low != null && analytics.estimated_score_high != null
             ? `${analytics.estimated_score_low} - ${analytics.estimated_score_high}`
-            : "Not available"}
+            : "Take a test"}
         </h2>
-        <p className="muted">Confidence: {analytics?.confidence_label || "Not available"}</p>
+        <p className="muted">Confidence: {analytics?.confidence_label || "Take a test"}</p>
       </section>
 
       <section className="card badge-card">
@@ -180,23 +180,23 @@ export function Dashboard() {
               </div>
             ))
           ) : (
-            <p className="muted">No badges earned yet.</p>
+            <p className="muted">Take a test to start earning badges.</p>
           )}
         </div>
       </section>
 
-      <section className="card">
+      <section className="card dashboard-half dashboard-graph">
         <h3>Performance Graph</h3>
         <svg className="graph-svg" viewBox="0 0 420 190" role="img" aria-label="Score progress graph">
           <polyline className="graph-axis" points="40,20 40,160 390,160" />
           <polyline className="graph-path" points={graphPath} />
         </svg>
         <p className="muted">
-          {growth === null ? "Not enough test attempts to compute trend." : `Last trend change: ${growth >= 0 ? "+" : ""}${growth.toFixed(1)} marks`}
+          {growth === null ? "Take a test to unlock performance trend." : `Last trend change: ${growth >= 0 ? "+" : ""}${growth.toFixed(1)} marks`}
         </p>
       </section>
 
-      <section className="card">
+      <section className="card dashboard-half dashboard-tests">
         <h3>Tests Taken</h3>
         <div className="table-wrap">
           <table>
@@ -221,7 +221,7 @@ export function Dashboard() {
               ) : (
                 <tr>
                   <td colSpan={4} className="muted">
-                    No test attempts found in Supabase.
+                    Take a test to populate this section.
                   </td>
                 </tr>
               )}
@@ -230,13 +230,13 @@ export function Dashboard() {
         </div>
       </section>
 
-      <section className="card">
+      <section className="card dashboard-half dashboard-ai">
         <h3>AI Analysis</h3>
         <ul className="insight-list">
           {data.insights.length > 0 ? (
             data.insights.map((item) => <li key={item.id}>{item.insight}</li>)
           ) : (
-            <li className="muted">No AI insights found in Supabase.</li>
+            <li className="muted">Take a test to generate AI insights.</li>
           )}
         </ul>
         <div className="cta-row">
@@ -249,13 +249,13 @@ export function Dashboard() {
       </section>
 
       {loading ? (
-        <section className="card">
+        <section className="card dashboard-status">
           <p className="muted">Loading dashboard from Supabase...</p>
         </section>
       ) : null}
 
       {error ? (
-        <section className="card">
+        <section className="card dashboard-status">
           <p className="muted">{error}</p>
         </section>
       ) : null}
