@@ -554,6 +554,33 @@ small {
   background: #f8f9fb;
 }
 
+.profile-card {
+  grid-column: span 12;
+}
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.profile-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.profile-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #eceff4;
+  color: #2f3645;
+  font-weight: 700;
+}
+
 .badge-card {
   grid-column: span 12;
 }

@@ -1,12 +1,14 @@
 "use client";
 
-type SupabaseUser = {
+export type SupabaseUser = {
   id: string;
   email?: string;
   phone?: string;
   user_metadata?: {
     full_name?: string;
     name?: string;
+    avatar_url?: string;
+    picture?: string;
   };
 };
 
@@ -41,6 +43,14 @@ function getHeaders(token?: string) {
     apikey: SUPABASE_ANON_KEY ?? "",
     ...(token ? { Authorization: `Bearer ${token}` } : {})
   };
+}
+
+export function getSupabaseUrl() {
+  return SUPABASE_URL ?? "";
+}
+
+export function getSupabaseAnonKey() {
+  return SUPABASE_ANON_KEY ?? "";
 }
 
 function saveSession(payload: SessionPayload) {

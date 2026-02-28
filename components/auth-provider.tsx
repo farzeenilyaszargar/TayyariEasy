@@ -10,8 +10,10 @@ import {
 } from "@/lib/supabase-auth";
 
 type UserState = {
+  id: string | null;
   name: string;
   points: number;
+  avatarUrl: string | null;
 };
 
 type AuthContextType = {
@@ -22,8 +24,10 @@ type AuthContextType = {
 };
 
 const defaultUser: UserState = {
+  id: null,
   name: "Aspirant",
-  points: 10320
+  points: 10320,
+  avatarUrl: null
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -66,18 +70,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       try {
         const supabaseUser = await fetchSupabaseUser(session.accessToken);
+        const metadata = supabaseUser.user_metadata ?? {};
         const name =
-          supabaseUser.user_metadata?.full_name ||
-          supabaseUser.user_metadata?.name ||
+          metadata.full_name ||
+          metadata.name ||
           supabaseUser.email ||
           supabaseUser.phone ||
           defaultUser.name;
+        const avatarUrl = metadata.avatar_url || metadata.picture || null;
 
         if (alive) {
           setIsLoggedIn(true);
           setUser({
+            id: supabaseUser.id ?? null,
             name,
-            points: defaultUser.points
+            points: defaultUser.points,
+            avatarUrl
           });
         }
       } catch {
