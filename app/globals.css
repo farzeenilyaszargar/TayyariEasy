@@ -651,6 +651,17 @@ td {
   gap: 10px;
 }
 
+.coach-analysis {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fafbfc;
+  padding: 12px;
+  white-space: pre-wrap;
+  font: inherit;
+  line-height: 1.6;
+}
+
 .list-clean {
   margin: 16px 0 0;
   padding: 0;

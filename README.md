@@ -24,6 +24,8 @@ Open http://localhost:3000
 2. Fill:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `DEEPSEEK_API_KEY`
+   - optional: `DEEPSEEK_MODEL` (default `deepseek-chat`)
 3. In Supabase dashboard:
    - Enable Google provider in `Authentication -> Providers`.
    - Enable Phone provider (OTP/SMS).
@@ -33,3 +35,10 @@ Open http://localhost:3000
    - Re-run this SQL after pulling latest schema changes.
 
 Then use `/login` for Google sign-in or phone OTP auth.
+
+## AI Endpoints
+
+- `POST /api/ai/problems` for problems chat
+- `POST /api/ai/dashboard` for dashboard coach analysis
+
+Both use the server-side DeepSeek key from `.env.local`.

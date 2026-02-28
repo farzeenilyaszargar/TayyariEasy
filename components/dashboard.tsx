@@ -35,6 +35,9 @@ export function Dashboard() {
   const [data, setData] = useState<DashboardPayload>(emptyData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [coachLoading, setCoachLoading] = useState(false);
+  const [coachError, setCoachError] = useState("");
+  const [coachAnalysis, setCoachAnalysis] = useState("");
 
   useEffect(() => {
     let alive = true;
@@ -78,6 +81,48 @@ export function Dashboard() {
   const latestScore = scoreSeries[scoreSeries.length - 1] ?? null;
   const growth = firstScore !== null && latestScore !== null ? latestScore - firstScore : null;
   const analytics = data.analytics;
+  const rankRange =
+    analytics && analytics.predicted_rank_low != null && analytics.predicted_rank_high != null
+      ? `${analytics.predicted_rank_low} - ${analytics.predicted_rank_high}`
+      : "Not available";
+  const scoreRange =
+    analytics && analytics.estimated_score_low != null && analytics.estimated_score_high != null
+      ? `${analytics.estimated_score_low} - ${analytics.estimated_score_high}`
+      : "Not available";
+
+  const runCoachAnalysis = async () => {
+    setCoachLoading(true);
+    setCoachError("");
+    try {
+      const response = await fetch("/api/ai/dashboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          rankRange,
+          scoreRange,
+          confidence: analytics?.confidence_label || "Not available",
+          points: data.profile?.points ?? 0,
+          streak: data.profile?.current_streak ?? 0,
+          testsCompleted: data.profile?.tests_completed ?? 0,
+          recentScores: data.tests.slice(0, 8).map((item) => Number(item.score)).filter((n) => !Number.isNaN(n)),
+          insights: data.insights.map((item) => item.insight)
+        })
+      });
+
+      const payload = (await response.json()) as { analysis?: string; error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error || "AI coach request failed.");
+      }
+
+      setCoachAnalysis(payload.analysis || "");
+    } catch (err) {
+      setCoachError(err instanceof Error ? err.message : "Unable to generate AI analysis.");
+    } finally {
+      setCoachLoading(false);
+    }
+  };
 
   return (
     <div className="dashboard-grid">
@@ -194,6 +239,13 @@ export function Dashboard() {
             <li className="muted">No AI insights found in Supabase.</li>
           )}
         </ul>
+        <div className="cta-row">
+          <button className="btn btn-solid" onClick={() => void runCoachAnalysis()} disabled={coachLoading}>
+            {coachLoading ? "Analyzing..." : "Generate AI Coach Analysis"}
+          </button>
+        </div>
+        {coachError ? <p className="muted">{coachError}</p> : null}
+        {coachAnalysis ? <pre className="coach-analysis">{coachAnalysis}</pre> : null}
       </section>
 
       {loading ? (

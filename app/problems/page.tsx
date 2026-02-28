@@ -11,22 +11,47 @@ type Message = {
 export default function ProblemsPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
-  const onSubmit = (event: FormEvent) => {
+  const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!input.trim()) {
+    const prompt = input.trim();
+    if (!prompt || loading) {
       return;
     }
 
-    const userMessage: Message = { role: "user", text: input.trim() };
-    const botMessage: Message = {
-      role: "assistant",
-      text: "Solve with first-principles and check units at each step. In full backend mode, this area will include scraped references and confidence score."
-    };
-
-    setMessages((prev) => [...prev, userMessage, botMessage]);
+    const userMessage: Message = { role: "user", text: prompt };
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/ai/problems", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ prompt })
+      });
+
+      const payload = (await response.json()) as { reply?: string; error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error || "AI request failed.");
+      }
+
+      setMessages((prev) => [...prev, { role: "assistant", text: payload.reply || "No response." }]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: err instanceof Error ? err.message : "Unable to fetch AI response right now."
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -68,7 +93,7 @@ export default function ProblemsPage() {
               onChange={(event) => handleTextChange(event.target.value, event.currentTarget)}
               placeholder="Example: Explain why SN1 reaction prefers polar protic solvent"
             />
-            <button className="btn btn-solid send-btn" type="submit" aria-label="Send prompt">
+            <button className="btn btn-solid send-btn" type="submit" aria-label="Send prompt" disabled={loading}>
               <SendIcon size={16} />
             </button>
           </form>
@@ -82,7 +107,7 @@ export default function ProblemsPage() {
             onChange={(event) => handleTextChange(event.target.value, event.currentTarget)}
             placeholder="Example: Explain why SN1 reaction prefers polar protic solvent"
           />
-          <button className="btn btn-solid send-btn" type="submit" aria-label="Send prompt">
+          <button className="btn btn-solid send-btn" type="submit" aria-label="Send prompt" disabled={loading}>
             <SendIcon size={16} />
           </button>
         </form>
