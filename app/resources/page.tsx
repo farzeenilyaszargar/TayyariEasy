@@ -4,9 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { DownloadIcon, SearchIcon } from "@/components/ui-icons";
 import { fetchPublicResources, type ResourceRow, type SubjectTag } from "@/lib/supabase-db";
 
-const subjects: SubjectTag[] = ["Physics", "Chemistry", "Mathematics"];
-const categories = ["Roadmaps", "Strategies", "Notes", "Books", "Problems", "PYQs"] as const;
-
 export default function ResourcesPage() {
   const [query, setQuery] = useState("");
   const [subject, setSubject] = useState<SubjectTag | "All">("All");
@@ -50,6 +47,16 @@ export default function ResourcesPage() {
           (subject === "All" || resource.subject === subject)
       ),
     [resources, query, subject]
+  );
+
+  const subjects = useMemo(
+    () => Array.from(new Set(resources.map((item) => item.subject))) as SubjectTag[],
+    [resources]
+  );
+
+  const categories = useMemo(
+    () => Array.from(new Set(filteredResources.map((item) => item.category))),
+    [filteredResources]
   );
 
   const grouped = useMemo(
