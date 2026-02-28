@@ -8,7 +8,7 @@ import { BookIcon, ChatIcon, FlaskIcon, HomeIcon, TrophyIcon } from "@/component
 const links = [
   { href: "/", label: "Home", icon: HomeIcon },
   { href: "/tests", label: "Tests", icon: FlaskIcon },
-  { href: "/problems", label: "Problems", icon: ChatIcon },
+  { href: "/problems", label: "Doubts", icon: ChatIcon },
   { href: "/leaderboards", label: "Leaderboards", icon: TrophyIcon },
   { href: "/resources", label: "Resources", icon: BookIcon }
 ];

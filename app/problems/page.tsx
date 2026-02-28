@@ -203,7 +203,17 @@ export default function ProblemsPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderText, setPlaceholderText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const placeholderExamples = [
+    "Doubt: How to improve rank from 15k to 8k in 60 days?",
+    "Doubt: Explain why SN1 prefers polar protic solvents.",
+    "Doubt: Give a fast method for limits with indeterminate forms.",
+    "Doubt: How should I split revision and mocks this week?",
+    "Doubt: Solve this kinematics question step-by-step."
+  ];
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -287,6 +297,43 @@ export default function ProblemsPage() {
     void window.MathJax.typesetPromise();
   }, [messages, loading]);
 
+  useEffect(() => {
+    const current = placeholderExamples[placeholderIndex];
+    const doneTyping = placeholderText === current;
+    const doneDeleting = placeholderText.length === 0;
+
+    let delay = 55;
+    if (doneTyping && !isDeleting) {
+      delay = 1200;
+    } else if (isDeleting) {
+      delay = 26;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (!isDeleting && !doneTyping) {
+        setPlaceholderText(current.slice(0, placeholderText.length + 1));
+        return;
+      }
+
+      if (!isDeleting && doneTyping) {
+        setIsDeleting(true);
+        return;
+      }
+
+      if (isDeleting && !doneDeleting) {
+        setPlaceholderText(current.slice(0, placeholderText.length - 1));
+        return;
+      }
+
+      if (isDeleting && doneDeleting) {
+        setIsDeleting(false);
+        setPlaceholderIndex((prev) => (prev + 1) % placeholderExamples.length);
+      }
+    }, delay);
+
+    return () => window.clearTimeout(timer);
+  }, [isDeleting, placeholderExamples, placeholderIndex, placeholderText]);
+
   const handleTextChange = (value: string, element: HTMLTextAreaElement) => {
     setInput(value);
     element.style.height = "0px";
@@ -325,8 +372,8 @@ export default function ProblemsPage() {
           </div>
         ) : (
           <div className="initial-prompt-head">
-            <p className="eyebrow">Problems Chat</p>
-            <h1>Ask Any Concept or Numerical Problem</h1>
+            <p className="eyebrow">Doubts Chat</p>
+            <h1>Ask Any Concept or Numerical Doubt</h1>
           </div>
         )}
         {messages.length === 0 ? (
@@ -335,7 +382,7 @@ export default function ProblemsPage() {
               value={input}
               rows={1}
               onChange={(event) => handleTextChange(event.target.value, event.currentTarget)}
-              placeholder="Example: Explain why SN1 reaction prefers polar protic solvent"
+              placeholder={placeholderText || " "}
             />
             <button className="btn btn-solid send-btn" type="submit" aria-label="Send prompt" disabled={loading}>
               <SendIcon size={16} />
@@ -349,7 +396,7 @@ export default function ProblemsPage() {
             value={input}
             rows={1}
             onChange={(event) => handleTextChange(event.target.value, event.currentTarget)}
-            placeholder="Example: Explain why SN1 reaction prefers polar protic solvent"
+            placeholder={placeholderText || " "}
           />
           <button className="btn btn-solid send-btn" type="submit" aria-label="Send prompt" disabled={loading}>
             <SendIcon size={16} />
