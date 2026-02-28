@@ -1,16 +1,65 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/components/auth-provider";
 import { AwardIcon, SearchIcon } from "@/components/ui-icons";
-import {
-  createTestAttempt,
-  fetchPublicTests,
-  type SubjectTag,
-  type TestCatalogRow
-} from "@/lib/supabase-db";
 
-const subjects: SubjectTag[] = ["Physics", "Chemistry", "Mathematics"];
+type LocalTest = {
+  id: string;
+  name: string;
+  category: "General" | "Basic";
+  avgScore: number;
+  difficulty: "Easy" | "Medium";
+  attempts: number;
+  icon: string;
+};
+
+type SavedAttempt = {
+  testName: string;
+  score: number;
+  percentile: number;
+  date: string;
+};
+
+const LOCAL_ATTEMPTS_KEY = "tayyari-local-test-attempts";
+
+const tests: LocalTest[] = [
+  {
+    id: "general-1",
+    name: "General Practice Test 1",
+    category: "General",
+    avgScore: 162,
+    difficulty: "Medium",
+    attempts: 420,
+    icon: "G"
+  },
+  {
+    id: "general-2",
+    name: "General Practice Test 2",
+    category: "General",
+    avgScore: 171,
+    difficulty: "Medium",
+    attempts: 338,
+    icon: "G"
+  },
+  {
+    id: "basic-1",
+    name: "Basic Foundation Test 1",
+    category: "Basic",
+    avgScore: 118,
+    difficulty: "Easy",
+    attempts: 507,
+    icon: "B"
+  },
+  {
+    id: "basic-2",
+    name: "Basic Foundation Test 2",
+    category: "Basic",
+    avgScore: 126,
+    difficulty: "Easy",
+    attempts: 446,
+    icon: "B"
+  }
+];
 
 const demoQuestions = [
   {
@@ -30,22 +79,22 @@ const demoQuestions = [
   }
 ];
 
-function TestCardView({ test, cta, onAttempt }: { test: TestCatalogRow; cta: string; onAttempt: (test: TestCatalogRow) => void }) {
+function TestCardView({ test, onAttempt }: { test: LocalTest; onAttempt: (test: LocalTest) => void }) {
   return (
     <li className="test-card test-card-attractive">
       <div className="test-card-head">
-        <span className={`tiny-icon subject-dot ${test.subject.toLowerCase()}`}>{test.icon}</span>
-        <span className={`subject-tag ${test.subject.toLowerCase()}`}>{test.subject}</span>
+        <span className="tiny-icon">{test.icon}</span>
+        <span className="subject-tag">{test.category}</span>
       </div>
       <strong>{test.name}</strong>
       <div className="test-stats">
-        <span>Avg score: {test.avg_score}</span>
+        <span>Avg score: {test.avgScore}</span>
         <span>Difficulty: {test.difficulty}</span>
         <span>Attempts: {test.attempts}</span>
       </div>
       <div className="test-cta-row">
         <button className="btn btn-solid" onClick={() => onAttempt(test)}>
-          {cta}
+          Attempt
         </button>
       </div>
     </li>
@@ -53,59 +102,39 @@ function TestCardView({ test, cta, onAttempt }: { test: TestCatalogRow; cta: str
 }
 
 export default function TestsPage() {
-  const { user } = useAuth();
   const [query, setQuery] = useState("");
-  const [subject, setSubject] = useState<SubjectTag | "All">("All");
-  const [allTests, setAllTests] = useState<TestCatalogRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [activeTest, setActiveTest] = useState<TestCatalogRow | null>(null);
+  const [category, setCategory] = useState<"All" | "General" | "Basic">("All");
+  const [activeTest, setActiveTest] = useState<LocalTest | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selected, setSelected] = useState<string>("");
   const [finished, setFinished] = useState(false);
   const [correct, setCorrect] = useState(0);
-  const [savingAttempt, setSavingAttempt] = useState(false);
+  const [savedAttempts, setSavedAttempts] = useState<SavedAttempt[]>([]);
 
   useEffect(() => {
-    let alive = true;
-    const run = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const rows = await fetchPublicTests();
-        if (alive) {
-          setAllTests(rows);
-        }
-      } catch (err) {
-        if (alive) {
-          setError(err instanceof Error ? err.message : "Failed to load tests from Supabase.");
-        }
-      } finally {
-        if (alive) {
-          setLoading(false);
-        }
-      }
-    };
-    void run();
-    return () => {
-      alive = false;
-    };
+    const raw = window.localStorage.getItem(LOCAL_ATTEMPTS_KEY);
+    if (!raw) {
+      return;
+    }
+    try {
+      const parsed = JSON.parse(raw) as SavedAttempt[];
+      setSavedAttempts(parsed);
+    } catch {
+      setSavedAttempts([]);
+    }
   }, []);
 
-  const matches = (name: string, itemSubject: SubjectTag) =>
-    name.toLowerCase().includes(query.toLowerCase()) && (subject === "All" || itemSubject === subject);
-
-  const filteredTopicTests = useMemo(
-    () => allTests.filter((test) => test.type === "Topic" && matches(test.name, test.subject)),
-    [allTests, query, subject]
+  const filtered = useMemo(
+    () =>
+      tests.filter(
+        (test) =>
+          test.name.toLowerCase().includes(query.toLowerCase()) &&
+          (category === "All" || test.category === category)
+      ),
+    [query, category]
   );
 
-  const filteredFullTests = useMemo(
-    () => allTests.filter((test) => test.type === "Full" && matches(test.name, test.subject)),
-    [allTests, query, subject]
-  );
-
-  const startDemo = (test: TestCatalogRow) => {
+  const startDemo = (test: LocalTest) => {
     setActiveTest(test);
     setQuestionIndex(0);
     setSelected("");
@@ -119,10 +148,9 @@ export default function TestsPage() {
     setSelected("");
     setFinished(false);
     setCorrect(0);
-    setSavingAttempt(false);
   };
 
-  const onNext = async () => {
+  const onNext = () => {
     const current = demoQuestions[questionIndex];
     const isCorrect = current.options[current.answerIndex] === selected;
     const nextCorrect = correct + (isCorrect ? 1 : 0);
@@ -131,20 +159,18 @@ export default function TestsPage() {
       setCorrect(nextCorrect);
       setFinished(true);
 
-      if (user.id && activeTest) {
-        setSavingAttempt(true);
+      if (activeTest) {
         const score = Math.round((nextCorrect / demoQuestions.length) * 300);
         const percentile = Math.round((nextCorrect / demoQuestions.length) * 10000) / 100;
-        try {
-          await createTestAttempt({
-            userId: user.id,
-            testName: activeTest.name,
-            score,
-            percentile
-          });
-        } finally {
-          setSavingAttempt(false);
-        }
+        const saved: SavedAttempt = {
+          testName: activeTest.name,
+          score,
+          percentile,
+          date: new Date().toISOString().slice(0, 10)
+        };
+        const updated = [saved, ...savedAttempts].slice(0, 10);
+        setSavedAttempts(updated);
+        window.localStorage.setItem(LOCAL_ATTEMPTS_KEY, JSON.stringify(updated));
       }
       return;
     }
@@ -160,7 +186,7 @@ export default function TestsPage() {
     <section className="page">
       <div className="page-head">
         <p className="eyebrow">Tests</p>
-        <h1>Topic-Wise and Full-Syllabus Practice</h1>
+        <h1>General and Basic Tests (Local Mode)</h1>
       </div>
 
       <div className="search-row card tests-search-box">
@@ -169,51 +195,72 @@ export default function TestsPage() {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search tests by chapter or exam pattern"
+            placeholder="Search general or basic tests"
           />
         </div>
         <div className="tag-filter">
-          <button className={`subject-tag ${subject === "All" ? "active" : ""}`} onClick={() => setSubject("All")}>
+          <button className={`subject-tag ${category === "All" ? "active" : ""}`} onClick={() => setCategory("All")}>
             All
           </button>
-          {subjects.map((item) => (
-            <button
-              key={item}
-              className={`subject-tag ${item.toLowerCase()} ${subject === item ? "active" : ""}`}
-              onClick={() => setSubject(item)}
-            >
-              {item}
-            </button>
-          ))}
+          <button
+            className={`subject-tag ${category === "General" ? "active" : ""}`}
+            onClick={() => setCategory("General")}
+          >
+            General
+          </button>
+          <button
+            className={`subject-tag ${category === "Basic" ? "active" : ""}`}
+            onClick={() => setCategory("Basic")}
+          >
+            Basic
+          </button>
         </div>
       </div>
 
-      {loading ? <article className="card">Loading tests from Supabase...</article> : null}
-      {error ? <article className="card">{error}</article> : null}
+      <article className="card">
+        <h3>Available Tests</h3>
+        <p className="muted">Local testing mode active. Scores are saved in your browser only.</p>
+        <ul className="test-list">
+          {filtered.map((test) => (
+            <TestCardView key={test.id} test={test} onAttempt={startDemo} />
+          ))}
+          {filtered.length === 0 ? <li className="empty-state">No tests found.</li> : null}
+        </ul>
+      </article>
 
-      <div className="grid-2 tests-grid-gap">
-        <article className="card">
-          <h3>Topic-Wise Tests</h3>
-          <p className="muted">Sharpen weak areas with short, focused, chapter-level assessments.</p>
-          <ul className="test-list">
-            {filteredTopicTests.map((test) => (
-              <TestCardView key={test.id} test={test} cta="Attempt" onAttempt={startDemo} />
-            ))}
-            {!loading && filteredTopicTests.length === 0 ? <li className="empty-state">No topic tests found.</li> : null}
-          </ul>
-        </article>
-
-        <article className="card">
-          <h3>Full-Syllabus Tests</h3>
-          <p className="muted">Simulate real exam pressure and improve time strategy.</p>
-          <ul className="test-list">
-            {filteredFullTests.map((test) => (
-              <TestCardView key={test.id} test={test} cta="Start" onAttempt={startDemo} />
-            ))}
-            {!loading && filteredFullTests.length === 0 ? <li className="empty-state">No full tests found.</li> : null}
-          </ul>
-        </article>
-      </div>
+      <article className="card" style={{ marginTop: "16px" }}>
+        <h3>Recent Local Scores</h3>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Test</th>
+                <th>Date</th>
+                <th>Score</th>
+                <th>Percentile</th>
+              </tr>
+            </thead>
+            <tbody>
+              {savedAttempts.length > 0 ? (
+                savedAttempts.map((attempt, idx) => (
+                  <tr key={`${attempt.testName}-${attempt.date}-${idx}`}>
+                    <td>{attempt.testName}</td>
+                    <td>{attempt.date}</td>
+                    <td>{attempt.score}</td>
+                    <td>{attempt.percentile}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="muted">
+                    No local attempts yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </article>
 
       {activeTest ? (
         <div className="demo-modal-backdrop" role="dialog" aria-modal="true" aria-label="Demo test interface">
@@ -237,11 +284,11 @@ export default function TestsPage() {
                 <p className="muted">
                   Correct answers: {correct}/{demoQuestions.length}
                 </p>
-                {user.id ? (
-                  <p className="muted">{savingAttempt ? "Saving attempt to Supabase..." : "Attempt saved to Supabase."}</p>
-                ) : (
-                  <p className="muted">Login to persist attempts in Supabase.</p>
-                )}
+                <p className="muted">
+                  Score: {Math.round((correct / demoQuestions.length) * 300)} | Percentile:{" "}
+                  {Math.round((correct / demoQuestions.length) * 10000) / 100}
+                </p>
+                <p className="muted">Saved locally for testing.</p>
                 <button className="btn btn-solid" onClick={closeDemo}>
                   Back to Tests
                 </button>
@@ -276,7 +323,7 @@ export default function TestsPage() {
                   <button className="btn btn-outline" onClick={closeDemo}>
                     Exit Demo
                   </button>
-                  <button className="btn btn-solid" onClick={() => void onNext()} disabled={!selected}>
+                  <button className="btn btn-solid" onClick={onNext} disabled={!selected}>
                     {questionIndex === demoQuestions.length - 1 ? "Submit" : "Next"}
                   </button>
                 </div>
