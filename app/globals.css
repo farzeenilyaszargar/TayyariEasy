@@ -1187,6 +1187,12 @@ button.subject-tag {
   object-fit: contain;
 }
 
+.login-phone-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
 .login-divider {
   display: flex;
   align-items: center;
@@ -1228,6 +1234,9 @@ button.subject-tag {
   font-size: 0.9rem;
   border-radius: 10px;
   padding: 10px 12px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .login-alert {

@@ -4,7 +4,6 @@ import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
-import { BoltIcon } from "@/components/ui-icons";
 import {
   getOAuthErrorFromHash,
   hasSupabaseConfig,
@@ -134,7 +133,7 @@ export default function LoginPage() {
               type="submit"
               disabled={loading !== null || !hasSupabaseConfig()}
             >
-              <BoltIcon size={15} />
+              <Image src="/phone.png" alt="" width={16} height={16} className="login-phone-icon" />
               {otpSent
                 ? loading === "verify"
                   ? "Verifying..."
