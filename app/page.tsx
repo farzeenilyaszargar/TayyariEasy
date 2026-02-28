@@ -218,7 +218,6 @@ function Hero() {
 
       <section className="cta-banner">
         <h2>Ready to turn preparation into measurable rank gains?</h2>
-        <p>Join the platform designed for clarity, consistency, and exam performance.</p>
         <Link href="/tests" className="btn btn-solid">
           Begin Your First Test
         </Link>

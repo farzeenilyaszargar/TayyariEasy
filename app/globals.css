@@ -620,6 +620,12 @@ small {
   text-align: center;
 }
 
+.cta-banner h2 {
+  font-size: clamp(2rem, 4.6vw, 3rem);
+  line-height: 1.08;
+  max-width: 24ch;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
