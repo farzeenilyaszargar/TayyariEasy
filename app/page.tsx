@@ -152,6 +152,27 @@ function Hero() {
 
       
 
+      <section className="home-section" id="core-features">
+        <div className="section-head">
+          <p className="eyebrow">Core Features</p>
+          <h2>Market-Leading Tools for Competitive Prep</h2>
+        </div>
+        <div className="feature-stack">
+          {highlights.map((item, idx) => {
+            const Icon = item.icon;
+            return (
+              <article key={item.title} className={`feature-row ${idx % 2 === 1 ? "feature-row-alt" : ""}`}>
+                <div className="feature-image-slot">Feature Image</div>
+                <div className="feature-copy">
+                  <h3>{item.title}</h3>
+                  <p>{item.detail}</p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
       <section className="home-section">
         <div className="section-head">
           <p className="eyebrow">Development Analytics</p>
@@ -184,27 +205,6 @@ function Hero() {
               ))}
             </div>
           </article>
-        </div>
-      </section>
-
-      <section className="home-section" id="core-features">
-        <div className="section-head">
-          <p className="eyebrow">Core Features</p>
-          <h2>Market-Leading Tools for Competitive Prep</h2>
-        </div>
-        <div className="feature-stack">
-          {highlights.map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <article key={item.title} className={`feature-row ${idx % 2 === 1 ? "feature-row-alt" : ""}`}>
-                <div className="feature-image-slot">Feature Image</div>
-                <div className="feature-copy">
-                  <h3>{item.title}</h3>
-                  <p>{item.detail}</p>
-                </div>
-              </article>
-            );
-          })}
         </div>
       </section>
 
