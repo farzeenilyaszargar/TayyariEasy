@@ -870,14 +870,6 @@ button.subject-tag {
   justify-content: flex-end;
 }
 
-.chat-row.user .chat-role-icon {
-  order: 2;
-}
-
-.chat-row.user .chat-bubble {
-  order: 1;
-}
-
 .chat-bubble.user {
   background: #1a1d22;
   color: #fff;
@@ -888,24 +880,6 @@ button.subject-tag {
   border: 1px solid #e7eaf0;
   background: #ffffff;
   color: #181d26;
-}
-
-.chat-role-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: #f6f8fb;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 28px;
-  margin-top: 2px;
-}
-
-.chat-row.user .chat-role-icon {
-  border-color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.12);
 }
 
 .chat-form {
@@ -968,10 +942,6 @@ button.subject-tag {
   background: #ffffff;
   z-index: 60;
   box-shadow: 0 14px 34px rgba(18, 21, 28, 0.12);
-}
-
-.chat-thinking {
-  color: #5b6474;
 }
 
 .md-content {

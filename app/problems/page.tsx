@@ -1,10 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { BrainIcon, SendIcon, UserIcon } from "@/components/ui-icons";
+import { SendIcon } from "@/components/ui-icons";
 import { Fragment, ReactNode } from "react";
 
 type Message = {
+  id: string;
   role: "user" | "assistant";
   text: string;
 };
@@ -164,8 +165,9 @@ export default function ProblemsPage() {
       return;
     }
 
-    const userMessage: Message = { role: "user", text: prompt };
-    setMessages((prev) => [...prev, userMessage]);
+    const userMessage: Message = { id: crypto.randomUUID(), role: "user", text: prompt };
+    const assistantId = crypto.randomUUID();
+    setMessages((prev) => [...prev, userMessage, { id: assistantId, role: "assistant", text: "" }]);
     setInput("");
     setLoading(true);
 
@@ -178,20 +180,50 @@ export default function ProblemsPage() {
         body: JSON.stringify({ prompt })
       });
 
-      const payload = (await response.json()) as { reply?: string; error?: string };
       if (!response.ok) {
+        const payload = (await response.json()) as { error?: string };
         throw new Error(payload.error || "AI request failed.");
       }
+      if (!response.body) {
+        throw new Error("No response stream received.");
+      }
 
-      setMessages((prev) => [...prev, { role: "assistant", text: payload.reply || "No response." }]);
-    } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          text: err instanceof Error ? err.message : "Unable to fetch AI response right now."
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
         }
-      ]);
+
+        const chunk = decoder.decode(value, { stream: true });
+        if (!chunk) {
+          continue;
+        }
+
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === assistantId
+              ? {
+                  ...message,
+                  text: message.text + chunk
+                }
+              : message
+          )
+        );
+      }
+    } catch (err) {
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === assistantId
+            ? {
+                ...message,
+                text: err instanceof Error ? err.message : "Unable to fetch AI response right now."
+              }
+            : message
+        )
+      );
     } finally {
       setLoading(false);
     }
@@ -212,24 +244,13 @@ export default function ProblemsPage() {
       <div className="chatbot-shell">
         {messages.length > 0 ? (
           <div className="chat-window chat-window-premium">
-            {messages.map((message, idx) => (
-              <div key={`${message.role}-${idx}`} className={`chat-row ${message.role}`}>
-                <span className="chat-role-icon">
-                  {message.role === "assistant" ? <BrainIcon size={14} /> : <UserIcon size={14} />}
-                </span>
+            {messages.map((message) => (
+              <div key={message.id} className={`chat-row ${message.role}`}>
                 <div className={`chat-bubble ${message.role}`}>
                   {message.role === "assistant" ? <MarkdownBlock text={message.text} /> : message.text}
                 </div>
               </div>
             ))}
-            {loading ? (
-              <div className="chat-row assistant">
-                <span className="chat-role-icon">
-                  <BrainIcon size={14} />
-                </span>
-                <div className="chat-bubble assistant chat-thinking">Thinking...</div>
-              </div>
-            ) : null}
             <div ref={chatEndRef} />
           </div>
         ) : (
