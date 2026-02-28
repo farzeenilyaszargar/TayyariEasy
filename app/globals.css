@@ -624,6 +624,7 @@ small {
   font-size: clamp(2rem, 4.6vw, 3rem);
   line-height: 1.08;
   max-width: 24ch;
+  margin-bottom: 8px;
 }
 
 .dashboard-grid {
