@@ -77,7 +77,13 @@ const badgePreviews = [
   { id: "chemistry", name: "Chem Master", how: "Score 90+ in two Chemistry tests in a row." },
   { id: "math", name: "Math Ace", how: "Score 90+ in two Math tests in a row." },
   { id: "comeback", name: "Comeback Clutch", how: "Improve total score by 30+ marks in 7 days." },
-  { id: "consistency", name: "Consistency Crown", how: "Keep score variance under 10 marks for 5 tests." }
+  { id: "consistency", name: "Consistency Crown", how: "Keep score variance under 10 marks for 5 tests." },
+  { id: "accuracy95", name: "Accuracy Titan", how: "Hit 95%+ accuracy in any full mock." },
+  { id: "daily7", name: "Seven Day Focus", how: "Complete at least one practice session daily for 7 days." },
+  { id: "revision", name: "Revision Master", how: "Finish 3 planned revision cycles in one week." },
+  { id: "timing", name: "Timing Tactician", how: "Finish two full tests within planned exam time." },
+  { id: "streak30", name: "Streak 30", how: "Maintain a 30-day active prep streak." },
+  { id: "allrounder", name: "All-Rounder", how: "Score above 80 in Physics, Chemistry, and Math in one mock." }
 ];
 
 function Hero() {
