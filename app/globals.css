@@ -513,7 +513,7 @@ small {
 .feature-row {
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
-  gap: 16px;
+  gap: 26px;
   align-items: center;
 }
 
