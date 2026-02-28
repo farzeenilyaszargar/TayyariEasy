@@ -1,6 +1,13 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  clearStoredSession,
+  consumeOAuthSessionFromHash,
+  fetchSupabaseUser,
+  getStoredSession,
+  signOutSupabase
+} from "@/lib/supabase-auth";
 
 type UserState = {
   name: string;
@@ -11,7 +18,7 @@ type AuthContextType = {
   isLoggedIn: boolean;
   user: UserState;
   login: () => void;
-  logout: () => void;
+  logout: () => Promise<void> | void;
 };
 
 const defaultUser: UserState = {
@@ -26,40 +33,92 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => undefined
 });
 
-const AUTH_KEY = "tayyarieasy-auth";
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<UserState>(defaultUser);
 
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
 
-    const persisted = window.localStorage.getItem(AUTH_KEY);
-    if (persisted === "1") {
-      setIsLoggedIn(true);
-    }
+    let alive = true;
+    consumeOAuthSessionFromHash();
+
+    const hydrate = async () => {
+      const session = getStoredSession();
+      if (!session) {
+        if (alive) {
+          setIsLoggedIn(false);
+          setUser(defaultUser);
+        }
+        return;
+      }
+
+      if (session.expiresAt <= Date.now()) {
+        clearStoredSession();
+        if (alive) {
+          setIsLoggedIn(false);
+          setUser(defaultUser);
+        }
+        return;
+      }
+
+      try {
+        const supabaseUser = await fetchSupabaseUser(session.accessToken);
+        const name =
+          supabaseUser.user_metadata?.full_name ||
+          supabaseUser.user_metadata?.name ||
+          supabaseUser.email ||
+          supabaseUser.phone ||
+          defaultUser.name;
+
+        if (alive) {
+          setIsLoggedIn(true);
+          setUser({
+            name,
+            points: defaultUser.points
+          });
+        }
+      } catch {
+        clearStoredSession();
+        if (alive) {
+          setIsLoggedIn(false);
+          setUser(defaultUser);
+        }
+      }
+    };
+
+    void hydrate();
+
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const login = () => {
-    setIsLoggedIn(true);
-    window.localStorage.setItem(AUTH_KEY, "1");
+    window.location.assign("/login");
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const session = getStoredSession();
+    if (session) {
+      await signOutSupabase(session.accessToken);
+    }
+    clearStoredSession();
     setIsLoggedIn(false);
-    window.localStorage.setItem(AUTH_KEY, "0");
+    setUser(defaultUser);
+    window.location.assign("/");
   };
 
   const value = useMemo(
     () => ({
       isLoggedIn,
-      user: defaultUser,
+      user,
       login,
       logout
     }),
-    [isLoggedIn]
+    [isLoggedIn, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

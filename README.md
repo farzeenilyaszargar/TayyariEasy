@@ -17,3 +17,16 @@ npm run dev
 ```
 
 Open http://localhost:3000
+
+## Supabase Auth Setup
+
+1. Create `.env.local` from `.env.example`.
+2. Fill:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. In Supabase dashboard:
+   - Enable Google provider in `Authentication -> Providers`.
+   - Enable Phone provider (OTP/SMS).
+   - Add `http://localhost:3000/login` (and production login URL) to allowed redirect URLs.
+
+Then use `/login` for Google sign-in or phone OTP auth.
