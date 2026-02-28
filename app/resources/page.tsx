@@ -2,14 +2,20 @@
 
 import { useMemo, useState } from "react";
 import { resources, type SubjectTag } from "@/lib/data";
-import { BookIcon, DownloadIcon, SearchIcon } from "@/components/ui-icons";
+import { BookIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon, SearchIcon } from "@/components/ui-icons";
 
 const subjects: SubjectTag[] = ["Physics", "Chemistry", "Mathematics"];
 const categories = ["Roadmaps", "Strategies", "Notes", "Books", "PYQs"] as const;
+const sliderCategories = new Set(["Roadmaps", "Strategies"]);
+const cardsPerSlide = 3;
 
 export default function ResourcesPage() {
   const [query, setQuery] = useState("");
   const [subject, setSubject] = useState<SubjectTag | "All">("All");
+  const [sliderStartByCategory, setSliderStartByCategory] = useState<Record<string, number>>({
+    Roadmaps: 0,
+    Strategies: 0
+  });
 
   const filteredResources = useMemo(
     () =>
@@ -70,13 +76,55 @@ export default function ResourcesPage() {
 
       {grouped.map((section) => (
         <section key={section.category} className="resource-section">
-          <div className="section-head">
+          <div className="section-head resource-section-head">
             <p className="eyebrow">{section.category}</p>
-            <h2>{section.category === "Strategies" ? "Strategy Articles" : `${section.category} Library`}</h2>
+            <h2>{section.category}</h2>
+            {sliderCategories.has(section.category) ? (
+              <div className="resource-slider-controls">
+                <button
+                  type="button"
+                  className="resource-slider-btn"
+                  aria-label={`Previous ${section.category}`}
+                  disabled={(sliderStartByCategory[section.category] ?? 0) <= 0}
+                  onClick={() =>
+                    setSliderStartByCategory((current) => ({
+                      ...current,
+                      [section.category]: Math.max((current[section.category] ?? 0) - 1, 0)
+                    }))
+                  }
+                >
+                  <ChevronLeftIcon size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="resource-slider-btn"
+                  aria-label={`Next ${section.category}`}
+                  disabled={(sliderStartByCategory[section.category] ?? 0) >= Math.max(section.items.length - cardsPerSlide, 0)}
+                  onClick={() =>
+                    setSliderStartByCategory((current) => ({
+                      ...current,
+                      [section.category]: Math.min(
+                        (current[section.category] ?? 0) + 1,
+                        Math.max(section.items.length - cardsPerSlide, 0)
+                      )
+                    }))
+                  }
+                >
+                  <ChevronRightIcon size={16} />
+                </button>
+              </div>
+            ) : null}
           </div>
 
-          <div className="grid-2">
-            {section.items.map((resource) => (
+          <div className={sliderCategories.has(section.category) ? "resource-slider-grid" : "grid-2"}>
+            {(sliderCategories.has(section.category)
+              ? section.items.slice(
+                  Math.min(sliderStartByCategory[section.category] ?? 0, Math.max(section.items.length - cardsPerSlide, 0)),
+                  Math.min(sliderStartByCategory[section.category] ?? 0, Math.max(section.items.length - cardsPerSlide, 0)) +
+                    cardsPerSlide
+                )
+              : section.items
+            ).map((resource) => (
               <article key={resource.title} className="card resource-card resource-rich-card">
                 <div className="resource-head">
                   <span className={`tiny-icon subject-dot ${resource.subject.toLowerCase()}`}>{resource.subject[0]}</span>

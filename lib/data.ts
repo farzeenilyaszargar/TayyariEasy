@@ -176,6 +176,106 @@ export const resources: ResourceItem[] = [
     href: "#"
   },
   {
+    title: "JEE Main 120-Day Complete Physics Roadmap",
+    type: "Article",
+    size: "9 min read",
+    subject: "Physics",
+    category: "Roadmaps",
+    preview: "A chapter-priority roadmap for mechanics, electrodynamics, and modern physics with built-in mock checkpoints.",
+    checklist: ["Month 1: Mechanics core", "Month 2: Waves + Thermo", "Month 3: Electro + Magnetism", "Month 4: Modern + mocks"],
+    href: "#"
+  },
+  {
+    title: "Chemistry NCERT-to-Advanced Coverage Roadmap",
+    type: "Article",
+    size: "8 min read",
+    subject: "Chemistry",
+    category: "Roadmaps",
+    preview: "A progressive roadmap to complete inorganic, organic, and physical chemistry without losing revision continuity.",
+    checklist: ["NCERT line-by-line pass", "Topic-wise PYQ blocks", "Reaction mapping every weekend"],
+    href: "#"
+  },
+  {
+    title: "45-Day Calculus Finish Plan",
+    type: "Article",
+    size: "6 min read",
+    subject: "Mathematics",
+    category: "Roadmaps",
+    preview: "A focused, low-friction plan to finish high-yield calculus chapters with daily problem targets and recap loops.",
+    checklist: ["Limits + continuity", "Differentiation + AOD", "Integration + differential equations"],
+    href: "#"
+  },
+  {
+    title: "2-Mock-Per-Week Execution Strategy",
+    type: "Article",
+    size: "6 min read",
+    subject: "Physics",
+    category: "Strategies",
+    preview: "How to structure two full tests weekly and use post-test diagnostics to gain marks within 3-4 weeks.",
+    checklist: ["Mock day + analysis day", "Error buckets by chapter", "Retest weak chapter in 72 hours"],
+    href: "#"
+  },
+  {
+    title: "Negative Marking Control Strategy",
+    type: "Article",
+    size: "5 min read",
+    subject: "Chemistry",
+    category: "Strategies",
+    preview: "A decision framework to skip trap questions early and protect your score under pressure.",
+    checklist: ["Confidence threshold rule", "60-second abandon trigger", "Final-pass sanity scan"],
+    href: "#"
+  },
+  {
+    title: "Morning vs Night Study Strategy for JEE",
+    type: "Article",
+    size: "5 min read",
+    subject: "Mathematics",
+    category: "Strategies",
+    preview: "Choose a study rhythm based on focus quality and keep consistency high using fixed test and revision windows.",
+    checklist: ["Peak-focus block for hard topics", "Low-focus slot for revision", "Daily fixed practice trigger"],
+    href: "#"
+  },
+  {
+    title: "Zero-to-80 in Physical Chemistry Strategy",
+    type: "Article",
+    size: "7 min read",
+    subject: "Chemistry",
+    category: "Strategies",
+    preview: "A practical scoring strategy for mole concept, equilibrium, and electrochemistry with formula retention techniques.",
+    checklist: ["Formula bank by chapter", "Numerical drill sets", "Error journal for calculation slips"],
+    href: "#"
+  },
+  {
+    title: "JEE Advanced Revision Roadmap (Final 6 Weeks)",
+    type: "Article",
+    size: "8 min read",
+    subject: "Physics",
+    category: "Roadmaps",
+    preview: "A high-intensity roadmap balancing concept refresh, mixed-question sets, and previous-year papers.",
+    checklist: ["Week 1-2: Concept map rebuild", "Week 3-4: Mixed advanced sets", "Week 5-6: Full advanced simulations"],
+    href: "#"
+  },
+  {
+    title: "Algebra Completion Roadmap (Starter to Strong)",
+    type: "Article",
+    size: "7 min read",
+    subject: "Mathematics",
+    category: "Roadmaps",
+    preview: "A clean algebra completion sequence covering quadratic, complex numbers, and permutations with milestone tests.",
+    checklist: ["Quadratic + sequence base", "Complex + binomial", "PnC + probability + recap test"],
+    href: "#"
+  },
+  {
+    title: "Test-Day Calm and Focus Strategy",
+    type: "Article",
+    size: "4 min read",
+    subject: "Physics",
+    category: "Strategies",
+    preview: "A repeatable routine for the final 24 hours before exam to reduce panic and keep performance stable.",
+    checklist: ["No new chapters after T-24", "Formula + error log only", "Controlled sleep and warm-up questions"],
+    href: "#"
+  },
+  {
     title: "Organic Chemistry Rapid Notes",
     type: "PDF",
     size: "2.2 MB",

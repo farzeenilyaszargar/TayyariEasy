@@ -1692,6 +1692,47 @@ button.subject-tag {
   margin-top: 26px;
 }
 
+.resource-section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.resource-section-head h2 {
+  margin-right: auto;
+}
+
+.resource-slider-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resource-slider-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fb;
+  color: #232a39;
+  cursor: pointer;
+}
+
+.resource-slider-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.resource-slider-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
 .resource-rich-card {
   gap: 12px;
 }
@@ -1818,6 +1859,7 @@ button.subject-tag {
 @media (max-width: 960px) {
   .grid-2,
   .grid-3,
+  .resource-slider-grid,
   .badge-list,
   .marketing-stats,
   .marketing-footer,
