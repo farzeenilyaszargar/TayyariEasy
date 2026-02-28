@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
-import { aiInsights, badges, testsTaken } from "@/lib/data";
 import { fetchDashboardData, type DashboardPayload } from "@/lib/supabase-db";
 
 const emptyData: DashboardPayload = {
@@ -12,6 +11,24 @@ const emptyData: DashboardPayload = {
   tests: [],
   insights: []
 };
+
+function buildGraphPoints(values: number[]) {
+  if (values.length === 0) {
+    return "40,160 390,160";
+  }
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = Math.max(1, max - min);
+
+  return values
+    .map((value, idx) => {
+      const x = 40 + (idx * 350) / Math.max(1, values.length - 1);
+      const y = 160 - ((value - min) / span) * 110;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+}
 
 export function Dashboard() {
   const { user } = useAuth();
@@ -37,7 +54,7 @@ export function Dashboard() {
         }
       } catch (err) {
         if (alive) {
-          setError("Unable to load analytics from Supabase. Showing fallback data.");
+          setError(err instanceof Error ? err.message : "Failed to load dashboard data from Supabase.");
         }
       } finally {
         if (alive) {
@@ -52,84 +69,86 @@ export function Dashboard() {
     };
   }, [user.id]);
 
-  const rankText = useMemo(() => {
-    if (data.analytics?.predicted_rank_low && data.analytics?.predicted_rank_high) {
-      return `${data.analytics.predicted_rank_low.toLocaleString()} - ${data.analytics.predicted_rank_high.toLocaleString()}`;
-    }
-    return "2,100 - 3,200";
-  }, [data.analytics]);
-
-  const scoreText = useMemo(() => {
-    if (data.analytics?.estimated_score_low && data.analytics?.estimated_score_high) {
-      return `${data.analytics.estimated_score_low} - ${data.analytics.estimated_score_high}`;
-    }
-    return "192 - 205";
-  }, [data.analytics]);
-
-  const confidenceText = data.analytics?.confidence_label ?? "Medium-High";
-  const profileName = data.profile?.full_name ?? user.name;
-  const profileAvatar = data.profile?.avatar_url ?? user.avatarUrl;
-  const points = data.profile?.points ?? user.points;
-  const streak = data.profile?.current_streak ?? 0;
-  const badgeRows = data.badges.length ? data.badges : badges.map((b, idx) => ({ id: idx + 1, badge_name: b.name, badge_detail: b.detail }));
-  const testRows = data.tests.length
-    ? data.tests.map((row) => ({
-        name: row.test_name,
-        date: row.attempted_at,
-        score: row.score,
-        percentile: row.percentile
-      }))
-    : testsTaken;
-  const insightRows = data.insights.length ? data.insights.map((i) => i.insight) : aiInsights;
+  const scoreSeries = useMemo(
+    () => data.tests.slice().reverse().map((item) => Number(item.score)).filter((item) => !Number.isNaN(item)),
+    [data.tests]
+  );
+  const graphPath = buildGraphPoints(scoreSeries);
+  const firstScore = scoreSeries[0] ?? null;
+  const latestScore = scoreSeries[scoreSeries.length - 1] ?? null;
+  const growth = firstScore !== null && latestScore !== null ? latestScore - firstScore : null;
+  const analytics = data.analytics;
 
   return (
     <div className="dashboard-grid">
       <section className="card profile-card">
         <div className="profile-head">
-          {profileAvatar ? (
-            <img src={profileAvatar} alt={`${profileName} profile`} className="profile-avatar" />
+          {user.avatarUrl ? (
+            <img src={user.avatarUrl} alt={`${user.name} profile`} className="profile-avatar" />
           ) : (
-            <div className="profile-avatar profile-avatar-fallback">{profileName.charAt(0).toUpperCase()}</div>
+            <div className="profile-avatar profile-avatar-fallback">{user.name.charAt(0).toUpperCase()}</div>
           )}
           <div>
             <p className="eyebrow">Welcome Back</p>
-            <h3>{profileName}</h3>
+            <h3>{data.profile?.full_name || user.name}</h3>
             <p className="muted">
-              {data.profile?.target_exam ?? "JEE Main & Advanced"} | {streak} day streak
+              {data.profile?.target_exam || "No target exam set"} | {data.profile?.current_streak ?? 0} day streak
             </p>
           </div>
         </div>
-        {loading ? <small>Loading profile...</small> : null}
       </section>
 
       <section className="card stat-card stat-rank">
         <p className="eyebrow">Predicted All India Rank</p>
         <span className="tiny-icon blue">R</span>
-        <h2>{rankText}</h2>
-        <p className="muted">Estimated from your latest synced test attempts.</p>
+        <h2>
+          {analytics && analytics.predicted_rank_low != null && analytics.predicted_rank_high != null
+            ? `${analytics.predicted_rank_low.toLocaleString()} - ${analytics.predicted_rank_high.toLocaleString()}`
+            : "Not available"}
+        </h2>
+        <p className="muted">Live from Supabase analytics.</p>
       </section>
 
       <section className="card stat-card stat-score">
         <p className="eyebrow">Estimated Next JEE Main Score</p>
         <span className="tiny-icon green">S</span>
-        <h2>{scoreText}</h2>
-        <p className="muted">Confidence: {confidenceText}</p>
+        <h2>
+          {analytics && analytics.estimated_score_low != null && analytics.estimated_score_high != null
+            ? `${analytics.estimated_score_low} - ${analytics.estimated_score_high}`
+            : "Not available"}
+        </h2>
+        <p className="muted">Confidence: {analytics?.confidence_label || "Not available"}</p>
       </section>
 
       <section className="card badge-card">
         <h3>Points and Badges</h3>
         <div className="point-meter" aria-label="Current points">
-          <span>{points.toLocaleString()} points</span>
-          <small>{Math.max(0, 12000 - points).toLocaleString()} points to next badge tier</small>
+          <span>{(data.profile?.points ?? 0).toLocaleString()} points</span>
+          <small>{(data.profile?.tests_completed ?? 0).toLocaleString()} tests completed</small>
         </div>
         <div className="badge-list">
-          {badgeRows.map((badge, idx) => (
-            <div key={badge.id} className={`badge-item badge-tone-${(idx % 3) + 1}`}>
-              <strong>{badge.badge_name}</strong>
-              <p>{badge.badge_detail}</p>
-            </div>
-          ))}
+          {data.badges.length > 0 ? (
+            data.badges.map((badge, idx) => (
+              <div key={badge.id} className={`badge-item badge-tone-${(idx % 3) + 1}`}>
+                <strong>{badge.badge_name}</strong>
+                <p>{badge.badge_detail}</p>
+              </div>
+            ))
+          ) : (
+            <p className="muted">No badges earned yet.</p>
+          )}
         </div>
+      </section>
+
+      <section className="card">
+        <h3>Performance Graph</h3>
+        <svg className="graph-svg" viewBox="0 0 420 190" role="img" aria-label="Score progress graph">
+          <polyline className="graph-axis" points="40,20 40,160 390,160" />
+          <polyline className="graph-path" points={graphPath} />
+        </svg>
+        <p className="muted">
+          {growth === null ? "Not enough test attempts to compute trend." : `Last trend change: ${growth >= 0 ? "+" : ""}${growth.toFixed(1)} marks`}
+        </p>
       </section>
 
       <section className="card">
@@ -145,14 +164,22 @@ export function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {testRows.map((test) => (
-                <tr key={`${test.name}-${test.date}`}>
-                  <td>{test.name}</td>
-                  <td>{test.date}</td>
-                  <td>{test.score}</td>
-                  <td>{test.percentile}</td>
+              {data.tests.length > 0 ? (
+                data.tests.map((test) => (
+                  <tr key={test.id}>
+                    <td>{test.test_name}</td>
+                    <td>{test.attempted_at}</td>
+                    <td>{test.score}</td>
+                    <td>{test.percentile}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="muted">
+                    No test attempts found in Supabase.
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -161,11 +188,19 @@ export function Dashboard() {
       <section className="card">
         <h3>AI Analysis</h3>
         <ul className="insight-list">
-          {insightRows.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
+          {data.insights.length > 0 ? (
+            data.insights.map((item) => <li key={item.id}>{item.insight}</li>)
+          ) : (
+            <li className="muted">No AI insights found in Supabase.</li>
+          )}
         </ul>
       </section>
+
+      {loading ? (
+        <section className="card">
+          <p className="muted">Loading dashboard from Supabase...</p>
+        </section>
+      ) : null}
 
       {error ? (
         <section className="card">

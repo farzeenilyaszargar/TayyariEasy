@@ -8,6 +8,7 @@ import {
   getStoredSession,
   signOutSupabase
 } from "@/lib/supabase-auth";
+import { fetchOwnProfile } from "@/lib/supabase-db";
 
 type UserState = {
   id: string | null;
@@ -26,7 +27,7 @@ type AuthContextType = {
 const defaultUser: UserState = {
   id: null,
   name: "Aspirant",
-  points: 10320,
+  points: 0,
   avatarUrl: null
 };
 
@@ -78,14 +79,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           supabaseUser.phone ||
           defaultUser.name;
         const avatarUrl = metadata.avatar_url || metadata.picture || null;
+        let points = 0;
+        let profileName: string = name;
+        let profileAvatar: string | null = avatarUrl;
+
+        try {
+          const profile = await fetchOwnProfile(supabaseUser.id);
+          if (profile) {
+            points = profile.points;
+            profileName = profile.full_name || profileName;
+            profileAvatar = profile.avatar_url || profileAvatar;
+          }
+        } catch {
+          points = 0;
+        }
 
         if (alive) {
           setIsLoggedIn(true);
           setUser({
             id: supabaseUser.id ?? null,
-            name,
-            points: defaultUser.points,
-            avatarUrl
+            name: profileName,
+            points,
+            avatarUrl: profileAvatar
           });
         }
       } catch {

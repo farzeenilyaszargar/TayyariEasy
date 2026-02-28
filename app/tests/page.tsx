@@ -1,27 +1,36 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { fullSyllabusTests, topicTests, type SubjectTag, type TestCard } from "@/lib/data";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/components/auth-provider";
 import { AwardIcon, SearchIcon } from "@/components/ui-icons";
+import {
+  createTestAttempt,
+  fetchPublicTests,
+  type SubjectTag,
+  type TestCatalogRow
+} from "@/lib/supabase-db";
 
 const subjects: SubjectTag[] = ["Physics", "Chemistry", "Mathematics"];
 
 const demoQuestions = [
   {
     question: "A particle moves with constant acceleration. Which graph is linear?",
-    options: ["Displacement vs time", "Velocity vs time", "Acceleration vs time^2", "Kinetic energy vs time"]
+    options: ["Displacement vs time", "Velocity vs time", "Acceleration vs time^2", "Kinetic energy vs time"],
+    answerIndex: 1
   },
   {
     question: "For SN1 reactions, the rate depends primarily on:",
-    options: ["Nucleophile strength", "Substrate concentration", "Solvent viscosity", "Temperature only"]
+    options: ["Nucleophile strength", "Substrate concentration", "Solvent viscosity", "Temperature only"],
+    answerIndex: 1
   },
   {
     question: "If f(x)=x^2 then integral from 0 to 2 of f(x) dx is:",
-    options: ["4", "6", "8/3", "10/3"]
+    options: ["4", "6", "8/3", "10/3"],
+    answerIndex: 2
   }
 ];
 
-function TestCardView({ test, cta, onAttempt }: { test: TestCard; cta: string; onAttempt: (test: TestCard) => void }) {
+function TestCardView({ test, cta, onAttempt }: { test: TestCatalogRow; cta: string; onAttempt: (test: TestCatalogRow) => void }) {
   return (
     <li className="test-card test-card-attractive">
       <div className="test-card-head">
@@ -30,7 +39,7 @@ function TestCardView({ test, cta, onAttempt }: { test: TestCard; cta: string; o
       </div>
       <strong>{test.name}</strong>
       <div className="test-stats">
-        <span>Avg score: {test.avgScore}</span>
+        <span>Avg score: {test.avg_score}</span>
         <span>Difficulty: {test.difficulty}</span>
         <span>Attempts: {test.attempts}</span>
       </div>
@@ -38,38 +47,70 @@ function TestCardView({ test, cta, onAttempt }: { test: TestCard; cta: string; o
         <button className="btn btn-solid" onClick={() => onAttempt(test)}>
           {cta}
         </button>
-        <span className="test-xp">+120 XP</span>
       </div>
     </li>
   );
 }
 
 export default function TestsPage() {
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [subject, setSubject] = useState<SubjectTag | "All">("All");
-  const [activeTest, setActiveTest] = useState<TestCard | null>(null);
+  const [allTests, setAllTests] = useState<TestCatalogRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [activeTest, setActiveTest] = useState<TestCatalogRow | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selected, setSelected] = useState<string>("");
   const [finished, setFinished] = useState(false);
+  const [correct, setCorrect] = useState(0);
+  const [savingAttempt, setSavingAttempt] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    const run = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const rows = await fetchPublicTests();
+        if (alive) {
+          setAllTests(rows);
+        }
+      } catch (err) {
+        if (alive) {
+          setError(err instanceof Error ? err.message : "Failed to load tests from Supabase.");
+        }
+      } finally {
+        if (alive) {
+          setLoading(false);
+        }
+      }
+    };
+    void run();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const matches = (name: string, itemSubject: SubjectTag) =>
     name.toLowerCase().includes(query.toLowerCase()) && (subject === "All" || itemSubject === subject);
 
   const filteredTopicTests = useMemo(
-    () => topicTests.filter((test) => matches(test.name, test.subject)),
-    [query, subject]
+    () => allTests.filter((test) => test.type === "Topic" && matches(test.name, test.subject)),
+    [allTests, query, subject]
   );
 
   const filteredFullTests = useMemo(
-    () => fullSyllabusTests.filter((test) => matches(test.name, test.subject)),
-    [query, subject]
+    () => allTests.filter((test) => test.type === "Full" && matches(test.name, test.subject)),
+    [allTests, query, subject]
   );
 
-  const startDemo = (test: TestCard) => {
+  const startDemo = (test: TestCatalogRow) => {
     setActiveTest(test);
     setQuestionIndex(0);
     setSelected("");
     setFinished(false);
+    setCorrect(0);
   };
 
   const closeDemo = () => {
@@ -77,14 +118,38 @@ export default function TestsPage() {
     setQuestionIndex(0);
     setSelected("");
     setFinished(false);
+    setCorrect(0);
+    setSavingAttempt(false);
   };
 
-  const onNext = () => {
+  const onNext = async () => {
+    const current = demoQuestions[questionIndex];
+    const isCorrect = current.options[current.answerIndex] === selected;
+    const nextCorrect = correct + (isCorrect ? 1 : 0);
+
     if (questionIndex === demoQuestions.length - 1) {
+      setCorrect(nextCorrect);
       setFinished(true);
+
+      if (user.id && activeTest) {
+        setSavingAttempt(true);
+        const score = Math.round((nextCorrect / demoQuestions.length) * 300);
+        const percentile = Math.round((nextCorrect / demoQuestions.length) * 10000) / 100;
+        try {
+          await createTestAttempt({
+            userId: user.id,
+            testName: activeTest.name,
+            score,
+            percentile
+          });
+        } finally {
+          setSavingAttempt(false);
+        }
+      }
       return;
     }
 
+    setCorrect(nextCorrect);
     setQuestionIndex((prev) => prev + 1);
     setSelected("");
   };
@@ -123,6 +188,9 @@ export default function TestsPage() {
         </div>
       </div>
 
+      {loading ? <article className="card">Loading tests from Supabase...</article> : null}
+      {error ? <article className="card">{error}</article> : null}
+
       <div className="grid-2 tests-grid-gap">
         <article className="card">
           <h3>Topic-Wise Tests</h3>
@@ -131,7 +199,7 @@ export default function TestsPage() {
             {filteredTopicTests.map((test) => (
               <TestCardView key={test.id} test={test} cta="Attempt" onAttempt={startDemo} />
             ))}
-            {filteredTopicTests.length === 0 ? <li className="empty-state">No topic tests found.</li> : null}
+            {!loading && filteredTopicTests.length === 0 ? <li className="empty-state">No topic tests found.</li> : null}
           </ul>
         </article>
 
@@ -142,7 +210,7 @@ export default function TestsPage() {
             {filteredFullTests.map((test) => (
               <TestCardView key={test.id} test={test} cta="Start" onAttempt={startDemo} />
             ))}
-            {filteredFullTests.length === 0 ? <li className="empty-state">No full tests found.</li> : null}
+            {!loading && filteredFullTests.length === 0 ? <li className="empty-state">No full tests found.</li> : null}
           </ul>
         </article>
       </div>
@@ -166,7 +234,14 @@ export default function TestsPage() {
                   <AwardIcon size={14} />
                 </span>
                 <h3>Demo completed</h3>
-                <p className="muted">Great run. In final version, this will show score, rank estimate, and analysis.</p>
+                <p className="muted">
+                  Correct answers: {correct}/{demoQuestions.length}
+                </p>
+                {user.id ? (
+                  <p className="muted">{savingAttempt ? "Saving attempt to Supabase..." : "Attempt saved to Supabase."}</p>
+                ) : (
+                  <p className="muted">Login to persist attempts in Supabase.</p>
+                )}
                 <button className="btn btn-solid" onClick={closeDemo}>
                   Back to Tests
                 </button>
@@ -201,7 +276,7 @@ export default function TestsPage() {
                   <button className="btn btn-outline" onClick={closeDemo}>
                     Exit Demo
                   </button>
-                  <button className="btn btn-solid" onClick={onNext} disabled={!selected}>
+                  <button className="btn btn-solid" onClick={() => void onNext()} disabled={!selected}>
                     {questionIndex === demoQuestions.length - 1 ? "Submit" : "Next"}
                   </button>
                 </div>

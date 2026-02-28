@@ -29,5 +29,7 @@ Open http://localhost:3000
    - Enable Phone provider (OTP/SMS).
    - Add `http://localhost:3000/login` (and production login URL) to allowed redirect URLs.
 4. Run SQL setup from `supabase/schema.sql` inside Supabase SQL Editor.
+   - This creates all app tables and seeds tests/resources.
+   - Re-run this SQL after pulling latest schema changes.
 
 Then use `/login` for Google sign-in or phone OTP auth.

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Dashboard } from "@/components/dashboard";
 import { useAuth } from "@/components/auth-provider";
 import { ReviewSlider } from "@/components/review-slider";
@@ -12,7 +12,7 @@ import {
   TargetIcon,
   TrendIcon
 } from "@/components/ui-icons";
-import { fullSyllabusTests, resources, topicTests } from "@/lib/data";
+import { fetchSearchIndex } from "@/lib/supabase-db";
 
 const highlights = [
   {
@@ -82,15 +82,27 @@ const reviews = [
 
 function Hero() {
   const [query, setQuery] = useState("");
+  const [allItems, setAllItems] = useState<string[]>([]);
 
-  const allItems = useMemo(
-    () => [
-      ...topicTests.map((item) => item.name),
-      ...fullSyllabusTests.map((item) => item.name),
-      ...resources.map((item) => item.title)
-    ],
-    []
-  );
+  useEffect(() => {
+    let alive = true;
+    const run = async () => {
+      try {
+        const items = await fetchSearchIndex();
+        if (alive) {
+          setAllItems(items);
+        }
+      } catch {
+        if (alive) {
+          setAllItems([]);
+        }
+      }
+    };
+    void run();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const suggestions = useMemo(
     () => allItems.filter((item) => item.toLowerCase().includes(query.toLowerCase())).slice(0, 6),
