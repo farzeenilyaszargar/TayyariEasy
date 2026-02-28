@@ -1737,6 +1737,11 @@ button.subject-tag {
   gap: 12px;
 }
 
+.resource-card-link {
+  display: grid;
+  color: inherit;
+}
+
 .resource-card-desc {
   display: -webkit-box;
   -webkit-line-clamp: 2;

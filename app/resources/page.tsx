@@ -123,33 +123,44 @@ export default function ResourcesPage() {
                     cardsPerSlide
                 )
               : section.items
-            ).map((resource) => (
-              <article key={resource.title} className="card resource-card resource-rich-card">
-                <div className="resource-head">
-                  <span className={`tiny-icon subject-dot ${resource.subject.toLowerCase()}`}>{resource.subject[0]}</span>
-                  <span className={`subject-tag ${resource.subject.toLowerCase()}`}>{resource.subject}</span>
-                  <span className="resource-type">{resource.type}</span>
-                </div>
-                <h3>{resource.title}</h3>
-                <p className="muted resource-card-desc">{resource.preview}</p>
-                <div className="resource-foot">
-                  <span className="muted">{resource.size}</span>
-                  {resource.type === "Article" ? (
-                    <Link
-                      className="resource-download"
-                      href={`/resources/${slugifyResourceTitle(resource.title)}`}
-                      aria-label={`Read ${resource.title}`}
-                    >
+            ).map((resource) =>
+              resource.type === "Article" ? (
+                <Link
+                  key={resource.title}
+                  className="card resource-card resource-rich-card resource-card-link"
+                  href={`/resources/${slugifyResourceTitle(resource.title)}`}
+                  aria-label={`Read ${resource.title}`}
+                >
+                  <div className="resource-head">
+                    <span className={`subject-tag ${resource.subject.toLowerCase()}`}>{resource.subject}</span>
+                    <span className="resource-type">{resource.type}</span>
+                  </div>
+                  <h3>{resource.title}</h3>
+                  <p className="muted resource-card-desc">{resource.preview}</p>
+                  <div className="resource-foot">
+                    <span className="muted">{resource.size}</span>
+                    <span className="resource-download" aria-hidden="true">
                       <BookIcon size={16} />
-                    </Link>
-                  ) : (
+                    </span>
+                  </div>
+                </Link>
+              ) : (
+                <article key={resource.title} className="card resource-card resource-rich-card">
+                  <div className="resource-head">
+                    <span className={`subject-tag ${resource.subject.toLowerCase()}`}>{resource.subject}</span>
+                    <span className="resource-type">{resource.type}</span>
+                  </div>
+                  <h3>{resource.title}</h3>
+                  <p className="muted resource-card-desc">{resource.preview}</p>
+                  <div className="resource-foot">
+                    <span className="muted">{resource.size}</span>
                     <a className="resource-download" href={resource.href} aria-label={`Download ${resource.title}`}>
                       <DownloadIcon size={16} />
                     </a>
-                  )}
-                </div>
-              </article>
-            ))}
+                  </div>
+                </article>
+              )
+            )}
           </div>
         </section>
       ))}
