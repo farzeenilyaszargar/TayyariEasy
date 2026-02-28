@@ -41,6 +41,8 @@ export type ResourceItem = {
   href: string;
 };
 
+export type ArticleResource = ResourceItem & { type: "Article" };
+
 export const topicTests: TestCard[] = [
   {
     id: "phy-kinematics",
@@ -361,3 +363,20 @@ export const resources: ResourceItem[] = [
     href: "#"
   }
 ];
+
+export function slugifyResourceTitle(title: string) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+}
+
+export function getArticleResources(): ArticleResource[] {
+  return resources.filter((resource): resource is ArticleResource => resource.type === "Article");
+}
+
+export function getArticleBySlug(slug: string): ArticleResource | null {
+  const item = getArticleResources().find((resource) => slugifyResourceTitle(resource.title) === slug);
+  return item ?? null;
+}

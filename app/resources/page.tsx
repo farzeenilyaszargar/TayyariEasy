@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import { resources, type SubjectTag } from "@/lib/data";
+import { resources, slugifyResourceTitle, type SubjectTag } from "@/lib/data";
 import { BookIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon, SearchIcon } from "@/components/ui-icons";
 
 const subjects: SubjectTag[] = ["Physics", "Chemistry", "Mathematics"];
@@ -142,13 +143,19 @@ export default function ResourcesPage() {
                 ) : null}
                 <div className="resource-foot">
                   <span className="muted">{resource.size}</span>
-                  <a
-                    className="resource-download"
-                    href={resource.href}
-                    aria-label={resource.type === "Article" ? `Read ${resource.title}` : `Download ${resource.title}`}
-                  >
-                    {resource.type === "Article" ? <BookIcon size={16} /> : <DownloadIcon size={16} />}
-                  </a>
+                  {resource.type === "Article" ? (
+                    <Link
+                      className="resource-download"
+                      href={`/resources/${slugifyResourceTitle(resource.title)}`}
+                      aria-label={`Read ${resource.title}`}
+                    >
+                      <BookIcon size={16} />
+                    </Link>
+                  ) : (
+                    <a className="resource-download" href={resource.href} aria-label={`Download ${resource.title}`}>
+                      <DownloadIcon size={16} />
+                    </a>
+                  )}
                 </div>
               </article>
             ))}

@@ -24,8 +24,18 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in"),
   title: "Tayyari | JEE Rank and Score Predictor",
-  description: "An all-in-one platform for JEE aspirants with test practice, rank prediction, and AI analysis."
+  description: "An all-in-one platform for JEE aspirants with test practice, rank prediction, and AI analysis.",
+  keywords: [
+    "JEE preparation platform",
+    "JEE rank predictor",
+    "JEE score predictor",
+    "JEE Main mock test",
+    "JEE Advanced preparation",
+    "JEE strategy articles",
+    "JEE roadmaps"
+  ]
 };
 
 export default function RootLayout({
