@@ -48,7 +48,7 @@ declare global {
 
 function renderInline(text: string): ReactNode[] {
   const nodes: ReactNode[] = [];
-  const regex = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  const regex = /(\*\*[^*]+\*\*|`[^`]+`|(?<!\*)\*[^*\n]+\*(?!\*)|_[^_\n]+_)/g;
   let last = 0;
   let match: RegExpExecArray | null;
   let idx = 0;
@@ -67,6 +67,8 @@ function renderInline(text: string): ReactNode[] {
           {token.slice(1, -1)}
         </code>
       );
+    } else if (token.startsWith("*") || token.startsWith("_")) {
+      nodes.push(<em key={`i-${idx++}`}>{token.slice(1, -1)}</em>);
     }
     last = match.index + token.length;
   }
