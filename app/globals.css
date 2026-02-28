@@ -66,8 +66,8 @@ a {
 }
 
 .brand-logo {
-  width: 28px;
-  height: 28px;
+  width: 35px;
+  height: 35px;
   object-fit: contain;
   filter: brightness(0);
 }
@@ -1929,6 +1929,41 @@ button.subject-tag {
 }
 
 @media (max-width: 960px) {
+  .container {
+    width: min(1160px, 95vw);
+  }
+
+  .page {
+    padding: 34px 0 64px;
+  }
+
+  h1 {
+    max-width: none;
+  }
+
+  .nav-wrap {
+    row-gap: 10px;
+  }
+
+  .nav-links {
+    width: 100%;
+    order: 3;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+
+  .nav-link {
+    white-space: nowrap;
+    flex: 0 0 auto;
+    padding: 8px 11px;
+  }
+
+  .nav-right {
+    margin-left: auto;
+  }
+
   .grid-2,
   .grid-3,
   .resource-slider-grid,
@@ -1939,20 +1974,21 @@ button.subject-tag {
     grid-template-columns: 1fr;
   }
 
-  .hero-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .feature-row {
-    grid-template-columns: 1fr;
-  }
-
-  .podium {
-    grid-template-columns: 1fr;
-  }
-
+  .hero-grid,
+  .feature-row,
+  .feature-row.feature-row-alt,
+  .podium,
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .feature-row.feature-row-alt .feature-image-slot,
+  .feature-row.feature-row-alt .feature-copy {
+    order: initial;
+  }
+
+  .badge-preview-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .stat-card,
@@ -1964,11 +2000,232 @@ button.subject-tag {
     grid-column: span 1;
   }
 
+  .dashboard-grid {
+    gap: 14px;
+  }
+
+  .chatbot-shell {
+    width: min(920px, 95vw);
+  }
+
+  .problems-center.initial .chatbot-shell {
+    width: min(760px, 92vw);
+  }
+
+  .chat-window-premium {
+    height: min(640px, calc(100vh - 260px));
+  }
+
   .chat-form {
-    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .chat-form-dock,
+  .voice-error {
+    width: min(900px, 95vw);
   }
 
   .review-slider-track {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .nav-wrap {
+    min-height: 64px;
+    padding: 10px 0;
+  }
+
+  .brand {
+    font-size: 1.34rem;
+  }
+
+  .brand-logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  h1 {
+    font-size: clamp(1.86rem, 7vw, 2.35rem);
+    line-height: 1.14;
+  }
+
+  h2 {
+    font-size: clamp(1.34rem, 5vw, 1.72rem);
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .hero-actions,
+  .cta-row {
+    gap: 8px;
+  }
+
+  .hero-actions .btn,
+  .cta-row .btn {
+    width: 100%;
+  }
+
+  .feature-image-slot {
+    height: 128px;
+  }
+
+  .badge-preview-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .badge-placeholder {
+    width: 66px;
+    height: 66px;
+  }
+
+  .badge-tooltip {
+    width: 180px;
+  }
+
+  .profile-head {
+    align-items: flex-start;
+  }
+
+  .profile-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .point-meter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  th,
+  td {
+    padding: 9px 7px;
+    font-size: 0.85rem;
+  }
+
+  .podium-avatar {
+    width: 64px;
+    height: 64px;
+  }
+
+  .resource-section-head {
+    align-items: flex-start;
+  }
+
+  .resource-section-head h2 {
+    margin-right: 0;
+    width: 100%;
+  }
+
+  .resource-slider-controls {
+    margin-top: 2px;
+  }
+
+  .demo-modal {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .demo-modal-head {
+    flex-direction: column;
+  }
+
+  .test-cta-row {
+    flex-wrap: wrap;
+  }
+
+  .chat-row {
+    max-width: 100%;
+  }
+
+  .chat-bubble {
+    max-width: 92%;
+    font-size: 0.93rem;
+  }
+
+  .chat-form textarea {
+    min-height: 46px;
+  }
+
+  .send-btn,
+  .voice-btn {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  .chat-form-dock {
+    bottom: 10px;
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+
+  .voice-error {
+    bottom: 74px;
+    font-size: 0.8rem;
+  }
+
+  .site-footer-wrap {
+    padding: 48px 0 60px;
+    gap: 20px;
+  }
+
+  .social-icon {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 520px) {
+  .page {
+    padding: 26px 0 56px;
+  }
+
+  .nav-link {
+    font-size: 0.87rem;
+    padding: 7px 10px;
+  }
+
+  .pill {
+    font-size: 0.78rem;
+    padding: 6px 10px;
+  }
+
+  .proof-strip span,
+  .subject-tag {
+    font-size: 0.78rem;
+  }
+
+  .marketing-stats .card,
+  .review-slider-card {
+    min-height: auto;
+  }
+
+  .test-stats span {
+    font-size: 0.78rem;
+  }
+
+  .chat-window {
+    min-height: 300px;
+    gap: 14px;
+  }
+
+  .chat-window-premium {
+    height: min(640px, calc(100vh - 230px));
+  }
+
+  .chat-form {
+    gap: 8px;
+  }
+
+  .chat-form textarea {
+    padding: 10px 12px;
+  }
+
+  .chat-form-dock,
+  .voice-error {
+    width: 96vw;
   }
 }
