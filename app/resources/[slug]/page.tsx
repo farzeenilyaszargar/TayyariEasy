@@ -77,7 +77,6 @@ export default async function ResourceArticlePage({ params }: PageProps) {
     notFound();
   }
 
-  const checklist = article.checklist ?? [];
   const related = getArticleResources()
     .filter((item) => item.title !== article.title && (item.subject === article.subject || item.category === article.category))
     .slice(0, 3);
@@ -104,9 +103,6 @@ export default async function ResourceArticlePage({ params }: PageProps) {
     <article className="page resource-article-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <header className="resource-article-head">
-        <p className="eyebrow">
-          {article.category} · {article.subject}
-        </p>
         <h1>{article.title}</h1>
         <p className="muted resource-article-subtitle">{article.preview}</p>
         <div className="resource-article-meta">
@@ -129,15 +125,13 @@ export default async function ResourceArticlePage({ params }: PageProps) {
 
         <h2>Execution Checklist</h2>
         <ul className="resource-article-list">
-          {checklist.length > 0 ? (
-            checklist.map((item) => <li key={item}>{item}</li>)
-          ) : (
-            <>
-              <li>Set weekly chapter targets and lock revision slots in advance.</li>
-              <li>Take one timed test block and analyze all mistakes the same day.</li>
-              <li>Re-attempt weak question types within 3 days.</li>
-            </>
-          )}
+          {(article.checklist ?? [
+            "Set weekly chapter targets and lock revision slots in advance.",
+            "Take one timed test block and analyze all mistakes the same day.",
+            "Re-attempt weak question types within 3 days."
+          ]).map((item) => (
+            <li key={item}>{item}</li>
+          ))}
         </ul>
 
         <h2>Weekly Plan Template</h2>
@@ -159,7 +153,6 @@ export default async function ResourceArticlePage({ params }: PageProps) {
 
       <section className="resource-related">
         <div className="section-head">
-          <p className="eyebrow">Related Articles</p>
           <h2>Continue Reading</h2>
         </div>
         <div className="grid-3">
@@ -169,9 +162,6 @@ export default async function ResourceArticlePage({ params }: PageProps) {
               className="card resource-related-card"
               href={`/resources/${slugifyResourceTitle(item.title)}`}
             >
-              <p className="eyebrow">
-                {item.category} · {item.subject}
-              </p>
               <h3>{item.title}</h3>
               <p className="muted">{item.preview}</p>
             </Link>

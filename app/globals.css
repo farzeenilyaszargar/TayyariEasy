@@ -1737,13 +1737,11 @@ button.subject-tag {
   gap: 12px;
 }
 
-.resource-checklist {
-  margin: 0;
-  padding-left: 18px;
-  display: grid;
-  gap: 6px;
-  color: #3f4758;
-  font-size: 0.9rem;
+.resource-card-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .resource-type {

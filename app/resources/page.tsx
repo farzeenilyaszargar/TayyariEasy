@@ -44,7 +44,6 @@ export default function ResourcesPage() {
   return (
     <section className="page">
       <div className="page-head">
-        <p className="eyebrow">Resources</p>
         <h1>Roadmaps, Strategies, Notes, Books, and PYQs</h1>
       </div>
 
@@ -78,7 +77,6 @@ export default function ResourcesPage() {
       {grouped.map((section) => (
         <section key={section.category} className="resource-section">
           <div className="section-head resource-section-head">
-            <p className="eyebrow">{section.category}</p>
             <h2>{section.category}</h2>
             {sliderCategories.has(section.category) ? (
               <div className="resource-slider-controls">
@@ -133,14 +131,7 @@ export default function ResourcesPage() {
                   <span className="resource-type">{resource.type}</span>
                 </div>
                 <h3>{resource.title}</h3>
-                <p className="muted">{resource.preview}</p>
-                {resource.checklist?.length ? (
-                  <ul className="resource-checklist">
-                    {resource.checklist.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                ) : null}
+                <p className="muted resource-card-desc">{resource.preview}</p>
                 <div className="resource-foot">
                   <span className="muted">{resource.size}</span>
                   {resource.type === "Article" ? (
