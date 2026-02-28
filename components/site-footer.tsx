@@ -6,6 +6,7 @@ import { InstagramIcon, XIcon, YouTubeIcon } from "@/components/ui-icons";
 
 export function SiteFooter() {
   const pathname = usePathname();
+  const currentYear = new Date().getFullYear();
 
   if (pathname === "/problems") {
     return null;
@@ -41,6 +42,9 @@ export function SiteFooter() {
           <a href="#">Terms of Service</a>
           <a href="#">Contact Support</a>
         </div>
+      </div>
+      <div className="container footer-bottom">
+        <small>© {currentYear} Nap Org. All rights reserved.</small>
       </div>
     </footer>
   );
