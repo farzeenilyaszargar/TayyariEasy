@@ -145,7 +145,6 @@ export function Dashboard() {
 
       <section className="card stat-card stat-rank">
         <p className="eyebrow">Predicted All India Rank</p>
-        <span className="tiny-icon blue">R</span>
         <h2>
           {analytics && analytics.predicted_rank_low != null && analytics.predicted_rank_high != null
             ? `${analytics.predicted_rank_low.toLocaleString()} - ${analytics.predicted_rank_high.toLocaleString()}`
@@ -156,7 +155,6 @@ export function Dashboard() {
 
       <section className="card stat-card stat-score">
         <p className="eyebrow">Estimated Next JEE Main Score</p>
-        <span className="tiny-icon green">S</span>
         <h2>
           {analytics && analytics.estimated_score_low != null && analytics.estimated_score_high != null
             ? `${analytics.estimated_score_low} - ${analytics.estimated_score_high}`
