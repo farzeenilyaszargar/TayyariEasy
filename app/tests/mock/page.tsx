@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { TrophyIcon, TrendIcon } from "@/components/ui-icons";
 import { useAuth } from "@/components/auth-provider";
-import { fetchTestInstanceById, submitBlueprintTest, type TestInstanceRow } from "@/lib/supabase-db";
+import { fetchTestInstanceById, launchBlueprintTest, submitBlueprintTest, type TestInstanceRow } from "@/lib/supabase-db";
 
 type ExamSession = TestInstanceRow & { launchedAt: number };
 
@@ -121,6 +121,7 @@ export default function MockExamPage() {
   const [visited, setVisited] = useState<Record<string, boolean>>({});
   const [lang, setLang] = useState("English");
   const [remainingSec, setRemainingSec] = useState(0);
+  const [bootError, setBootError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SubmitResult | null>(null);
@@ -128,8 +129,12 @@ export default function MockExamPage() {
   const [targetRank, setTargetRank] = useState<number | null>(null);
   const [animatedRank, setAnimatedRank] = useState<number | null>(null);
 
+  const queryInstanceId = searchParams.get("instance")?.trim() || "";
+  const queryBlueprintId = searchParams.get("blueprint")?.trim() || "";
+
   useEffect(() => {
     const hydrate = async () => {
+      setBootError("");
       const raw = window.sessionStorage.getItem(ACTIVE_TEST_KEY) || window.localStorage.getItem(ACTIVE_TEST_FALLBACK_KEY);
       if (raw) {
         try {
@@ -144,37 +149,55 @@ export default function MockExamPage() {
           setRemainingSec(Math.max(0, total - elapsed));
           return;
         } catch {
-          // fallback to query-based recovery
+          // continue to URL-based recovery
         }
       }
 
-      const instanceId = searchParams.get("instance")?.trim();
-      if (!instanceId) {
-        setSession(null);
-        return;
+      if (queryInstanceId) {
+        try {
+          const payload = await fetchTestInstanceById(queryInstanceId);
+          const recovered = { ...payload, launchedAt: Date.now() } as ExamSession;
+          const serialized = JSON.stringify(recovered);
+          window.sessionStorage.setItem(ACTIVE_TEST_KEY, serialized);
+          window.localStorage.setItem(ACTIVE_TEST_FALLBACK_KEY, serialized);
+          setSession(recovered);
+          if (recovered.questions.length > 0) {
+            setVisited({ [recovered.questions[0].id]: true });
+          }
+          setRemainingSec(recovered.blueprint.durationMinutes * 60);
+          return;
+        } catch {
+          // continue to blueprint launch fallback
+        }
       }
 
-      try {
-        const payload = await fetchTestInstanceById(instanceId);
-        const recovered = {
-          ...payload,
-          launchedAt: Date.now()
-        } as ExamSession;
-        const serialized = JSON.stringify(recovered);
-        window.sessionStorage.setItem(ACTIVE_TEST_KEY, serialized);
-        window.localStorage.setItem(ACTIVE_TEST_FALLBACK_KEY, serialized);
-        setSession(recovered);
-        if (recovered.questions.length > 0) {
-          setVisited({ [recovered.questions[0].id]: true });
+      if (queryBlueprintId) {
+        try {
+          const payload = await launchBlueprintTest(queryBlueprintId);
+          const recovered = { ...payload, launchedAt: Date.now() } as ExamSession;
+          const serialized = JSON.stringify(recovered);
+          window.sessionStorage.setItem(ACTIVE_TEST_KEY, serialized);
+          window.localStorage.setItem(ACTIVE_TEST_FALLBACK_KEY, serialized);
+          setSession(recovered);
+          if (recovered.questions.length > 0) {
+            setVisited({ [recovered.questions[0].id]: true });
+          }
+          setRemainingSec(recovered.blueprint.durationMinutes * 60);
+          return;
+        } catch (error) {
+          setBootError(error instanceof Error ? error.message : "Unable to launch test.");
         }
-        setRemainingSec(recovered.blueprint.durationMinutes * 60);
-      } catch {
-        setSession(null);
+      } else if (!queryInstanceId) {
+        setBootError("No active test session found. Start a test from the Tests page.");
+      } else {
+        setBootError("Unable to load this test session. Please start again from Tests.");
       }
+
+      setSession(null);
     };
 
     void hydrate();
-  }, [searchParams]);
+  }, [queryInstanceId, queryBlueprintId]);
 
   useEffect(() => {
     if (!session || remainingSec <= 0) {
@@ -411,7 +434,7 @@ export default function MockExamPage() {
       <section className="page">
         <article className="card">
           <h2>No Active Test Session</h2>
-          <p className="muted">Start a test from the Tests page first.</p>
+          <p className="muted">{bootError || "Start a test from the Tests page first."}</p>
           <div className="cta-row">
             <Link className="btn btn-solid" href="/tests">
               Go to Tests

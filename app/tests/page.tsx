@@ -4,11 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, StarIcon } from "@/components/ui-icons";
 import { useAuth } from "@/components/auth-provider";
-import { fetchTestsCatalog, launchBlueprintTest, type TestBlueprintRow } from "@/lib/supabase-db";
+import { fetchTestsCatalog, type TestBlueprintRow } from "@/lib/supabase-db";
 
 const GUEST_FREE_TEST_KEY = "tayyari-guest-free-test-used-v1";
-const ACTIVE_TEST_KEY = "tayyari-active-test";
-const ACTIVE_TEST_FALLBACK_KEY = "tayyari-active-test-fallback";
 
 type TagTone = "physics" | "chemistry" | "mathematics" | "neutral";
 
@@ -148,18 +146,10 @@ export default function TestsPage() {
     setLaunchingId(blueprintId);
     setCatalogError("");
     try {
-      const session = await launchBlueprintTest(blueprintId);
-      const enriched = {
-        ...session,
-        launchedAt: Date.now()
-      };
-      const serialized = JSON.stringify(enriched);
-      window.sessionStorage.setItem(ACTIVE_TEST_KEY, serialized);
-      window.localStorage.setItem(ACTIVE_TEST_FALLBACK_KEY, serialized);
       if (!isLoggedIn) {
         window.localStorage.setItem(GUEST_FREE_TEST_KEY, "1");
       }
-      window.location.assign(`/tests/mock?instance=${encodeURIComponent(session.testInstanceId)}`);
+      window.location.assign(`/tests/mock?blueprint=${encodeURIComponent(blueprintId)}`);
     } catch (error) {
       setCatalogError(error instanceof Error ? error.message : "Failed to launch test.");
     } finally {
