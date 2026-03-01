@@ -3065,6 +3065,285 @@ button.subject-tag {
   color: #eceff4;
 }
 
+/* Dark theme compatibility overrides */
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5 {
+  color: var(--text);
+}
+
+html[data-theme="dark"] .brand {
+  color: var(--text);
+}
+
+html[data-theme="dark"] .brand-logo {
+  filter: brightness(0) invert(1);
+}
+
+html[data-theme="dark"] .nav-link {
+  color: #cfd6e2;
+}
+
+html[data-theme="dark"] .nav-link:hover,
+html[data-theme="dark"] .nav-link.active {
+  background: #232a34;
+  color: #f2f5fb;
+}
+
+html[data-theme="dark"] .nav-icon,
+html[data-theme="dark"] .profile-menu-item,
+html[data-theme="dark"] .profile-menu-trigger {
+  color: #d5dce7;
+}
+
+html[data-theme="dark"] .profile-menu-dropdown {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="dark"] .pill,
+html[data-theme="dark"] .proof-strip span,
+html[data-theme="dark"] .search-input-wrap,
+html[data-theme="dark"] .feature-icon,
+html[data-theme="dark"] .resource-type,
+html[data-theme="dark"] .resource-download,
+html[data-theme="dark"] .resource-slider-btn,
+html[data-theme="dark"] .dashboard-metric-chip,
+html[data-theme="dark"] .dashboard-metric-box,
+html[data-theme="dark"] .graph-hover-panel,
+html[data-theme="dark"] .forecast-stat-pill,
+html[data-theme="dark"] .test-stats span,
+html[data-theme="dark"] .rank-badge,
+html[data-theme="dark"] .streak-chip,
+html[data-theme="dark"] .reward-pill,
+html[data-theme="dark"] .tiny-icon {
+  background: #202733;
+  border-color: #313949;
+  color: #dbe3ef;
+}
+
+html[data-theme="dark"] .btn-outline {
+  background: #1f2631;
+  color: #e7edf7;
+  border-color: #353f50;
+}
+
+html[data-theme="dark"] .btn-outline:hover {
+  background: #273040;
+}
+
+html[data-theme="dark"] .btn-solid {
+  background: #e9edf5;
+  color: #12161e;
+  border-color: #e9edf5;
+}
+
+html[data-theme="dark"] .btn-solid:hover {
+  background: #f7f9fc;
+}
+
+html[data-theme="dark"] .table-wrap th,
+html[data-theme="dark"] .table-wrap td,
+html[data-theme="dark"] th,
+html[data-theme="dark"] td {
+  border-bottom-color: #2d3544;
+}
+
+html[data-theme="dark"] .chatbot-premium,
+html[data-theme="dark"] .chat-bubble.assistant,
+html[data-theme="dark"] .chat-web-result-card,
+html[data-theme="dark"] .chat-image-card,
+html[data-theme="dark"] .chat-form-dock,
+html[data-theme="dark"] .login-alert,
+html[data-theme="dark"] .login-error,
+html[data-theme="dark"] .login-success,
+html[data-theme="dark"] .md-code-block,
+html[data-theme="dark"] .md-inline-code,
+html[data-theme="dark"] .coach-analysis,
+html[data-theme="dark"] .badge-item,
+html[data-theme="dark"] .test-card-attractive,
+html[data-theme="dark"] .leaderboard-goal,
+html[data-theme="dark"] .podium-wrap,
+html[data-theme="dark"] .leaderboard-table-wrap,
+html[data-theme="dark"] .mission-card {
+  background: #1b212b;
+  border-color: #303847;
+  color: #e4eaf3;
+}
+
+html[data-theme="dark"] .chat-web-title,
+html[data-theme="dark"] .chat-web-result-card strong,
+html[data-theme="dark"] .chat-image-card strong,
+html[data-theme="dark"] .graph-tooltip-floating strong,
+html[data-theme="dark"] .login-form label {
+  color: #e5ebf6;
+}
+
+html[data-theme="dark"] .chat-web-result-card p,
+html[data-theme="dark"] .chat-web-result-card span,
+html[data-theme="dark"] .chat-image-card span,
+html[data-theme="dark"] .graph-tooltip-floating small {
+  color: #aeb8c8;
+}
+
+html[data-theme="dark"] .chat-form input,
+html[data-theme="dark"] .chat-form textarea,
+html[data-theme="dark"] .login-form input,
+html[data-theme="dark"] .profile-customize-form input,
+html[data-theme="dark"] .search-row input,
+html[data-theme="dark"] .nta-lang-wrap select,
+html[data-theme="dark"] .nta-integer-wrap input {
+  background: #171d26;
+  color: #e9eef8;
+  border-color: #313949;
+}
+
+html[data-theme="dark"] .chat-form input::placeholder,
+html[data-theme="dark"] .chat-form textarea::placeholder,
+html[data-theme="dark"] .search-row input::placeholder,
+html[data-theme="dark"] .profile-customize-form input::placeholder {
+  color: #8893a6;
+}
+
+html[data-theme="dark"] .chat-image-card img {
+  background: #222936;
+}
+
+html[data-theme="dark"] .graph-tooltip-floating {
+  background: #1a202a;
+  border-color: #313949;
+}
+
+html[data-theme="dark"] .graph-guide {
+  stroke: #2e3746;
+}
+
+html[data-theme="dark"] .graph-label {
+  fill: #95a0b3;
+}
+
+html[data-theme="dark"] .dashboard-ai-strong {
+  background: linear-gradient(180deg, #1a2029 0%, #151b24 100%);
+  border-color: #313949;
+}
+
+html[data-theme="dark"] .goal-progress {
+  background: #2a3240;
+}
+
+html[data-theme="dark"] .leaderboard-table .leader-row:hover td {
+  background: #232a35;
+}
+
+html[data-theme="dark"] .shiny-card::after {
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.08) 50%, transparent 70%);
+}
+
+html[data-theme="dark"] .nta-page {
+  background: #0f1319;
+}
+
+html[data-theme="dark"] .nta-shell {
+  background: #141922;
+  border-color: #2d3644;
+}
+
+html[data-theme="dark"] .nta-topbar,
+html[data-theme="dark"] .nta-subject-row {
+  background: #1a202a;
+  border-color: #2d3644;
+}
+
+html[data-theme="dark"] .nta-brand strong,
+html[data-theme="dark"] .nta-question-body p,
+html[data-theme="dark"] .nta-status-row {
+  color: #e9eef8;
+}
+
+html[data-theme="dark"] .nta-brand small,
+html[data-theme="dark"] .nta-lang-wrap label,
+html[data-theme="dark"] .nta-question-diagram figcaption {
+  color: #a7b2c4;
+}
+
+html[data-theme="dark"] .nta-candidate,
+html[data-theme="dark"] .nta-question-card,
+html[data-theme="dark"] .nta-sidebar,
+html[data-theme="dark"] .nta-question-diagram {
+  background: #1b212b;
+  border-color: #303847;
+}
+
+html[data-theme="dark"] .nta-question-diagram img {
+  background: #1b212b;
+}
+
+html[data-theme="dark"] .nta-subject-pill {
+  background: #232b37;
+  color: #dce4ef;
+  border-color: #394354;
+}
+
+html[data-theme="dark"] .nta-subject-pill.active {
+  background: #ebf0f9;
+  color: #10141b;
+  border-color: #ebf0f9;
+}
+
+html[data-theme="dark"] .nta-option {
+  background: #171d26;
+  border-color: #313949;
+  color: #e6edf8;
+}
+
+html[data-theme="dark"] .nta-option.active {
+  background: #212a38;
+  border-color: #5e7cae;
+}
+
+html[data-theme="dark"] .nta-actions-top,
+html[data-theme="dark"] .nta-actions-bottom,
+html[data-theme="dark"] .nta-question-head {
+  border-color: #303847;
+}
+
+html[data-theme="dark"] .nta-btn-clear {
+  background: #222b37;
+  color: #dce4ef;
+  border-color: #3a4557;
+}
+
+html[data-theme="dark"] .nta-qbtn {
+  background: #222a35;
+  color: #cfd7e5;
+  border-color: #364050;
+}
+
+html[data-theme="dark"] .nta-qbtn.active {
+  box-shadow: inset 0 0 0 2px #c7d3e6;
+}
+
+html[data-theme="dark"] .nta-rank-tile,
+html[data-theme="dark"] .nta-inline-chip {
+  background: #1e2632;
+  border-color: #344052;
+  color: #d8e1ee;
+}
+
+html[data-theme="dark"] .nta-rank-icon {
+  background: #e8edf6;
+  color: #121720;
+}
+
+html[data-theme="dark"] .nta-rank-value {
+  color: #eaf0f8;
+}
+
+html[data-theme="dark"] .rank-current td {
+  background: #24354f !important;
+}
+
 @media (max-width: 960px) {
   .container {
     width: min(1160px, 95vw);
