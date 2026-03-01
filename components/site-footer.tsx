@@ -42,13 +42,14 @@ export function SiteFooter() {
         <div className="footer-links">
           <h4>Platform</h4>
           <Link href="/tests">Tests</Link>
+          <Link href="/problems">Doubts</Link>
           <Link href="/resources">Resources</Link>
           <Link href="/leaderboards">Leaderboards</Link>
         </div>
         <div className="footer-links">
           <h4>Legal</h4>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
+          <Link href="/privacy-policy">Privacy Policy</Link>
+          <Link href="/terms-of-service">Terms of Service</Link>
           <a href="#">Contact Support</a>
         </div>
       </div>
