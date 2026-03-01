@@ -102,7 +102,6 @@ export default function LeaderboardsPage() {
                 <th>Student</th>
                 <th>Points</th>
                 <th>Streak</th>
-                <th>XP Progress</th>
                 <th>Reward</th>
                 <th>Tests Completed</th>
               </tr>
@@ -119,11 +118,6 @@ export default function LeaderboardsPage() {
                     <td>{entry.points}</td>
                     <td>
                       <span className="streak-chip">{entry.current_streak}d</span>
-                    </td>
-                    <td>
-                      <div className="xp-track">
-                        <span style={{ width: `${Math.min(100, 35 + entry.current_streak * 5)}%` }} />
-                      </div>
                     </td>
                     <td>
                       <span className="reward-pill">{rank <= 3 ? "Legend Chest" : rank <= 8 ? "XP Boost" : "Coin Pack"}</span>

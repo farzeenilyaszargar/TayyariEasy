@@ -67,7 +67,7 @@ function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlue
       </div>
       <div className="test-cta-row">
         <button className="btn btn-solid" onClick={() => onLaunch(blueprint.id)} disabled={blueprint.availableQuestions === 0 || launching}>
-          {launching ? "Launching..." : "Attempt (Exam Mode)"}
+          {launching ? "Launching..." : "Attempt"}
         </button>
       </div>
     </article>
