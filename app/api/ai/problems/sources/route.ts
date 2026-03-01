@@ -62,6 +62,40 @@ function tokenize(input: string) {
     .filter((x) => x.length > 2 && !STOP_WORDS.has(x));
 }
 
+function shouldFetchWebSources(prompt: string) {
+  const text = prompt.toLowerCase();
+  const nonSearchPatterns = [
+    /revision/,
+    /study plan/,
+    /time table/,
+    /timetable/,
+    /motivation/,
+    /routine/,
+    /how should i study/,
+    /how to improve rank/,
+    /strategy/
+  ];
+  if (nonSearchPatterns.some((pattern) => pattern.test(text))) {
+    return false;
+  }
+
+  const conceptPatterns = [
+    /explain/,
+    /derive/,
+    /prove/,
+    /integration/,
+    /reaction/,
+    /mechanism/,
+    /sn1/,
+    /sn2/,
+    /equation/,
+    /formula/,
+    /numerical/,
+    /solve/
+  ];
+  return conceptPatterns.some((pattern) => pattern.test(text));
+}
+
 function scoreRelevance(queryTokens: string[], text: string) {
   if (queryTokens.length === 0) {
     return 0;
@@ -187,6 +221,9 @@ export async function POST(request: NextRequest) {
     const prompt = body.prompt?.trim();
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required." }, { status: 400 });
+    }
+    if (!shouldFetchWebSources(prompt)) {
+      return NextResponse.json({ results: [], images: [] });
     }
 
     const queryTokens = tokenize(prompt);

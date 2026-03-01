@@ -28,6 +28,40 @@ type WebImage = {
   source: string;
 };
 
+function shouldFetchWebSources(prompt: string) {
+  const text = prompt.toLowerCase();
+  const nonSearchPatterns = [
+    /revision/,
+    /study plan/,
+    /time table/,
+    /timetable/,
+    /motivation/,
+    /routine/,
+    /how should i study/,
+    /how to improve rank/,
+    /strategy/
+  ];
+  if (nonSearchPatterns.some((pattern) => pattern.test(text))) {
+    return false;
+  }
+
+  const conceptPatterns = [
+    /explain/,
+    /derive/,
+    /prove/,
+    /integration/,
+    /reaction/,
+    /mechanism/,
+    /sn1/,
+    /sn2/,
+    /equation/,
+    /formula/,
+    /numerical/,
+    /solve/
+  ];
+  return conceptPatterns.some((pattern) => pattern.test(text));
+}
+
 declare global {
   interface Window {
     MathJax?: {
@@ -245,29 +279,32 @@ export default function ProblemsPage() {
 
     const userMessage: Message = { id: crypto.randomUUID(), role: "user", text: prompt };
     const assistantId = crypto.randomUUID();
+    const needsWeb = shouldFetchWebSources(prompt);
     setMessages((prev) => [
       ...prev,
       userMessage,
-      { id: assistantId, role: "assistant", text: "", sources: [], images: [], sourcesLoading: true }
+      { id: assistantId, role: "assistant", text: "", sources: [], images: [], sourcesLoading: needsWeb }
     ]);
     setInput("");
     setLoading(true);
 
-    const sourcesPromise = fetch("/api/ai/problems/sources", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ prompt })
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          return { results: [], images: [] } as { results: WebSource[]; images: WebImage[] };
-        }
-        const payload = (await response.json()) as { results?: WebSource[]; images?: WebImage[] };
-        return { results: payload.results || [], images: payload.images || [] };
-      })
-      .catch(() => ({ results: [], images: [] }));
+    const sourcesPromise = needsWeb
+      ? fetch("/api/ai/problems/sources", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ prompt })
+        })
+          .then(async (response) => {
+            if (!response.ok) {
+              return { results: [], images: [] } as { results: WebSource[]; images: WebImage[] };
+            }
+            const payload = (await response.json()) as { results?: WebSource[]; images?: WebImage[] };
+            return { results: payload.results || [], images: payload.images || [] };
+          })
+          .catch(() => ({ results: [], images: [] }))
+      : Promise.resolve({ results: [] as WebSource[], images: [] as WebImage[] });
 
     try {
       const response = await fetch("/api/ai/problems", {
@@ -437,7 +474,6 @@ export default function ProblemsPage() {
                   {message.role === "assistant" ? <MarkdownBlock text={message.text} /> : message.text}
                   {message.role === "assistant" ? (
                     <div className="chat-web-panel">
-                      {message.sourcesLoading ? <p className="muted">Fetching web results and images...</p> : null}
                       {(message.sources?.length || 0) > 0 ? (
                         <div className="chat-web-block">
                           <p className="chat-web-title">Web Results</p>
@@ -451,8 +487,6 @@ export default function ProblemsPage() {
                                 className="chat-web-result-card"
                               >
                                 <strong>{item.title}</strong>
-                                <p>{item.snippet}</p>
-                                <span>{item.source}</span>
                               </a>
                             ))}
                           </div>
