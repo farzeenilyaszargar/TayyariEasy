@@ -14,10 +14,8 @@ type DashboardInput = {
 };
 
 type ForecastPayload = {
-  scoreLow: number;
-  scoreHigh: number;
-  rankLow: number;
-  rankHigh: number;
+  estimatedScore: number;
+  estimatedRank: number;
   confidence: string;
   method: string;
   riskNotes: string[];
@@ -103,32 +101,44 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
   const scores = payload.recentScores.filter((n) => Number.isFinite(n)).slice(-12);
   if (scores.length === 0) {
     return {
-      scoreLow: 0,
-      scoreHigh: 0,
-      rankLow: 0,
-      rankHigh: 0,
+      estimatedScore: 0,
+      estimatedRank: 0,
       confidence: "Not enough attempts",
-      method: "Conservative AI model pending data",
+      method: "Recency-weighted AI estimate pending data",
       riskNotes: ["Take at least 3 full tests for conservative AIR/score forecasting."],
       calculatedFrom: "0 attempts"
     };
   }
 
-  const recent = scores.slice(-5);
+  const recent = scores.slice(-6);
   const avg = mean(scores);
-  const med = median(scores);
   const last = scores[scores.length - 1];
+  const prevRecent = scores.slice(Math.max(0, scores.length - 10), Math.max(0, scores.length - 5));
   const recentAvg = mean(recent);
+  const prevRecentAvg = prevRecent.length > 0 ? mean(prevRecent) : recentAvg;
+  const recencyMomentum = recentAvg - prevRecentAvg;
+  const improvementSlope = (scores[scores.length - 1] - scores[0]) / Math.max(1, scores.length - 1);
+
+  // Weighted moving estimate with explicit recency emphasis.
+  let weightedSum = 0;
+  let weightSum = 0;
+  for (let i = scores.length - 1, age = 0; i >= 0; i -= 1, age += 1) {
+    const w = Math.pow(0.82, age);
+    weightedSum += scores[i] * w;
+    weightSum += w;
+  }
+  const recencyWeighted = weightSum > 0 ? weightedSum / weightSum : recentAvg;
+
   const volatility = stdDev(scores);
+  const volatilityPenalty = Math.min(14, volatility * 0.55);
+  const samplePenalty = scores.length < 5 ? (5 - scores.length) * 2.5 : 0;
+  const mildConservativeBias = 4;
 
-  const weightedBase = recentAvg * 0.55 + med * 0.25 + last * 0.2;
-  const volatilityPenalty = Math.min(26, volatility * 0.95);
-  const samplePenalty = scores.length < 5 ? (5 - scores.length) * 4 : 0;
-  const strictBias = 10;
-
-  let centerScore = clamp(Math.round(weightedBase - volatilityPenalty - samplePenalty - strictBias), 0, 300);
-  let scoreLow = clamp(centerScore - 18, 0, 300);
-  let scoreHigh = clamp(centerScore + 8, 0, 300);
+  let estimatedScore = clamp(
+    Math.round(recencyWeighted + recencyMomentum * 0.45 + improvementSlope * 1.15 - volatilityPenalty - samplePenalty - mildConservativeBias),
+    0,
+    300
+  );
 
   let aiPenaltyScore = 0;
   let aiPenaltyRankPct = 0;
@@ -137,13 +147,16 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
   if (hasDeepSeekConfig()) {
     const riskPrompt = [
       "Return strict JSON only.",
-      "You are calibrating a conservative JEE forecast. Be pessimistic.",
+      "You are calibrating a conservative JEE forecast. Be mildly pessimistic, not extreme.",
       `Recent scores: ${scores.join(", ")}`,
+      `Recency weighted mean: ${recencyWeighted.toFixed(2)}`,
+      `Recent momentum: ${recencyMomentum.toFixed(2)}`,
+      `Improvement slope: ${improvementSlope.toFixed(2)}`,
       `Volatility: ${volatility.toFixed(2)}`,
       `Current confidence label: ${payload.confidence}`,
       `Tests completed: ${payload.testsCompleted}, streak: ${payload.streak}, points: ${payload.points}`,
       "JSON schema:",
-      '{"risk_penalty_score": number (0..20), "risk_penalty_rank_percent": number (0..0.35), "confidence_label": string, "risk_notes": string[]}'
+      '{"risk_penalty_score": number (0..10), "risk_penalty_rank_percent": number (0..0.2), "confidence_label": string, "risk_notes": string[]}'
     ].join("\n");
 
     try {
@@ -161,8 +174,8 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
 
       const parsed = parseRiskJson(riskRaw);
       if (parsed) {
-        aiPenaltyScore = clamp(Number(parsed.risk_penalty_score || 0), 0, 20);
-        aiPenaltyRankPct = clamp(Number(parsed.risk_penalty_rank_percent || 0), 0, 0.35);
+        aiPenaltyScore = clamp(Number(parsed.risk_penalty_score || 0), 0, 10);
+        aiPenaltyRankPct = clamp(Number(parsed.risk_penalty_rank_percent || 0), 0, 0.2);
         riskNotes = Array.isArray(parsed.risk_notes) ? parsed.risk_notes.map((x) => String(x)) : [];
       }
     } catch {
@@ -170,39 +183,36 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
     }
   }
 
-  centerScore = clamp(Math.round(centerScore - aiPenaltyScore), 0, 300);
-  scoreLow = clamp(Math.round(scoreLow - aiPenaltyScore), 0, 300);
-  scoreHigh = clamp(Math.round(scoreHigh - Math.ceil(aiPenaltyScore * 0.8)), 0, 300);
-
-  const baseRankBest = interpolateRank(scoreHigh);
-  const baseRankWorst = interpolateRank(scoreLow);
-  const volatilityRankSpread = Math.round(volatility * 1100);
-
-  const rankLow = clamp(Math.round(baseRankBest * (1 + aiPenaltyRankPct * 0.35)), 1, 800000);
-  const rankHigh = clamp(Math.round(baseRankWorst * (1 + aiPenaltyRankPct) + volatilityRankSpread), rankLow, 800000);
+  estimatedScore = clamp(Math.round(estimatedScore - aiPenaltyScore), 0, 300);
+  const baseRank = interpolateRank(estimatedScore);
+  const volatilityRankPenalty = Math.round(volatility * 650);
+  const sampleRankPenalty = scores.length < 5 ? (5 - scores.length) * 5500 : 0;
+  const estimatedRank = clamp(
+    Math.round(baseRank * (1 + aiPenaltyRankPct) + volatilityRankPenalty + sampleRankPenalty),
+    1,
+    800000
+  );
 
   const confidence =
-    scores.length >= 8 && volatility < 18
+    scores.length >= 8 && volatility < 16
       ? "Moderate"
       : scores.length >= 5
         ? "Low-Moderate"
         : "Low";
 
   return {
-    scoreLow,
-    scoreHigh,
-    rankLow,
-    rankHigh,
+    estimatedScore,
+    estimatedRank,
     confidence,
-    method: "Conservative weighted trend + volatility + AI risk penalty",
+    method: "Recency-weighted estimate + momentum + volatility/risk adjustments",
     riskNotes:
       riskNotes.length > 0
         ? riskNotes
         : [
-            "Forecast includes pessimistic risk penalties for volatility and limited test sample.",
-            "Rank range intentionally widened to reduce overconfidence."
+            "Estimate includes conservative risk adjustment for volatility and limited sample size.",
+            "Recent activity is weighted more than older attempts."
           ],
-    calculatedFrom: `${scores.length} attempts | avg ${avg.toFixed(1)} | std dev ${volatility.toFixed(1)}`
+    calculatedFrom: `${scores.length} attempts | recent avg ${recentAvg.toFixed(1)} | overall avg ${avg.toFixed(1)} | std dev ${volatility.toFixed(1)}`
   };
 }
 
@@ -228,8 +238,8 @@ export async function POST(request: NextRequest) {
       `Raw Rank Range (DB): ${payload.rankRange}`,
       `Raw Score Range (DB): ${payload.scoreRange}`,
       `Raw Confidence: ${payload.confidence}`,
-      `Conservative AI Rank Forecast: ${forecast.rankLow} - ${forecast.rankHigh}`,
-      `Conservative AI Score Forecast: ${forecast.scoreLow} - ${forecast.scoreHigh}`,
+      `Conservative AI Rank Estimate: ${forecast.estimatedRank}`,
+      `Conservative AI Score Estimate: ${forecast.estimatedScore}`,
       `Conservative Confidence: ${forecast.confidence}`,
       `Forecast Method: ${forecast.method}`,
       `Forecast Basis: ${forecast.calculatedFrom}`,

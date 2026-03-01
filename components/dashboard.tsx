@@ -15,22 +15,13 @@ const emptyData: DashboardPayload = {
 };
 
 type ConservativeForecast = {
-  scoreLow: number;
-  scoreHigh: number;
-  rankLow: number;
-  rankHigh: number;
+  estimatedScore: number;
+  estimatedRank: number;
   confidence: string;
   method: string;
   riskNotes: string[];
   calculatedFrom: string;
 };
-
-function formatRange(low: number | null | undefined, high: number | null | undefined) {
-  if (low == null || high == null) {
-    return "???";
-  }
-  return `${low.toLocaleString()} - ${high.toLocaleString()}`;
-}
 
 function buildGraphGeometry(values: number[]) {
   if (values.length === 0) {
@@ -280,12 +271,16 @@ export function Dashboard() {
   const volatility = scoreSeries.length > 1 ? stdDev(scoreSeries) : null;
 
   const rankDisplay = forecast
-    ? `${forecast.rankLow.toLocaleString()} - ${forecast.rankHigh.toLocaleString()}`
-    : formatRange(analytics?.predicted_rank_low, analytics?.predicted_rank_high);
+    ? `~${forecast.estimatedRank.toLocaleString()}`
+    : analytics?.predicted_rank_high != null
+      ? `~${analytics.predicted_rank_high.toLocaleString()}`
+      : "???";
 
   const scoreDisplay = forecast
-    ? `${forecast.scoreLow.toLocaleString()} - ${forecast.scoreHigh.toLocaleString()}`
-    : formatRange(analytics?.estimated_score_low, analytics?.estimated_score_high);
+    ? `~${forecast.estimatedScore.toLocaleString()}`
+    : analytics?.estimated_score_high != null
+      ? `~${analytics.estimated_score_high.toLocaleString()}`
+      : "???";
 
   useEffect(() => {
     if (geometry.points.length > 0) {
