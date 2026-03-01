@@ -41,9 +41,7 @@ function shouldFetchWebSources(prompt: string) {
     /how to improve rank/,
     /strategy/
   ];
-  if (nonSearchPatterns.some((pattern) => pattern.test(text))) {
-    return false;
-  }
+  const isLikelyPlanning = nonSearchPatterns.some((pattern) => pattern.test(text));
 
   const conceptPatterns = [
     /explain/,
@@ -59,7 +57,11 @@ function shouldFetchWebSources(prompt: string) {
     /numerical/,
     /solve/
   ];
-  return conceptPatterns.some((pattern) => pattern.test(text));
+  const hasConceptIntent = conceptPatterns.some((pattern) => pattern.test(text));
+  if (isLikelyPlanning && !hasConceptIntent) {
+    return false;
+  }
+  return true;
 }
 
 declare global {
@@ -514,6 +516,11 @@ export default function ProblemsPage() {
                             ))}
                           </div>
                         </div>
+                      ) : null}
+                      {!message.sourcesLoading &&
+                      (message.sources?.length || 0) === 0 &&
+                      (message.images?.length || 0) === 0 ? (
+                        <p className="muted">No external references found for this query.</p>
                       ) : null}
                     </div>
                   ) : null}

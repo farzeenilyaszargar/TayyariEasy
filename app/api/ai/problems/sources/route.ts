@@ -75,9 +75,7 @@ function shouldFetchWebSources(prompt: string) {
     /how to improve rank/,
     /strategy/
   ];
-  if (nonSearchPatterns.some((pattern) => pattern.test(text))) {
-    return false;
-  }
+  const isLikelyPlanning = nonSearchPatterns.some((pattern) => pattern.test(text));
 
   const conceptPatterns = [
     /explain/,
@@ -93,7 +91,11 @@ function shouldFetchWebSources(prompt: string) {
     /numerical/,
     /solve/
   ];
-  return conceptPatterns.some((pattern) => pattern.test(text));
+  const hasConceptIntent = conceptPatterns.some((pattern) => pattern.test(text));
+  if (isLikelyPlanning && !hasConceptIntent) {
+    return false;
+  }
+  return true;
 }
 
 function scoreRelevance(queryTokens: string[], text: string) {
@@ -111,32 +113,31 @@ function scoreRelevance(queryTokens: string[], text: string) {
 }
 
 async function imageExists(url: string) {
-  try {
-    const head = await fetch(url, {
-      method: "HEAD",
-      cache: "no-store"
-    });
-    const type = head.headers.get("content-type") || "";
-    if (head.ok && type.toLowerCase().includes("image")) {
-      return true;
-    }
-  } catch {
-    // fallback to lightweight GET
-  }
-
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4500);
   try {
     const get = await fetch(url, {
       method: "GET",
+      redirect: "follow",
+      signal: controller.signal,
       headers: {
-        Range: "bytes=0-1024"
+        "User-Agent": "TayyariDoubtsBot/1.0",
+        Accept: "image/*"
       },
       cache: "no-store"
     });
     const type = get.headers.get("content-type") || "";
-    return get.ok && type.toLowerCase().includes("image");
+    const ok = get.ok && type.toLowerCase().includes("image");
+    get.body?.cancel();
+    if (ok) {
+      return true;
+    }
   } catch {
     return false;
+  } finally {
+    clearTimeout(timeout);
   }
+  return false;
 }
 
 async function fetchWikipediaSearch(query: string): Promise<SearchResult[]> {

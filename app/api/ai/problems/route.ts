@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
           {
             role: "system",
             content:
-              "You are a strict but helpful JEE tutor. Explain clearly but stay within a strict output budget so the answer never gets cut off. Keep the full response concise and complete in under 450 words. Use this format only: 1) Concept in simple terms, 2) Step-by-step solution/logic, 3) Final answer, 4) One-line revision tip."
+              "You are a strict but helpful JEE tutor. Explain clearly but stay within a strict output budget so the answer never gets cut off. Keep the full response concise and complete in under 450 words. Use this format only: 1) Concept in simple terms, 2) Step-by-step solution/logic, 3) Final answer, 4) One-line revision tip. Put key formulas on separate lines and render them in LaTeX using display math blocks like \\[ ... \\]."
           },
           {
             role: "user",
