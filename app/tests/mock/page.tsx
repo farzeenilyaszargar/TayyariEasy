@@ -112,7 +112,7 @@ function buildLeaderboardRows(allAttempts: LocalAttempt[], testName: string, cur
 export default function MockExamPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, refreshUser } = useAuth();
 
   const [session, setSession] = useState<ExamSession | null>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -412,6 +412,10 @@ export default function MockExamPage() {
         ...res,
         savedToCloud: Boolean(res.savedToCloud)
       });
+
+      if (isLoggedIn && res.savedToCloud) {
+        await refreshUser();
+      }
 
       window.sessionStorage.removeItem(ACTIVE_TEST_KEY);
       window.localStorage.removeItem(ACTIVE_TEST_FALLBACK_KEY);

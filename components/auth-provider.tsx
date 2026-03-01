@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
   clearStoredSession,
   consumeOAuthSessionFromHash,
@@ -23,6 +23,7 @@ type AuthContextType = {
   user: UserState;
   login: () => void;
   logout: () => Promise<void> | void;
+  refreshUser: () => Promise<void> | void;
 };
 
 const defaultUser: UserState = {
@@ -71,89 +72,88 @@ const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
   user: defaultUser,
   login: () => undefined,
-  logout: () => undefined
+  logout: () => undefined,
+  refreshUser: () => undefined
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<UserState>(defaultUser);
 
-  useEffect(() => {
+  const hydrateUser = useCallback(async () => {
     if (typeof window === "undefined") {
       return;
     }
+    const session = getStoredSession();
+    if (!session) {
+      setIsLoggedIn(false);
+      setUser(defaultUser);
+      return;
+    }
 
+    if (session.expiresAt <= Date.now()) {
+      clearStoredSession();
+      setIsLoggedIn(false);
+      setUser(defaultUser);
+      return;
+    }
+
+    try {
+      const supabaseUser = await fetchSupabaseUser(session.accessToken);
+      const metadata = supabaseUser.user_metadata ?? {};
+      const name =
+        metadata.full_name ||
+        metadata.name ||
+        supabaseUser.email ||
+        supabaseUser.phone ||
+        defaultUser.name;
+      const avatarUrl = resolveAvatarFromSupabaseUser(supabaseUser);
+      let points = 0;
+      let profileName: string = name;
+      let profileAvatar: string | null = avatarUrl;
+
+      try {
+        const profile = await fetchOwnProfile(supabaseUser.id);
+        if (profile) {
+          points = profile.points;
+          profileName = profile.full_name || profileName;
+          profileAvatar = normalizeAvatarUrl(profile.avatar_url) || profileAvatar;
+        }
+      } catch {
+        points = 0;
+      }
+
+      setIsLoggedIn(true);
+      setUser({
+        id: supabaseUser.id ?? null,
+        name: profileName,
+        points,
+        avatarUrl: profileAvatar
+      });
+    } catch {
+      clearStoredSession();
+      setIsLoggedIn(false);
+      setUser(defaultUser);
+    }
+  }, []);
+
+  useEffect(() => {
     let alive = true;
     consumeOAuthSessionFromHash();
 
-    const hydrate = async () => {
-      const session = getStoredSession();
-      if (!session) {
-        if (alive) {
-          setIsLoggedIn(false);
-          setUser(defaultUser);
-        }
+    const run = async () => {
+      if (!alive) {
         return;
       }
-
-      if (session.expiresAt <= Date.now()) {
-        clearStoredSession();
-        if (alive) {
-          setIsLoggedIn(false);
-          setUser(defaultUser);
-        }
-        return;
-      }
-
-      try {
-        const supabaseUser = await fetchSupabaseUser(session.accessToken);
-        const metadata = supabaseUser.user_metadata ?? {};
-        const name =
-          metadata.full_name ||
-          metadata.name ||
-          supabaseUser.email ||
-          supabaseUser.phone ||
-          defaultUser.name;
-        const avatarUrl = resolveAvatarFromSupabaseUser(supabaseUser);
-        let points = 0;
-        let profileName: string = name;
-        let profileAvatar: string | null = avatarUrl;
-
-        try {
-          const profile = await fetchOwnProfile(supabaseUser.id);
-          if (profile) {
-            points = profile.points;
-            profileName = profile.full_name || profileName;
-            profileAvatar = normalizeAvatarUrl(profile.avatar_url) || profileAvatar;
-          }
-        } catch {
-          points = 0;
-        }
-
-        if (alive) {
-          setIsLoggedIn(true);
-          setUser({
-            id: supabaseUser.id ?? null,
-            name: profileName,
-            points,
-            avatarUrl: profileAvatar
-          });
-        }
-      } catch {
-        clearStoredSession();
-        if (alive) {
-          setIsLoggedIn(false);
-          setUser(defaultUser);
-        }
-      }
+      await hydrateUser();
     };
 
-    void hydrate();
+    void run();
 
     return () => {
       alive = false;
     };
-  }, []);
+  }, [hydrateUser]);
 
   const login = () => {
     window.location.assign("/login");
@@ -175,9 +175,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoggedIn,
       user,
       login,
-      logout
+      logout,
+      refreshUser: hydrateUser
     }),
-    [isLoggedIn, user]
+    [isLoggedIn, user, hydrateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
