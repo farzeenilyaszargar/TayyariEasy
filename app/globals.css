@@ -3119,7 +3119,7 @@ html[data-theme="dark"] .card > * {
 html[data-theme="dark"] .card p,
 html[data-theme="dark"] .card small,
 html[data-theme="dark"] .card li,
-html[data-theme="dark"] .card span:not(.tiny-icon):not(.dashboard-metric-chip):not(.streak-chip):not(.rank-badge):not(.reward-pill) {
+html[data-theme="dark"] .card span:not(.tiny-icon):not(.dashboard-metric-chip):not(.streak-chip):not(.rank-badge):not(.reward-pill):not(.test-chip) {
   color: #dbe3ef;
 }
 
@@ -3398,7 +3398,7 @@ html[data-theme="dark"] .test-chip.physics,
 html[data-theme="dark"] .test-chip.chemistry,
 html[data-theme="dark"] .test-chip.mathematics,
 html[data-theme="dark"] .test-chip.neutral {
-  color: #12161e;
+  color: #12161e !important;
 }
 
 @media (max-width: 960px) {
