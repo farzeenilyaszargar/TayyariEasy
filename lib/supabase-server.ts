@@ -44,7 +44,16 @@ export async function supabaseRest<T>(path: string, method: RestMethod = "GET", 
     return undefined as T;
   }
 
-  return (await response.json()) as T;
+  const raw = await response.text();
+  if (!raw) {
+    return undefined as T;
+  }
+
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return undefined as T;
+  }
 }
 
 export async function verifySupabaseAccessToken(accessToken: string) {
