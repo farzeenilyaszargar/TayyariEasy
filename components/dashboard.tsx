@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
-import { EditIcon, TargetIcon, TrendIcon } from "@/components/ui-icons";
+import { AwardIcon, EditIcon, TargetIcon, TrendIcon } from "@/components/ui-icons";
 import { awardBadgeIfMissing, fetchDashboardData, type DashboardPayload, updateOwnProfile } from "@/lib/supabase-db";
 
 const emptyData: DashboardPayload = {
@@ -492,12 +492,17 @@ export function Dashboard() {
               <span>{numberFormatterIN.format(data.profile?.points ?? 0)} points</span>
               <small>{numberFormatterIN.format(data.profile?.tests_completed ?? 0)} tests completed</small>
             </div>
-            <div className="badge-list">
+            <div className="badge-preview-grid">
               {data.badges.length > 0 ? (
-                data.badges.map((badge, idx) => (
-                  <div key={badge.id} className={`badge-item badge-tone-${(idx % 3) + 1}`}>
-                    <strong>{badge.badge_name}</strong>
-                    <p>{badge.badge_detail}</p>
+                data.badges.map((badge) => (
+                  <div key={badge.id} className="badge-preview-item" aria-label={badge.badge_name}>
+                    <span className="badge-placeholder">
+                      <AwardIcon size={16} />
+                    </span>
+                    <div className="badge-tooltip">
+                      <strong>{badge.badge_name}</strong>
+                      <small>{badge.badge_detail}</small>
+                    </div>
                   </div>
                 ))
               ) : (
