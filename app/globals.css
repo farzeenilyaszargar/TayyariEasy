@@ -3393,6 +3393,14 @@ html[data-theme="dark"] .rank-current td {
   background: #24354f !important;
 }
 
+html[data-theme="dark"] .test-chip,
+html[data-theme="dark"] .test-chip.physics,
+html[data-theme="dark"] .test-chip.chemistry,
+html[data-theme="dark"] .test-chip.mathematics,
+html[data-theme="dark"] .test-chip.neutral {
+  color: #12161e;
+}
+
 @media (max-width: 960px) {
   .container {
     width: min(1160px, 95vw);
