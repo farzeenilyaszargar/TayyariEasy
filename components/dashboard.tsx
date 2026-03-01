@@ -81,14 +81,6 @@ function stdDev(values: number[]) {
   return Math.sqrt(variance);
 }
 
-function variance(values: number[]) {
-  if (values.length <= 1) {
-    return 0;
-  }
-  const avg = mean(values);
-  return values.reduce((sum, item) => sum + (item - avg) ** 2, 0) / values.length;
-}
-
 export function Dashboard() {
   const { user } = useAuth();
   const [data, setData] = useState<DashboardPayload>(emptyData);
@@ -152,13 +144,6 @@ export function Dashboard() {
   );
 
   const scoreSeries = useMemo(() => scoreTimeline.map((item) => item.score), [scoreTimeline]);
-  const scoreDeltaSeries = useMemo(() => {
-    if (scoreSeries.length <= 1) {
-      return [] as number[];
-    }
-    return scoreSeries.slice(1).map((score, idx) => score - scoreSeries[idx]);
-  }, [scoreSeries]);
-
   const analytics = data.analytics;
 
   const rawRankRange =
@@ -283,8 +268,7 @@ export function Dashboard() {
   const bestScore = scoreSeries.length > 0 ? Math.max(...scoreSeries) : null;
   const growth = firstScore !== null && latestScore !== null ? latestScore - firstScore : null;
   const avgScore = scoreSeries.length > 0 ? mean(scoreSeries) : null;
-  const changeVolatility = scoreDeltaSeries.length > 1 ? stdDev(scoreDeltaSeries) : null;
-  const changeVariance = scoreDeltaSeries.length > 1 ? variance(scoreDeltaSeries) : null;
+  const scoreStability = scoreSeries.length > 1 ? stdDev(scoreSeries) : null;
 
   const rankDisplay = forecast
     ? `~${forecast.estimatedRank.toLocaleString()}`
@@ -456,14 +440,14 @@ export function Dashboard() {
                 <strong>{bestScore == null ? "--" : bestScore.toFixed(1)}</strong>
               </div>
               <div className="dashboard-metric-box">
-                <small>Delta Variance</small>
-                <strong>{changeVariance == null ? "--" : changeVariance.toFixed(1)}</strong>
+                <small>Stability (σ)</small>
+                <strong>{scoreStability == null ? "--" : scoreStability.toFixed(1)}</strong>
               </div>
             </div>
             <p className="muted">
-              {changeVolatility == null
+              {scoreStability == null
                 ? "Take a test to unlock trend analytics."
-                : `Variance is based on score changes between consecutive tests. Lower change volatility indicates steadier improvement.`}
+                : "Standard deviation across your test scores. Lower value indicates more stable performance."}
             </p>
           </section>
         </div>
