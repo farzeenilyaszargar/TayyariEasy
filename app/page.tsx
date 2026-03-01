@@ -19,19 +19,25 @@ const highlights = [
     icon: TrendIcon,
     title: "Rank Intelligence Engine",
     detail:
-      "Get a clear rank projection after every mock with confidence-based updates. Track movement quickly and decide your next revision focus with certainty."
+      "Get a clear rank projection after every mock with confidence-based updates. Track movement quickly and decide your next revision focus with certainty.",
+    imageLight: "/f1-light.png",
+    imageDark: "/f1-dark.png"
   },
   {
     icon: BrainIcon,
     title: "AI Study Signals",
     detail:
-      "AI highlights your biggest score leaks from mistakes, speed, and accuracy patterns. You get practical next actions instead of generic advice."
+      "AI highlights your biggest score leaks from mistakes, speed, and accuracy patterns. You get practical next actions instead of generic advice.",
+    imageLight: "/f2-light.png",
+    imageDark: "/f2-dark.png"
   },
   {
     icon: TargetIcon,
     title: "Exam-Ready Practice",
     detail:
-      "Switch smoothly from chapter drills to full exam simulations in one workflow. Practice, review, and improve in a loop built for rank gains."
+      "Switch smoothly from chapter drills to full exam simulations in one workflow. Practice, review, and improve in a loop built for rank gains.",
+    imageLight: "/f3-light.png",
+    imageDark: "/f3-dark.png"
   }
 ];
 
@@ -162,7 +168,10 @@ function Hero() {
             const Icon = item.icon;
             return (
               <article key={item.title} className={`feature-row ${idx % 2 === 1 ? "feature-row-alt" : ""}`}>
-                <div className="feature-image-slot">Feature Image</div>
+                <div className="feature-image-slot feature-image-theme">
+                  <img src={item.imageLight} alt={`${item.title} preview`} className="feature-img feature-img-light" />
+                  <img src={item.imageDark} alt={`${item.title} preview`} className="feature-img feature-img-dark" />
+                </div>
                 <div className="feature-copy">
                   <h3>{item.title}</h3>
                   <p>{item.detail}</p>

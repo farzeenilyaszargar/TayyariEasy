@@ -601,6 +601,36 @@ small {
   margin-bottom: 12px;
 }
 
+.feature-image-theme {
+  position: relative;
+  overflow: hidden;
+  background: #eceff3;
+}
+
+.feature-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.feature-img-dark {
+  display: none;
+}
+
+html[data-theme="dark"] .feature-image-theme {
+  background: #1f2631;
+}
+
+html[data-theme="dark"] .feature-img-light {
+  display: none;
+}
+
+html[data-theme="dark"] .feature-img-dark {
+  display: block;
+}
+
 .feature-emoji {
   display: inline-flex;
   color: #2f3645;

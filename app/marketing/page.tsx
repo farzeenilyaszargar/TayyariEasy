@@ -7,24 +7,32 @@ const features = [
     icon: TrendIcon,
     title: "Rank and Score Forecasting",
     detail: "Predict all India rank and likely score ranges from your latest performance data.",
+    imageLight: "/f1-light.png",
+    imageDark: "/f1-dark.png",
     bullets: ["Dynamic rank band updates", "Trend-based score confidence", "Subject-level impact modeling"]
   },
   {
     icon: FlaskIcon,
     title: "Topic + Full Syllabus Tests",
     detail: "Shift between precise topic drills and realistic exam-mode full mocks.",
+    imageLight: "/f2-light.png",
+    imageDark: "/f2-dark.png",
     bullets: ["Adaptive chapter drills", "Exam-like timing and pressure", "Post-test accuracy split"]
   },
   {
     icon: BrainIcon,
     title: "AI-Powered Improvement Loop",
     detail: "Get weakness detection, strategy suggestions, and confidence-based recommendations.",
+    imageLight: "/f3-light.png",
+    imageDark: "/f3-dark.png",
     bullets: ["Error pattern detection", "Attempt-order suggestions", "Revision priority list"]
   },
   {
     icon: AwardIcon,
     title: "Professional Gamification",
     detail: "Stay motivated with points, achievement badges, and leaderboard tracking.",
+    imageLight: "/f1-light.png",
+    imageDark: "/f1-dark.png",
     bullets: ["Merit-based badges", "Consistency points", "Competitive but focused environment"]
   }
 ];
@@ -104,7 +112,10 @@ export default function MarketingPage() {
       <div className="grid-2 feature-grid">
         {features.map((feature) => (
           <article key={feature.title} className="card feature-card">
-            <div className="feature-image-slot">Feature Image</div>
+            <div className="feature-image-slot feature-image-theme">
+              <img src={feature.imageLight} alt={`${feature.title} preview`} className="feature-img feature-img-light" />
+              <img src={feature.imageDark} alt={`${feature.title} preview`} className="feature-img feature-img-dark" />
+            </div>
             <span className="feature-icon">
               <feature.icon size={14} />
               Feature
