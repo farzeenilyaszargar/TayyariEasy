@@ -17,6 +17,7 @@ const links = [
 export function Navbar() {
   const pathname = usePathname();
   const { isLoggedIn, login, logout, user } = useAuth();
+  const pointsLabel = new Intl.NumberFormat("en-IN").format(user.points);
 
   if (pathname.startsWith("/tests/mock")) {
     return null;
@@ -51,7 +52,7 @@ export function Navbar() {
           {isLoggedIn && user.avatarUrl ? (
             <img src={user.avatarUrl} alt="" className="nav-avatar" referrerPolicy="no-referrer" />
           ) : null}
-          {isLoggedIn ? <span className="pill">{user.points} pts</span> : null}
+          {isLoggedIn ? <span className="pill">{pointsLabel} pts</span> : null}
           <button className={`btn ${isLoggedIn ? "btn-outline" : "btn-solid"}`} onClick={isLoggedIn ? logout : login}>
             {isLoggedIn ? "Logout" : "Login"}
           </button>

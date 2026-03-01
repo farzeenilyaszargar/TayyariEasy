@@ -23,6 +23,8 @@ type ConservativeForecast = {
   calculatedFrom: string;
 };
 
+const numberFormatterIN = new Intl.NumberFormat("en-IN");
+
 function buildGraphGeometry(values: number[]) {
   if (values.length === 0) {
     const fallback = "40,160 390,160";
@@ -271,15 +273,15 @@ export function Dashboard() {
   const scoreStability = scoreSeries.length > 1 ? stdDev(scoreSeries) : null;
 
   const rankDisplay = forecast
-    ? `~${forecast.estimatedRank.toLocaleString()}`
+    ? `~${numberFormatterIN.format(forecast.estimatedRank)}`
     : analytics?.predicted_rank_high != null
-      ? `~${analytics.predicted_rank_high.toLocaleString()}`
+      ? `~${numberFormatterIN.format(analytics.predicted_rank_high)}`
       : "???";
 
   const scoreDisplay = forecast
-    ? `~${forecast.estimatedScore.toLocaleString()}`
+    ? `~${numberFormatterIN.format(forecast.estimatedScore)}`
     : analytics?.estimated_score_high != null
-      ? `~${analytics.estimated_score_high.toLocaleString()}`
+      ? `~${numberFormatterIN.format(analytics.estimated_score_high)}`
       : "???";
 
   useEffect(() => {
@@ -352,8 +354,8 @@ export function Dashboard() {
           <section className="card badge-card">
             <h3>Points and Badges</h3>
             <div className="point-meter">
-              <span>{(data.profile?.points ?? 0).toLocaleString()} points</span>
-              <small>{(data.profile?.tests_completed ?? 0).toLocaleString()} tests completed</small>
+              <span>{numberFormatterIN.format(data.profile?.points ?? 0)} points</span>
+              <small>{numberFormatterIN.format(data.profile?.tests_completed ?? 0)} tests completed</small>
             </div>
             <div className="badge-list">
               {data.badges.length > 0 ? (

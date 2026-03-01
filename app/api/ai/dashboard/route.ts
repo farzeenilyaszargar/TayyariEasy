@@ -134,9 +134,9 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
   const recencyWeighted = weightSum > 0 ? weightedSum / weightSum : recentAvg;
 
   const volatility = stdDev(scores);
-  const volatilityPenalty = Math.min(14, volatility * 0.55);
-  const samplePenalty = scores.length < 5 ? (5 - scores.length) * 2.5 : 0;
-  const mildConservativeBias = 4;
+  const volatilityPenalty = Math.min(12, volatility * 0.45);
+  const samplePenalty = scores.length < 5 ? (5 - scores.length) * 2 : 0;
+  const mildConservativeBias = 3;
 
   let estimatedScore = clamp(
     Math.round(recencyWeighted + recencyMomentum * 0.45 + improvementSlope * 1.15 - volatilityPenalty - samplePenalty - mildConservativeBias),
@@ -160,7 +160,7 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
       `Current confidence label: ${payload.confidence}`,
       `Tests completed: ${payload.testsCompleted}, streak: ${payload.streak}, points: ${payload.points}`,
       "JSON schema:",
-      '{"risk_penalty_score": number (0..10), "risk_penalty_rank_percent": number (0..0.2), "confidence_label": string, "risk_notes": string[]}'
+      '{"risk_penalty_score": number (0..7), "risk_penalty_rank_percent": number (0..0.12), "confidence_label": string, "risk_notes": string[]}'
     ].join("\n");
 
     try {
@@ -168,7 +168,8 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
         messages: [
           {
             role: "system",
-            content: "You are a strict exam forecaster. Never be optimistic. Return strict JSON only."
+            content:
+              "You are a conservative but fair exam forecaster. Avoid aggressive pessimism. Return strict JSON only."
           },
           { role: "user", content: riskPrompt }
         ],
@@ -178,8 +179,8 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
 
       const parsed = parseRiskJson(riskRaw);
       if (parsed) {
-        aiPenaltyScore = clamp(Number(parsed.risk_penalty_score || 0), 0, 10);
-        aiPenaltyRankPct = clamp(Number(parsed.risk_penalty_rank_percent || 0), 0, 0.2);
+        aiPenaltyScore = clamp(Number(parsed.risk_penalty_score || 0), 0, 7);
+        aiPenaltyRankPct = clamp(Number(parsed.risk_penalty_rank_percent || 0), 0, 0.12);
         riskNotes = Array.isArray(parsed.risk_notes) ? parsed.risk_notes.map((x) => String(x)) : [];
       }
     } catch {
@@ -189,8 +190,8 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
 
   estimatedScore = clamp(Math.round(estimatedScore - aiPenaltyScore), 0, 300);
   const baseRank = interpolateRank(estimatedScore);
-  const volatilityRankPenalty = Math.round(volatility * 900);
-  const sampleRankPenalty = scores.length < 5 ? (5 - scores.length) * 9000 : 0;
+  const volatilityRankPenalty = Math.round(volatility * 700);
+  const sampleRankPenalty = scores.length < 5 ? (5 - scores.length) * 6000 : 0;
   const estimatedRank = clamp(
     Math.round(baseRank * (1 + aiPenaltyRankPct) + volatilityRankPenalty + sampleRankPenalty),
     1,
