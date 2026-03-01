@@ -2102,6 +2102,12 @@ button.subject-tag {
   border-color: #bcc6d4;
 }
 
+.nta-actions-top .btn {
+  padding: 8px 12px;
+  font-size: 0.86rem;
+  border-radius: 9px;
+}
+
 .nta-sidebar {
   border: 1px solid #cfd5de;
   border-radius: 10px;
