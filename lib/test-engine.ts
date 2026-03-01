@@ -22,8 +22,8 @@ export type QuestionRow = {
   question_type: "mcq_single" | "integer";
   stem_markdown: string;
   stem_latex: string | null;
-  diagram_image_url: string | null;
-  diagram_caption: string | null;
+  diagram_image_url?: string | null;
+  diagram_caption?: string | null;
   subject: "Physics" | "Chemistry" | "Mathematics";
   topic: string;
   subtopic: string | null;
@@ -296,8 +296,7 @@ export async function pickQuestionsForBlueprint(blueprint: TestBlueprintRow, see
     scopeFilters.push(`subject=eq.${encodeURIComponent(blueprint.subject)}`);
   }
 
-  const baseSelect =
-    "select=id,question_type,stem_markdown,stem_latex,diagram_image_url,diagram_caption,subject,topic,subtopic,difficulty,marks,negative_marks";
+  const baseSelect = "select=id,question_type,stem_markdown,stem_latex,subject,topic,subtopic,difficulty,marks,negative_marks";
   const queryBase = `question_bank?${baseSelect}&${scopeFilters.join("&")}`;
 
   const [easyPool, mediumPool, hardPool] = await Promise.all([

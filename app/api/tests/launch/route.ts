@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
       question_type: "mcq_single" | "integer";
       stem_markdown: string;
       stem_latex: string | null;
-      diagram_image_url: string | null;
-      diagram_caption: string | null;
+      diagram_image_url?: string | null;
+      diagram_caption?: string | null;
       subject: "Physics" | "Chemistry" | "Mathematics";
       topic: string;
       difficulty: "easy" | "medium" | "hard";
@@ -65,24 +65,56 @@ export async function POST(request: NextRequest) {
 
       if (links.length > 0) {
         const inClause = links.map((row) => `\"${row.question_id}\"`).join(",");
-        const questions = await supabaseRest<
-          Array<{
-            id: string;
-            question_type: "mcq_single" | "integer";
-            stem_markdown: string;
-            stem_latex: string | null;
-            diagram_image_url: string | null;
-            diagram_caption: string | null;
-            subject: "Physics" | "Chemistry" | "Mathematics";
-            topic: string;
-            difficulty: "easy" | "medium" | "hard";
-            marks: number;
-            negative_marks: number;
-          }>
-        >(
-          `question_bank?select=id,question_type,stem_markdown,stem_latex,diagram_image_url,diagram_caption,subject,topic,difficulty,marks,negative_marks&id=in.(${inClause})`,
-          "GET"
-        );
+        let questions: Array<{
+          id: string;
+          question_type: "mcq_single" | "integer";
+          stem_markdown: string;
+          stem_latex: string | null;
+          diagram_image_url?: string | null;
+          diagram_caption?: string | null;
+          subject: "Physics" | "Chemistry" | "Mathematics";
+          topic: string;
+          difficulty: "easy" | "medium" | "hard";
+          marks: number;
+          negative_marks: number;
+        }> = [];
+        try {
+          questions = await supabaseRest<
+            Array<{
+              id: string;
+              question_type: "mcq_single" | "integer";
+              stem_markdown: string;
+              stem_latex: string | null;
+              diagram_image_url: string | null;
+              diagram_caption: string | null;
+              subject: "Physics" | "Chemistry" | "Mathematics";
+              topic: string;
+              difficulty: "easy" | "medium" | "hard";
+              marks: number;
+              negative_marks: number;
+            }>
+          >(
+            `question_bank?select=id,question_type,stem_markdown,stem_latex,diagram_image_url,diagram_caption,subject,topic,difficulty,marks,negative_marks&id=in.(${inClause})`,
+            "GET"
+          );
+        } catch {
+          questions = await supabaseRest<
+            Array<{
+              id: string;
+              question_type: "mcq_single" | "integer";
+              stem_markdown: string;
+              stem_latex: string | null;
+              subject: "Physics" | "Chemistry" | "Mathematics";
+              topic: string;
+              difficulty: "easy" | "medium" | "hard";
+              marks: number;
+              negative_marks: number;
+            }>
+          >(
+            `question_bank?select=id,question_type,stem_markdown,stem_latex,subject,topic,difficulty,marks,negative_marks&id=in.(${inClause})`,
+            "GET"
+          );
+        }
         const qMap = new Map(questions.map((q) => [q.id, q]));
         picked = links.map((link) => qMap.get(link.question_id)).filter(Boolean) as typeof picked;
       }
