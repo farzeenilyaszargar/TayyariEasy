@@ -1,6 +1,12 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchOptionsForQuestions, fetchActiveBlueprints, pickQuestionsForBlueprint, type TestBlueprintRow } from "@/lib/test-engine";
+import {
+  ensureDefaultBlueprints,
+  fetchOptionsForQuestions,
+  fetchActiveBlueprints,
+  pickQuestionsForBlueprint,
+  type TestBlueprintRow
+} from "@/lib/test-engine";
 import { supabaseRest } from "@/lib/supabase-server";
 
 type LaunchBody = {
@@ -9,6 +15,8 @@ type LaunchBody = {
 
 export async function POST(request: NextRequest) {
   try {
+    await ensureDefaultBlueprints();
+
     const body = (await request.json()) as LaunchBody;
     const blueprintId = body.blueprintId?.trim();
 
@@ -28,39 +36,89 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Blueprint not found or inactive." }, { status: 404 });
     }
 
-    const seed = randomUUID();
-    const picked = await pickQuestionsForBlueprint(blueprint, seed);
+    let testInstance = (
+      await supabaseRest<Array<{ id: string; seed: string | null }>>(
+        `test_instances?select=id,seed&blueprint_id=eq.${blueprint.id}&order=published_at.desc&limit=1`,
+        "GET"
+      )
+    )[0];
 
-    if (picked.length === 0) {
-      return NextResponse.json({ error: "No published questions available for this blueprint." }, { status: 400 });
+    let picked = [] as Array<{
+      id: string;
+      question_type: "mcq_single" | "integer";
+      stem_markdown: string;
+      stem_latex: string | null;
+      subject: "Physics" | "Chemistry" | "Mathematics";
+      topic: string;
+      difficulty: "easy" | "medium" | "hard";
+      marks: number;
+      negative_marks: number;
+    }>;
+
+    if (testInstance) {
+      const links = await supabaseRest<Array<{ question_id: string; position: number }>>(
+        `test_instance_questions?select=question_id,position&test_instance_id=eq.${testInstance.id}&order=position.asc`,
+        "GET"
+      );
+
+      if (links.length > 0) {
+        const inClause = links.map((row) => `\"${row.question_id}\"`).join(",");
+        const questions = await supabaseRest<
+          Array<{
+            id: string;
+            question_type: "mcq_single" | "integer";
+            stem_markdown: string;
+            stem_latex: string | null;
+            subject: "Physics" | "Chemistry" | "Mathematics";
+            topic: string;
+            difficulty: "easy" | "medium" | "hard";
+            marks: number;
+            negative_marks: number;
+          }>
+        >(
+          `question_bank?select=id,question_type,stem_markdown,stem_latex,subject,topic,difficulty,marks,negative_marks&id=in.(${inClause})`,
+          "GET"
+        );
+        const qMap = new Map(questions.map((q) => [q.id, q]));
+        picked = links.map((link) => qMap.get(link.question_id)).filter(Boolean) as typeof picked;
+      }
     }
 
-    const createdInstances = await supabaseRest<Array<{ id: string; published_at: string }>>(
-      "test_instances",
-      "POST",
-      [
-        {
-          blueprint_id: blueprint.id,
-          version: 1,
-          seed,
-          published_at: new Date().toISOString()
-        }
-      ],
-      "return=representation"
-    );
+    if (picked.length === 0) {
+      const seed = randomUUID();
+      picked = await pickQuestionsForBlueprint(blueprint, seed);
 
-    const testInstance = createdInstances[0];
+      if (picked.length === 0) {
+        return NextResponse.json({ error: "No published questions available for this blueprint." }, { status: 400 });
+      }
 
-    await supabaseRest(
-      "test_instance_questions",
-      "POST",
-      picked.map((q, idx) => ({
-        test_instance_id: testInstance.id,
-        question_id: q.id,
-        position: idx + 1
-      })),
-      "return=minimal"
-    );
+      const createdInstances = await supabaseRest<Array<{ id: string; seed: string | null }>>(
+        "test_instances",
+        "POST",
+        [
+          {
+            blueprint_id: blueprint.id,
+            version: 1,
+            seed,
+            published_at: new Date().toISOString()
+          }
+        ],
+        "return=representation"
+      );
+
+      testInstance = createdInstances[0];
+
+      await supabaseRest(
+        "test_instance_questions",
+        "POST",
+        picked.map((q, idx) => ({
+          test_instance_id: testInstance.id,
+          question_id: q.id,
+          position: idx + 1
+        })),
+        "return=minimal"
+      );
+    }
 
     const options = await fetchOptionsForQuestions(picked.map((q) => q.id));
     const optionsByQuestion = new Map<string, typeof options>();

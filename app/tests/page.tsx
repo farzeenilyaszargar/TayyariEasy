@@ -5,11 +5,18 @@ import { useRouter } from "next/navigation";
 import { SearchIcon } from "@/components/ui-icons";
 import { fetchTestsCatalog, launchBlueprintTest, type TestBlueprintRow } from "@/lib/supabase-db";
 
-type ScopeFilter = "All" | "topic" | "subject" | "full_mock";
+function rewardFor(test: TestBlueprintRow) {
+  return {
+    completion: 20,
+    correctness: Math.min(30, Math.max(12, Math.round(test.question_count * 0.4)))
+  };
+}
 
-function BlueprintCard({ blueprint, onLaunch }: { blueprint: TestBlueprintRow; onLaunch: (id: string) => void }) {
+function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlueprintRow; onLaunch: (id: string) => void; launching: boolean }) {
+  const reward = rewardFor(blueprint);
+
   return (
-    <article className="test-card test-card-attractive">
+    <article className="test-card test-card-attractive test-card-polished">
       <div className="test-card-head">
         <span className="tiny-icon">{blueprint.scope === "topic" ? "T" : blueprint.scope === "subject" ? "S" : "F"}</span>
         <span className="subject-tag">{blueprint.scope.replace("_", " ")}</span>
@@ -20,9 +27,13 @@ function BlueprintCard({ blueprint, onLaunch }: { blueprint: TestBlueprintRow; o
         <span>Duration: {blueprint.duration_minutes} min</span>
         <span>Pool: {blueprint.availableQuestions}</span>
       </div>
+      <div className="test-reward-row">
+        <span className="test-xp">+{reward.completion} completion points</span>
+        <span className="test-xp">+{reward.correctness} correctness bonus</span>
+      </div>
       <div className="test-cta-row">
-        <button className="btn btn-solid" onClick={() => onLaunch(blueprint.id)} disabled={blueprint.availableQuestions === 0}>
-          Attempt (Exam Mode)
+        <button className="btn btn-solid" onClick={() => onLaunch(blueprint.id)} disabled={blueprint.availableQuestions === 0 || launching}>
+          {launching ? "Launching..." : "Attempt (Exam Mode)"}
         </button>
       </div>
     </article>
@@ -32,7 +43,6 @@ function BlueprintCard({ blueprint, onLaunch }: { blueprint: TestBlueprintRow; o
 export default function TestsPage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [scope, setScope] = useState<ScopeFilter>("All");
   const [catalog, setCatalog] = useState<TestBlueprintRow[]>([]);
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [catalogError, setCatalogError] = useState("");
@@ -64,15 +74,17 @@ export default function TestsPage() {
     };
   }, []);
 
-  const filtered = useMemo(
-    () =>
-      catalog.filter(
-        (item) =>
-          item.name.toLowerCase().includes(query.toLowerCase()) &&
-          (scope === "All" || item.scope === scope)
-      ),
-    [catalog, query, scope]
-  );
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) {
+      return catalog;
+    }
+    return catalog.filter((item) => item.name.toLowerCase().includes(q));
+  }, [catalog, query]);
+
+  const subjectTests = filtered.filter((item) => item.scope === "subject");
+  const topicTests = filtered.filter((item) => item.scope === "topic");
+  const fullTests = filtered.filter((item) => item.scope === "full_mock");
 
   const startTest = async (blueprintId: string) => {
     setLaunchingId(blueprintId);
@@ -93,40 +105,62 @@ export default function TestsPage() {
   };
 
   return (
-    <section className="page">
+    <section className="page tests-page-v2">
       <div className="page-head">
         <p className="eyebrow">Tests</p>
-        <h1>Topic, Subject, and Full Mock Tests</h1>
+        <h1>Subject-wise, Topic-wise, and All India Mock Tests</h1>
       </div>
 
       <div className="search-row card tests-search-box">
         <div className="search-input-wrap">
           <SearchIcon size={17} />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search tests" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search tests by topic, subject, or mock name" />
         </div>
-        <div className="tag-filter">
-          <button className={`subject-tag ${scope === "All" ? "active" : ""}`} onClick={() => setScope("All")}>All</button>
-          <button className={`subject-tag ${scope === "topic" ? "active" : ""}`} onClick={() => setScope("topic")}>Topic</button>
-          <button className={`subject-tag ${scope === "subject" ? "active" : ""}`} onClick={() => setScope("subject")}>Subject</button>
-          <button className={`subject-tag ${scope === "full_mock" ? "active" : ""}`} onClick={() => setScope("full_mock")}>Full Mock</button>
-        </div>
+        <p className="muted">Every test has fixed question sets per blueprint to avoid repeated shuffling between attempts.</p>
       </div>
 
-      <article className="card">
-        <h3>Available Tests</h3>
-        <p className="muted">Launch full-screen exam mode to emulate real test flow.</p>
-        {loadingCatalog ? <p className="muted">Loading test catalog...</p> : null}
-        {catalogError ? <p className="muted">{catalogError}</p> : null}
-        <ul className="test-list">
-          {filtered.map((test) => (
-            <li key={test.id} style={{ opacity: launchingId && launchingId !== test.id ? 0.75 : 1 }}>
-              <BlueprintCard blueprint={test} onLaunch={startTest} />
-              {launchingId === test.id ? <p className="muted">Launching exam mode...</p> : null}
-            </li>
-          ))}
-          {!loadingCatalog && filtered.length === 0 ? <li className="empty-state">No tests found.</li> : null}
-        </ul>
-      </article>
+      {loadingCatalog ? <article className="card">Loading test catalog...</article> : null}
+      {catalogError ? <article className="card">{catalogError}</article> : null}
+
+      <div className="tests-layout">
+        <div className="tests-left-col">
+          <section className="card test-section-card">
+            <div className="section-head">
+              <h2>Subject-wise Tests</h2>
+            </div>
+            <div className="tests-card-grid">
+              {subjectTests.map((test) => (
+                <BlueprintCard key={test.id} blueprint={test} onLaunch={startTest} launching={launchingId === test.id} />
+              ))}
+              {subjectTests.length === 0 ? <p className="muted">No subject-wise tests found.</p> : null}
+            </div>
+          </section>
+
+          <section className="card test-section-card">
+            <div className="section-head">
+              <h2>Topic-wise Test Series</h2>
+            </div>
+            <div className="tests-card-grid tests-card-grid-topic">
+              {topicTests.map((test) => (
+                <BlueprintCard key={test.id} blueprint={test} onLaunch={startTest} launching={launchingId === test.id} />
+              ))}
+              {topicTests.length === 0 ? <p className="muted">No topic-wise tests found.</p> : null}
+            </div>
+          </section>
+        </div>
+
+        <aside className="card test-section-card tests-right-col">
+          <div className="section-head">
+            <h2>Full Syllabus All India Tests</h2>
+          </div>
+          <div className="tests-card-grid tests-card-grid-full">
+            {fullTests.map((test) => (
+              <BlueprintCard key={test.id} blueprint={test} onLaunch={startTest} launching={launchingId === test.id} />
+            ))}
+            {fullTests.length === 0 ? <p className="muted">No full syllabus tests found.</p> : null}
+          </div>
+        </aside>
+      </div>
     </section>
   );
 }

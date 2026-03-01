@@ -45,6 +45,164 @@ export type QuestionAnswerRow = {
   correct_integer: number | null;
 };
 
+const DEFAULT_BLUEPRINTS: Array<{
+  id: string;
+  name: string;
+  scope: "topic" | "subject" | "full_mock";
+  subject: "Physics" | "Chemistry" | "Mathematics" | null;
+  topic: string | null;
+  question_count: number;
+  distribution: Record<DifficultyKey, number>;
+  duration_minutes: number;
+  negative_marking: boolean;
+  is_active: boolean;
+}> = [
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f101",
+    name: "Physics Subject Master Test",
+    scope: "subject",
+    subject: "Physics",
+    topic: null,
+    question_count: 30,
+    distribution: { easy: 25, medium: 50, hard: 25 },
+    duration_minutes: 60,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f102",
+    name: "Chemistry Subject Master Test",
+    scope: "subject",
+    subject: "Chemistry",
+    topic: null,
+    question_count: 30,
+    distribution: { easy: 25, medium: 50, hard: 25 },
+    duration_minutes: 60,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f103",
+    name: "Mathematics Subject Master Test",
+    scope: "subject",
+    subject: "Mathematics",
+    topic: null,
+    question_count: 30,
+    distribution: { easy: 20, medium: 50, hard: 30 },
+    duration_minutes: 60,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f201",
+    name: "All India Full Syllabus Mock 01",
+    scope: "full_mock",
+    subject: null,
+    topic: null,
+    question_count: 75,
+    distribution: { easy: 30, medium: 50, hard: 20 },
+    duration_minutes: 180,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f202",
+    name: "All India Full Syllabus Mock 02",
+    scope: "full_mock",
+    subject: null,
+    topic: null,
+    question_count: 75,
+    distribution: { easy: 28, medium: 50, hard: 22 },
+    duration_minutes: 180,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f203",
+    name: "All India Full Syllabus Mock 03",
+    scope: "full_mock",
+    subject: null,
+    topic: null,
+    question_count: 75,
+    distribution: { easy: 25, medium: 50, hard: 25 },
+    duration_minutes: 180,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f301",
+    name: "Mechanics Topic Series",
+    scope: "topic",
+    subject: "Physics",
+    topic: "Mechanics",
+    question_count: 20,
+    distribution: { easy: 30, medium: 50, hard: 20 },
+    duration_minutes: 45,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f302",
+    name: "Electrodynamics Topic Series",
+    scope: "topic",
+    subject: "Physics",
+    topic: "Electrodynamics",
+    question_count: 20,
+    distribution: { easy: 25, medium: 50, hard: 25 },
+    duration_minutes: 45,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f303",
+    name: "Organic Chemistry Topic Series",
+    scope: "topic",
+    subject: "Chemistry",
+    topic: "Organic Chemistry",
+    question_count: 20,
+    distribution: { easy: 25, medium: 50, hard: 25 },
+    duration_minutes: 45,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f304",
+    name: "Physical Chemistry Topic Series",
+    scope: "topic",
+    subject: "Chemistry",
+    topic: "Physical Chemistry",
+    question_count: 20,
+    distribution: { easy: 30, medium: 50, hard: 20 },
+    duration_minutes: 45,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f305",
+    name: "Calculus Topic Series",
+    scope: "topic",
+    subject: "Mathematics",
+    topic: "Calculus",
+    question_count: 20,
+    distribution: { easy: 20, medium: 50, hard: 30 },
+    duration_minutes: 45,
+    negative_marking: true,
+    is_active: true
+  },
+  {
+    id: "6ea0a10f-8e14-44ff-8f48-2bff2d35f306",
+    name: "Algebra Topic Series",
+    scope: "topic",
+    subject: "Mathematics",
+    topic: "Algebra",
+    question_count: 20,
+    distribution: { easy: 25, medium: 50, hard: 25 },
+    duration_minutes: 45,
+    negative_marking: true,
+    is_active: true
+  }
+];
+
 export function parseDistribution(input: unknown): Record<DifficultyKey, number> {
   const fallback = { easy: 30, medium: 50, hard: 20 };
   if (!input || typeof input !== "object") {
@@ -105,6 +263,8 @@ export async function fetchActiveBlueprints(params?: {
     filters.push(`topic=eq.${encodeURIComponent(params.topic)}`);
   }
 
+  await ensureDefaultBlueprints();
+
   const rows = await supabaseRest<Array<Omit<TestBlueprintRow, "distribution"> & { distribution: unknown }>>(
     `test_blueprints?${filters.join("&")}`,
     "GET"
@@ -114,6 +274,15 @@ export async function fetchActiveBlueprints(params?: {
     ...row,
     distribution: parseDistribution(row.distribution)
   }));
+}
+
+export async function ensureDefaultBlueprints() {
+  await supabaseRest(
+    "test_blueprints?on_conflict=id",
+    "POST",
+    DEFAULT_BLUEPRINTS,
+    "resolution=merge-duplicates,return=minimal"
+  );
 }
 
 export async function pickQuestionsForBlueprint(blueprint: TestBlueprintRow, seed: string) {

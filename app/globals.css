@@ -1636,6 +1636,61 @@ button.subject-tag {
   background: #fff;
 }
 
+.tests-page-v2 .page-head h1 {
+  max-width: 24ch;
+}
+
+.tests-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.tests-left-col {
+  display: grid;
+  gap: 16px;
+}
+
+.tests-right-col {
+  align-self: start;
+}
+
+.test-section-card {
+  padding: 18px;
+}
+
+.tests-card-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.tests-card-grid-topic {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tests-card-grid-full {
+  grid-template-columns: 1fr;
+}
+
+.test-card-polished {
+  border-color: #d0d6e0;
+  box-shadow: 0 1px 0 rgba(20, 24, 32, 0.03);
+}
+
+.test-reward-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.test-reward-row .test-xp {
+  border: 1px solid #c6e8d0;
+  background: #eefbf2;
+  border-radius: 999px;
+  padding: 4px 9px;
+}
+
 .test-cta-row {
   width: 100%;
   display: flex;
@@ -2383,6 +2438,14 @@ button.subject-tag {
 
   .chatbot-shell {
     width: min(920px, 95vw);
+  }
+
+  .tests-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .tests-card-grid-topic {
+    grid-template-columns: 1fr;
   }
 
   .nta-main {

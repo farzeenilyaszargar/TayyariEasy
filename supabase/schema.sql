@@ -500,3 +500,31 @@ values
   ('Chemistry Subject Test', 'subject', 'Chemistry', null, 30, '{"easy":25,"medium":50,"hard":25}', 60, true, true),
   ('JEE Full Mock Standard', 'full_mock', null, null, 75, '{"easy":30,"medium":50,"hard":20}', 180, true, true)
 on conflict do nothing;
+
+-- Expanded blueprint library for richer tests catalog.
+insert into public.test_blueprints (id, name, scope, subject, topic, question_count, distribution, duration_minutes, negative_marking, is_active)
+values
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f101', 'Physics Subject Master Test', 'subject', 'Physics', null, 30, '{"easy":25,"medium":50,"hard":25}', 60, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f102', 'Chemistry Subject Master Test', 'subject', 'Chemistry', null, 30, '{"easy":25,"medium":50,"hard":25}', 60, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f103', 'Mathematics Subject Master Test', 'subject', 'Mathematics', null, 30, '{"easy":20,"medium":50,"hard":30}', 60, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f201', 'All India Full Syllabus Mock 01', 'full_mock', null, null, 75, '{"easy":30,"medium":50,"hard":20}', 180, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f202', 'All India Full Syllabus Mock 02', 'full_mock', null, null, 75, '{"easy":28,"medium":50,"hard":22}', 180, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f203', 'All India Full Syllabus Mock 03', 'full_mock', null, null, 75, '{"easy":25,"medium":50,"hard":25}', 180, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f301', 'Mechanics Topic Series', 'topic', 'Physics', 'Mechanics', 20, '{"easy":30,"medium":50,"hard":20}', 45, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f302', 'Electrodynamics Topic Series', 'topic', 'Physics', 'Electrodynamics', 20, '{"easy":25,"medium":50,"hard":25}', 45, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f303', 'Organic Chemistry Topic Series', 'topic', 'Chemistry', 'Organic Chemistry', 20, '{"easy":25,"medium":50,"hard":25}', 45, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f304', 'Physical Chemistry Topic Series', 'topic', 'Chemistry', 'Physical Chemistry', 20, '{"easy":30,"medium":50,"hard":20}', 45, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f305', 'Calculus Topic Series', 'topic', 'Mathematics', 'Calculus', 20, '{"easy":20,"medium":50,"hard":30}', 45, true, true),
+  ('6ea0a10f-8e14-44ff-8f48-2bff2d35f306', 'Algebra Topic Series', 'topic', 'Mathematics', 'Algebra', 20, '{"easy":25,"medium":50,"hard":25}', 45, true, true)
+on conflict (id) do update
+set
+  name = excluded.name,
+  scope = excluded.scope,
+  subject = excluded.subject,
+  topic = excluded.topic,
+  question_count = excluded.question_count,
+  distribution = excluded.distribution,
+  duration_minutes = excluded.duration_minutes,
+  negative_marking = excluded.negative_marking,
+  is_active = excluded.is_active,
+  updated_at = now();

@@ -367,6 +367,9 @@ export async function submitBlueprintTest(payload: {
     error?: string;
     score: number;
     maxScore: number;
+    completionBonus: number;
+    accuracyBonus: number;
+    earnedPoints: number;
     percentile: number;
     correctCount: number;
     attemptedCount: number;

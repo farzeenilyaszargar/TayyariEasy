@@ -11,6 +11,9 @@ type ExamSession = TestInstanceRow & { launchedAt: number };
 type SubmitResult = {
   score: number;
   maxScore: number;
+  completionBonus: number;
+  accuracyBonus: number;
+  earnedPoints: number;
   percentile: number;
   correctCount: number;
   attemptedCount: number;
@@ -280,6 +283,10 @@ export default function MockExamPage() {
           </p>
           <p className="muted">
             Correct: {result.correctCount} | Attempted: {result.attemptedCount} / {result.totalQuestions}
+          </p>
+          <p className="muted">
+            Earned Points: {result.earnedPoints} (Base: {Math.max(0, Math.round(result.score))} + Completion:{" "}
+            {result.completionBonus} + Accuracy: {result.accuracyBonus})
           </p>
 
           <div className="grid-2">

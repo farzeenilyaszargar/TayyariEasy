@@ -103,6 +103,9 @@ export async function POST(request: NextRequest) {
 
     const maxScore = metas.reduce((sum, q) => sum + q.marks, 0);
     const percentile = maxScore > 0 ? Math.max(0, Math.min(99.99, (Math.max(0, totalScore) / maxScore) * 100)) : 0;
+    const completionBonus = 20;
+    const accuracyBonus = Math.max(0, Math.round((correctCount / Math.max(1, questionIds.length)) * 30));
+    const earnedPoints = Math.max(0, Math.round(totalScore)) + completionBonus + accuracyBonus;
 
     const instanceRows = await supabaseRest<Array<{ blueprint_id: string }>>(
       `test_instances?select=blueprint_id&id=eq.${testInstanceId}&limit=1`,
@@ -134,6 +137,9 @@ export async function POST(request: NextRequest) {
       testInstanceId,
       score: Number(totalScore.toFixed(2)),
       maxScore,
+      completionBonus,
+      accuracyBonus,
+      earnedPoints,
       percentile: Number(percentile.toFixed(2)),
       correctCount,
       attemptedCount,
