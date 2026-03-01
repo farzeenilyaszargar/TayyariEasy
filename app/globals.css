@@ -1182,6 +1182,104 @@ button.subject-tag {
   color: #181d26;
 }
 
+.chat-web-panel {
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.chat-web-block {
+  display: grid;
+  gap: 8px;
+}
+
+.chat-web-title {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4b5260;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.chat-web-results {
+  display: grid;
+  gap: 8px;
+}
+
+.chat-web-result-card {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid #e6e9ef;
+  border-radius: 10px;
+  background: #fbfcfe;
+  color: inherit;
+  text-decoration: none;
+}
+
+.chat-web-result-card strong {
+  font-size: 0.9rem;
+  color: #121822;
+}
+
+.chat-web-result-card p {
+  margin: 0;
+  color: #3a4352;
+  font-size: 0.86rem;
+}
+
+.chat-web-result-card span {
+  color: #5e6776;
+  font-size: 0.78rem;
+}
+
+.chat-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.chat-image-card {
+  border: 1px solid #e6e9ef;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+}
+
+.chat-image-card img {
+  display: block;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  background: #f4f6f9;
+}
+
+.chat-image-card div {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+}
+
+.chat-image-card strong {
+  font-size: 0.82rem;
+  line-height: 1.3;
+  color: #1a2230;
+}
+
+.chat-image-card span {
+  font-size: 0.75rem;
+  color: #616b7a;
+}
+
+@media (max-width: 720px) {
+  .chat-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .chat-form {
   display: flex;
   align-items: center;

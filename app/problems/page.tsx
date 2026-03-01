@@ -9,6 +9,23 @@ type Message = {
   id: string;
   role: "user" | "assistant";
   text: string;
+  sources?: WebSource[];
+  images?: WebImage[];
+  sourcesLoading?: boolean;
+};
+
+type WebSource = {
+  title: string;
+  url: string;
+  snippet: string;
+  source: string;
+};
+
+type WebImage = {
+  title: string;
+  imageUrl: string;
+  pageUrl: string;
+  source: string;
 };
 
 declare global {
@@ -228,9 +245,29 @@ export default function ProblemsPage() {
 
     const userMessage: Message = { id: crypto.randomUUID(), role: "user", text: prompt };
     const assistantId = crypto.randomUUID();
-    setMessages((prev) => [...prev, userMessage, { id: assistantId, role: "assistant", text: "" }]);
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+      { id: assistantId, role: "assistant", text: "", sources: [], images: [], sourcesLoading: true }
+    ]);
     setInput("");
     setLoading(true);
+
+    const sourcesPromise = fetch("/api/ai/problems/sources", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt })
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          return { results: [], images: [] } as { results: WebSource[]; images: WebImage[] };
+        }
+        const payload = (await response.json()) as { results?: WebSource[]; images?: WebImage[] };
+        return { results: payload.results || [], images: payload.images || [] };
+      })
+      .catch(() => ({ results: [], images: [] }));
 
     try {
       const response = await fetch("/api/ai/problems", {
@@ -286,6 +323,19 @@ export default function ProblemsPage() {
         )
       );
     } finally {
+      const web = await sourcesPromise;
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === assistantId
+            ? {
+                ...message,
+                sources: web.results,
+                images: web.images,
+                sourcesLoading: false
+              }
+            : message
+        )
+      );
       setLoading(false);
     }
   };
@@ -385,6 +435,53 @@ export default function ProblemsPage() {
               <div key={message.id} className={`chat-row ${message.role}`}>
                 <div className={`chat-bubble ${message.role}`}>
                   {message.role === "assistant" ? <MarkdownBlock text={message.text} /> : message.text}
+                  {message.role === "assistant" ? (
+                    <div className="chat-web-panel">
+                      {message.sourcesLoading ? <p className="muted">Fetching web results and images...</p> : null}
+                      {(message.sources?.length || 0) > 0 ? (
+                        <div className="chat-web-block">
+                          <p className="chat-web-title">Web Results</p>
+                          <div className="chat-web-results">
+                            {message.sources?.map((item) => (
+                              <a
+                                key={`${message.id}-${item.url}`}
+                                href={item.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="chat-web-result-card"
+                              >
+                                <strong>{item.title}</strong>
+                                <p>{item.snippet}</p>
+                                <span>{item.source}</span>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                      {(message.images?.length || 0) > 0 ? (
+                        <div className="chat-web-block">
+                          <p className="chat-web-title">Image Results</p>
+                          <div className="chat-image-grid">
+                            {message.images?.map((item) => (
+                              <a
+                                key={`${message.id}-${item.imageUrl}`}
+                                href={item.pageUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="chat-image-card"
+                              >
+                                <img src={item.imageUrl} alt={item.title} loading="lazy" />
+                                <div>
+                                  <strong>{item.title}</strong>
+                                  <span>{item.source}</span>
+                                </div>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ))}
