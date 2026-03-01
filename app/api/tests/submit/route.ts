@@ -14,8 +14,6 @@ type QuestionMeta = {
   subject: "Physics" | "Chemistry" | "Mathematics";
   topic: string;
   difficulty: "easy" | "medium" | "hard";
-  marks: number;
-  negative_marks: number;
 };
 
 export async function POST(request: NextRequest) {
@@ -44,7 +42,7 @@ export async function POST(request: NextRequest) {
     const inClause = questionIds.map((id) => `"${id}"`).join(",");
 
     const metas = await supabaseRest<QuestionMeta[]>(
-      `question_bank?select=id,subject,topic,difficulty,marks,negative_marks&id=in.(${inClause})`,
+      `question_bank?select=id,subject,topic,difficulty&id=in.(${inClause})`,
       "GET"
     );
 
@@ -52,6 +50,7 @@ export async function POST(request: NextRequest) {
     const answerMap = new Map(answersKey.map((item) => [item.question_id, item]));
     const metaMap = new Map(metas.map((item) => [item.id, item]));
 
+    // JEE Main-style scoring: +4 correct, -1 wrong, 0 unattempted.
     let totalScore = 0;
     let correctCount = 0;
     let attemptedCount = 0;
@@ -87,23 +86,21 @@ export async function POST(request: NextRequest) {
       }
 
       if (isCorrect) {
-        totalScore += meta.marks;
+        totalScore += 4;
         correctCount += 1;
         topicBucket.correct += 1;
         diffBucket.correct += 1;
       } else {
-        totalScore -= meta.negative_marks;
+        totalScore -= 1;
       }
 
       topicStats.set(meta.topic, topicBucket);
       difficultyStats.set(meta.difficulty, diffBucket);
     }
 
-    const maxScore = metas.reduce((sum, q) => sum + q.marks, 0);
+    const maxScore = questionIds.length * 4;
     const percentile = maxScore > 0 ? Math.max(0, Math.min(99.99, (Math.max(0, totalScore) / maxScore) * 100)) : 0;
-    const completionBonus = 20;
-    const accuracyBonus = Math.max(0, Math.round((correctCount / Math.max(1, questionIds.length)) * 30));
-    const earnedPoints = Math.max(0, Math.round(totalScore)) + completionBonus + accuracyBonus;
+    const earnedPoints = Math.round(totalScore);
 
     const instanceRows = await supabaseRest<Array<{ blueprint_id: string }>>(
       `test_instances?select=blueprint_id&id=eq.${testInstanceId}&limit=1`,
@@ -137,8 +134,6 @@ export async function POST(request: NextRequest) {
       testInstanceId,
       score: Number(totalScore.toFixed(2)),
       maxScore,
-      completionBonus,
-      accuracyBonus,
       earnedPoints,
       percentile: Number(percentile.toFixed(2)),
       correctCount,

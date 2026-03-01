@@ -12,8 +12,6 @@ type ExamSession = TestInstanceRow & { launchedAt: number };
 type SubmitResult = {
   score: number;
   maxScore: number;
-  completionBonus: number;
-  accuracyBonus: number;
   earnedPoints: number;
   percentile: number;
   correctCount: number;
@@ -407,9 +405,12 @@ export default function MockExamPage() {
               <p className="muted">
                 Correct: {result.correctCount} | Attempted: {result.attemptedCount} / {result.totalQuestions}
               </p>
-              <p className="muted">
-                Earned Points: {result.earnedPoints} (Base: {Math.max(0, Math.round(result.score))} + Completion: {result.completionBonus} + Accuracy: {result.accuracyBonus})
-              </p>
+          <p className="muted">
+            JEE Main Scoring: +4 correct, -1 wrong, 0 unattempted
+          </p>
+          <p className="muted">
+            Points Earned (same as score): {result.earnedPoints}
+          </p>
               <p className="muted">
                 {result.savedToCloud ? "Saved to Supabase profile and attempt history." : "Saved locally on this device. Sign in to sync all future test attempts."}
               </p>
