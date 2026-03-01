@@ -15,7 +15,11 @@ type DashboardInput = {
 
 type ForecastPayload = {
   estimatedScore: number;
+  estimatedScoreLow: number;
+  estimatedScoreHigh: number;
   estimatedRank: number;
+  estimatedRankLow: number;
+  estimatedRankHigh: number;
   confidence: string;
   method: string;
   riskNotes: string[];
@@ -42,18 +46,6 @@ function stdDev(values: number[]) {
   const avg = mean(values);
   const variance = values.reduce((sum, v) => sum + (v - avg) ** 2, 0) / values.length;
   return Math.sqrt(variance);
-}
-
-function median(values: number[]) {
-  if (values.length === 0) {
-    return 0;
-  }
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  if (sorted.length % 2 === 0) {
-    return (sorted[mid - 1] + sorted[mid]) / 2;
-  }
-  return sorted[mid];
 }
 
 function interpolateRank(score: number) {
@@ -101,66 +93,68 @@ function parseRiskJson(raw: string) {
   }
 }
 
-async function buildConservativeForecast(payload: DashboardInput): Promise<ForecastPayload> {
+async function buildForecast(payload: DashboardInput): Promise<ForecastPayload> {
   const scores = payload.recentScores.filter((n) => Number.isFinite(n)).slice(-12);
   if (scores.length === 0) {
     return {
       estimatedScore: 0,
+      estimatedScoreLow: 0,
+      estimatedScoreHigh: 0,
       estimatedRank: 0,
+      estimatedRankLow: 0,
+      estimatedRankHigh: 0,
       confidence: "Not enough attempts",
-      method: "Recency-weighted AI estimate pending data",
-      riskNotes: ["Take at least 3 full tests for conservative AIR/score forecasting."],
+      method: "Realistic score/rank forecast pending data",
+      riskNotes: ["Take at least 3 full tests for a reliable score/rank range."],
       calculatedFrom: "0 attempts"
     };
   }
 
   const recent = scores.slice(-6);
   const avg = mean(scores);
-  const last = scores[scores.length - 1];
   const prevRecent = scores.slice(Math.max(0, scores.length - 10), Math.max(0, scores.length - 5));
   const recentAvg = mean(recent);
   const prevRecentAvg = prevRecent.length > 0 ? mean(prevRecent) : recentAvg;
   const recencyMomentum = recentAvg - prevRecentAvg;
-  const improvementSlope = (scores[scores.length - 1] - scores[0]) / Math.max(1, scores.length - 1);
 
-  // Weighted moving estimate with explicit recency emphasis.
+  // Weighted estimate with stronger emphasis on recent attempts.
   let weightedSum = 0;
   let weightSum = 0;
   for (let i = scores.length - 1, age = 0; i >= 0; i -= 1, age += 1) {
-    const w = Math.pow(0.82, age);
+    const w = Math.pow(0.85, age);
     weightedSum += scores[i] * w;
     weightSum += w;
   }
   const recencyWeighted = weightSum > 0 ? weightedSum / weightSum : recentAvg;
 
   const volatility = stdDev(scores);
-  const volatilityPenalty = Math.min(12, volatility * 0.45);
-  const samplePenalty = scores.length < 5 ? (5 - scores.length) * 2 : 0;
-  const mildConservativeBias = 3;
+  const baseScore = recentAvg * 0.5 + recencyWeighted * 0.3 + avg * 0.2 + recencyMomentum * 0.25;
+  const samplePenalty = scores.length < 4 ? (4 - scores.length) * 1.5 : 0;
 
   let estimatedScore = clamp(
-    Math.round(recencyWeighted + recencyMomentum * 0.45 + improvementSlope * 1.15 - volatilityPenalty - samplePenalty - mildConservativeBias),
+    Math.round(baseScore - samplePenalty),
     0,
     300
   );
 
-  let aiPenaltyScore = 0;
-  let aiPenaltyRankPct = 0;
+  let aiUncertaintyBoost = 0;
+  let aiRankShiftPct = 0;
   let riskNotes: string[] = [];
+  let uncertaintyScore = clamp(8 + volatility * 0.5 + (scores.length < 6 ? (6 - scores.length) * 1.2 : 0), 6, 30);
 
   if (hasDeepSeekConfig()) {
     const riskPrompt = [
       "Return strict JSON only.",
-      "You are calibrating a conservative JEE forecast. Be mildly pessimistic, not extreme.",
+      "You are calibrating a realistic JEE forecast using test history. Avoid both optimistic and pessimistic extremes.",
       `Recent scores: ${scores.join(", ")}`,
       `Recency weighted mean: ${recencyWeighted.toFixed(2)}`,
       `Recent momentum: ${recencyMomentum.toFixed(2)}`,
-      `Improvement slope: ${improvementSlope.toFixed(2)}`,
+      `Overall average: ${avg.toFixed(2)}`,
       `Volatility: ${volatility.toFixed(2)}`,
       `Current confidence label: ${payload.confidence}`,
       `Tests completed: ${payload.testsCompleted}, streak: ${payload.streak}, points: ${payload.points}`,
       "JSON schema:",
-      '{"risk_penalty_score": number (0..7), "risk_penalty_rank_percent": number (0..0.12), "confidence_label": string, "risk_notes": string[]}'
+      '{"uncertainty_boost_score": number (0..6), "rank_shift_percent": number (-0.04..0.06), "confidence_label": string, "risk_notes": string[]}'
     ].join("\n");
 
     try {
@@ -169,7 +163,7 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
           {
             role: "system",
             content:
-              "You are a conservative but fair exam forecaster. Avoid aggressive pessimism. Return strict JSON only."
+              "You are a fair exam forecaster. Keep output realistic and data-grounded. Return strict JSON only."
           },
           { role: "user", content: riskPrompt }
         ],
@@ -179,8 +173,8 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
 
       const parsed = parseRiskJson(riskRaw);
       if (parsed) {
-        aiPenaltyScore = clamp(Number(parsed.risk_penalty_score || 0), 0, 7);
-        aiPenaltyRankPct = clamp(Number(parsed.risk_penalty_rank_percent || 0), 0, 0.12);
+        aiUncertaintyBoost = clamp(Number(parsed.uncertainty_boost_score || 0), 0, 6);
+        aiRankShiftPct = clamp(Number(parsed.rank_shift_percent || 0), -0.04, 0.06);
         riskNotes = Array.isArray(parsed.risk_notes) ? parsed.risk_notes.map((x) => String(x)) : [];
       }
     } catch {
@@ -188,34 +182,39 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
     }
   }
 
-  estimatedScore = clamp(Math.round(estimatedScore - aiPenaltyScore), 0, 300);
+  uncertaintyScore = clamp(uncertaintyScore + aiUncertaintyBoost, 6, 35);
+  const estimatedScoreLow = clamp(Math.round(estimatedScore - uncertaintyScore), 0, 300);
+  const estimatedScoreHigh = clamp(Math.round(estimatedScore + uncertaintyScore * 0.9), 0, 300);
+
   const baseRank = interpolateRank(estimatedScore);
-  const volatilityRankPenalty = Math.round(volatility * 700);
-  const sampleRankPenalty = scores.length < 5 ? (5 - scores.length) * 6000 : 0;
-  const estimatedRank = clamp(
-    Math.round(baseRank * (1 + aiPenaltyRankPct) + volatilityRankPenalty + sampleRankPenalty),
-    1,
-    MAX_JEE_PARTICIPANTS
-  );
+  let estimatedRank = clamp(Math.round(baseRank * (1 + aiRankShiftPct)), 1, MAX_JEE_PARTICIPANTS);
+  const rankSpreadExtra = Math.round(volatility * 850 + (scores.length < 6 ? (6 - scores.length) * 4500 : 0));
+  const estimatedRankLow = clamp(interpolateRank(estimatedScoreHigh) - rankSpreadExtra, 1, MAX_JEE_PARTICIPANTS);
+  const estimatedRankHigh = clamp(interpolateRank(estimatedScoreLow) + rankSpreadExtra, 1, MAX_JEE_PARTICIPANTS);
+  estimatedRank = clamp(estimatedRank, estimatedRankLow, estimatedRankHigh);
 
   const confidence =
-    scores.length >= 8 && volatility < 16
+    scores.length >= 10 && volatility < 14
+      ? "High"
+      : scores.length >= 6
       ? "Moderate"
-      : scores.length >= 5
-        ? "Low-Moderate"
-        : "Low";
+      : "Low-Moderate";
 
   return {
     estimatedScore,
+    estimatedScoreLow,
+    estimatedScoreHigh,
     estimatedRank,
+    estimatedRankLow,
+    estimatedRankHigh,
     confidence,
-    method: "Recency-weighted estimate + momentum + volatility/risk adjustments",
+    method: "Recent-average + recency weighting + stability bands",
     riskNotes:
       riskNotes.length > 0
         ? riskNotes
         : [
-            "Estimate includes conservative risk adjustment for volatility and limited sample size.",
-            "Recent activity is weighted more than older attempts."
+            "Range expands when score consistency is low or attempt count is small.",
+            "Recent attempts are weighted more than older attempts."
           ],
     calculatedFrom: `${scores.length} attempts | recent avg ${recentAvg.toFixed(1)} | overall avg ${avg.toFixed(1)} | std dev ${volatility.toFixed(1)}`
   };
@@ -233,7 +232,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const forecast = await buildConservativeForecast(payload);
+    const forecast = await buildForecast(payload);
 
     if (!includeAnalysis) {
       return NextResponse.json({ forecast });
@@ -243,9 +242,11 @@ export async function POST(request: NextRequest) {
       `Raw Rank Range (DB): ${payload.rankRange}`,
       `Raw Score Range (DB): ${payload.scoreRange}`,
       `Raw Confidence: ${payload.confidence}`,
-      `Conservative AI Rank Estimate: ${forecast.estimatedRank}`,
-      `Conservative AI Score Estimate: ${forecast.estimatedScore}`,
-      `Conservative Confidence: ${forecast.confidence}`,
+      `AI Rank Estimate: ${forecast.estimatedRank}`,
+      `AI Rank Range: ${forecast.estimatedRankLow} - ${forecast.estimatedRankHigh}`,
+      `AI Score Estimate: ${forecast.estimatedScore}`,
+      `AI Score Range: ${forecast.estimatedScoreLow} - ${forecast.estimatedScoreHigh}`,
+      `Confidence: ${forecast.confidence}`,
       `Forecast Method: ${forecast.method}`,
       `Forecast Basis: ${forecast.calculatedFrom}`,
       `Risk Notes: ${forecast.riskNotes.join(" | ")}`,
@@ -261,7 +262,7 @@ export async function POST(request: NextRequest) {
         {
           role: "system",
           content:
-            "You are an expert JEE preparation mentor. Analyze dashboard data using conservative assumptions and return concise actionable guidance in markdown with these sections only: 1) Current Performance, 2) Key Gaps, 3) 7-Day Action Plan."
+            "You are an expert JEE preparation mentor. Analyze dashboard data using realistic assumptions and return concise actionable guidance in markdown with these sections only: 1) Current Performance, 2) Key Gaps, 3) 7-Day Action Plan."
         },
         { role: "user", content: userPrompt }
       ],

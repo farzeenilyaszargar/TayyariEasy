@@ -14,9 +14,13 @@ const emptyData: DashboardPayload = {
   insights: []
 };
 
-type ConservativeForecast = {
+type PerformanceForecast = {
   estimatedScore: number;
+  estimatedScoreLow: number;
+  estimatedScoreHigh: number;
   estimatedRank: number;
+  estimatedRankLow: number;
+  estimatedRankHigh: number;
   confidence: string;
   method: string;
   riskNotes: string[];
@@ -91,7 +95,7 @@ export function Dashboard() {
   const [coachLoading, setCoachLoading] = useState(false);
   const [coachError, setCoachError] = useState("");
   const [coachAnalysis, setCoachAnalysis] = useState("");
-  const [forecast, setForecast] = useState<ConservativeForecast | null>(null);
+  const [forecast, setForecast] = useState<PerformanceForecast | null>(null);
   const [forecastLoading, setForecastLoading] = useState(false);
   const [forecastError, setForecastError] = useState("");
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
@@ -187,9 +191,9 @@ export function Dashboard() {
           })
         });
 
-        const payload = (await response.json()) as { forecast?: ConservativeForecast; error?: string };
+        const payload = (await response.json()) as { forecast?: PerformanceForecast; error?: string };
         if (!response.ok) {
-          throw new Error(payload.error || "Failed to compute conservative forecast.");
+          throw new Error(payload.error || "Failed to compute forecast.");
         }
 
         if (alive) {
@@ -197,7 +201,7 @@ export function Dashboard() {
         }
       } catch (err) {
         if (alive) {
-          setForecastError(err instanceof Error ? err.message : "Unable to compute conservative forecast.");
+          setForecastError(err instanceof Error ? err.message : "Unable to compute forecast.");
         }
       } finally {
         if (alive) {
@@ -246,7 +250,7 @@ export function Dashboard() {
 
       const payload = (await response.json()) as {
         analysis?: string;
-        forecast?: ConservativeForecast;
+        forecast?: PerformanceForecast;
         error?: string;
       };
       if (!response.ok) {
@@ -273,15 +277,15 @@ export function Dashboard() {
   const scoreStability = scoreSeries.length > 1 ? stdDev(scoreSeries) : null;
 
   const rankDisplay = forecast
-    ? `~${numberFormatterIN.format(forecast.estimatedRank)}`
-    : analytics?.predicted_rank_high != null
-      ? `~${numberFormatterIN.format(analytics.predicted_rank_high)}`
+    ? `${numberFormatterIN.format(forecast.estimatedRankLow)} - ${numberFormatterIN.format(forecast.estimatedRankHigh)}`
+    : analytics?.predicted_rank_low != null && analytics?.predicted_rank_high != null
+      ? `${numberFormatterIN.format(analytics.predicted_rank_low)} - ${numberFormatterIN.format(analytics.predicted_rank_high)}`
       : "???";
 
   const scoreDisplay = forecast
-    ? `~${numberFormatterIN.format(forecast.estimatedScore)}`
-    : analytics?.estimated_score_high != null
-      ? `~${numberFormatterIN.format(analytics.estimated_score_high)}`
+    ? `${numberFormatterIN.format(forecast.estimatedScoreLow)} - ${numberFormatterIN.format(forecast.estimatedScoreHigh)}`
+    : analytics?.estimated_score_low != null && analytics?.estimated_score_high != null
+      ? `${numberFormatterIN.format(analytics.estimated_score_low)} - ${numberFormatterIN.format(analytics.estimated_score_high)}`
       : "???";
 
   useEffect(() => {
@@ -339,11 +343,11 @@ export function Dashboard() {
       <div className="dashboard-columns">
         <div className="dashboard-col">
           <section className="card stat-card stat-rank stat-serious">
-            <p className="eyebrow">Conservative AIR Forecast</p>
+            <p className="eyebrow">AIR Forecast Range</p>
             <h2>{rankDisplay}</h2>
             <p className="muted">
               {forecast
-                ? `Conservative AI forecast with risk-adjusted confidence: ${forecast.confidence}.`
+                ? `Current estimate centers near ~${numberFormatterIN.format(forecast.estimatedRank)} with ${forecast.confidence} confidence.`
                 : analytics
                   ? "Fallback: live Supabase analytics."
                   : "Take a full test to generate rank forecast."}
@@ -456,14 +460,14 @@ export function Dashboard() {
 
         <div className="dashboard-col">
           <section className="card stat-card stat-score stat-serious">
-            <p className="eyebrow">Conservative Score Forecast</p>
+            <p className="eyebrow">Score Forecast Range</p>
             <h2>{scoreDisplay}</h2>
             <p className="muted">
               {forecast
-                ? `${forecast.calculatedFrom}`
+                ? `Current estimate centers near ~${numberFormatterIN.format(forecast.estimatedScore)} | ${forecast.calculatedFrom}`
                 : `Confidence: ${analytics?.confidence_label || "Take a test"}`}
             </p>
-            {forecastLoading ? <p className="dashboard-note">Recomputing strict forecast...</p> : null}
+            {forecastLoading ? <p className="dashboard-note">Recomputing forecast...</p> : null}
             {forecastError ? <p className="dashboard-note">{forecastError}</p> : null}
           </section>
 
@@ -511,7 +515,7 @@ export function Dashboard() {
               <h3>AI Analysis</h3>
               <span className="dashboard-metric-chip">
                 <TargetIcon size={14} />
-                Conservative mode
+                Realistic mode
               </span>
             </div>
             <ul className="insight-list">
