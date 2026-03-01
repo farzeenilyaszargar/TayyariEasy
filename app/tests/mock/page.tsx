@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { TrophyIcon, TrendIcon } from "@/components/ui-icons";
 import { useAuth } from "@/components/auth-provider";
 import { fetchTestInstanceById, launchBlueprintTest, submitBlueprintTest, type TestInstanceRow } from "@/lib/supabase-db";
@@ -109,7 +109,7 @@ function buildLeaderboardRows(allAttempts: LocalAttempt[], testName: string, cur
   };
 }
 
-export default function MockExamPage() {
+function MockExamPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isLoggedIn, user, refreshUser } = useAuth();
@@ -709,5 +709,22 @@ export default function MockExamPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function MockExamPage() {
+  return (
+    <Suspense
+      fallback={
+        <section className="page">
+          <article className="card">
+            <h2>Loading test session...</h2>
+            <p className="muted">Preparing exam interface.</p>
+          </article>
+        </section>
+      }
+    >
+      <MockExamPageContent />
+    </Suspense>
   );
 }
