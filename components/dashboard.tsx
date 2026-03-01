@@ -299,14 +299,12 @@ export function Dashboard() {
     ? "???"
     : forecast
       ? `${numberFormatterIN.format(forecast.estimatedRankLow)} - ${numberFormatterIN.format(forecast.estimatedRankHigh)}`
-      : analytics?.predicted_rank_low != null && analytics?.predicted_rank_high != null
-        ? `${numberFormatterIN.format(analytics.predicted_rank_low)} - ${numberFormatterIN.format(analytics.predicted_rank_high)}`
-        : "???";
+      : "???";
 
-  const scoreDisplay = forecast
-    ? `${numberFormatterIN.format(forecast.estimatedScoreLow)} - ${numberFormatterIN.format(forecast.estimatedScoreHigh)}`
-    : analytics?.estimated_score_low != null && analytics?.estimated_score_high != null
-      ? `${numberFormatterIN.format(analytics.estimated_score_low)} - ${numberFormatterIN.format(analytics.estimated_score_high)}`
+  const scoreDisplay = loading
+    ? "???"
+    : forecast
+      ? `${numberFormatterIN.format(forecast.estimatedScoreLow)} - ${numberFormatterIN.format(forecast.estimatedScoreHigh)}`
       : "???";
 
   useEffect(() => {
@@ -369,9 +367,7 @@ export function Dashboard() {
             <p className="muted">
               {forecast
                 ? `Current estimate centers near ~${numberFormatterIN.format(forecast.estimatedRank)} with ${forecast.confidence} confidence.`
-                : analytics
-                  ? "Fallback: live Supabase analytics."
-                  : "Take a full test to generate rank forecast."}
+                : "Take a full test to generate rank forecast."}
             </p>
             {forecast?.riskNotes?.[0] ? <p className="dashboard-note">{forecast.riskNotes[0]}</p> : null}
           </section>
@@ -486,7 +482,7 @@ export function Dashboard() {
             <p className="muted">
               {forecast
                 ? `Current estimate centers near ~${numberFormatterIN.format(forecast.estimatedScore)} | ${forecast.calculatedFrom}`
-                : `Confidence: ${analytics?.confidence_label || "Take a test"}`}
+                : "Take a full test to generate score forecast."}
             </p>
             {forecastLoading ? <p className="dashboard-note">Recomputing forecast...</p> : null}
             {forecastError ? <p className="dashboard-note">{forecastError}</p> : null}
