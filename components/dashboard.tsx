@@ -101,6 +101,7 @@ export function Dashboard() {
   const [forecast, setForecast] = useState<ConservativeForecast | null>(null);
   const [forecastLoading, setForecastLoading] = useState(false);
   const [forecastError, setForecastError] = useState("");
+  const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -135,10 +136,22 @@ export function Dashboard() {
     };
   }, [user.id]);
 
-  const scoreSeries = useMemo(
-    () => data.tests.slice().reverse().map((item) => Number(item.score)).filter((item) => !Number.isNaN(item)),
+  const scoreTimeline = useMemo(
+    () =>
+      data.tests
+        .slice()
+        .reverse()
+        .map((item) => ({
+          testName: item.test_name,
+          attemptedAt: item.attempted_at,
+          score: Number(item.score),
+          percentile: Number(item.percentile)
+        }))
+        .filter((item) => !Number.isNaN(item.score)),
     [data.tests]
   );
+
+  const scoreSeries = useMemo(() => scoreTimeline.map((item) => item.score), [scoreTimeline]);
 
   const analytics = data.analytics;
 
@@ -274,6 +287,22 @@ export function Dashboard() {
     ? `${forecast.scoreLow.toLocaleString()} - ${forecast.scoreHigh.toLocaleString()}`
     : formatRange(analytics?.estimated_score_low, analytics?.estimated_score_high);
 
+  useEffect(() => {
+    if (geometry.points.length > 0) {
+      setHoveredPointIndex(geometry.points.length - 1);
+    } else {
+      setHoveredPointIndex(null);
+    }
+  }, [geometry.points.length]);
+
+  const hoveredPoint =
+    hoveredPointIndex == null
+      ? null
+      : {
+          point: geometry.points[hoveredPointIndex],
+          meta: scoreTimeline[hoveredPointIndex]
+        };
+
   return (
     <div className="dashboard-grid dashboard-grid-beautified">
       <section className="card profile-card profile-card-hero">
@@ -300,7 +329,7 @@ export function Dashboard() {
             <h2>{rankDisplay}</h2>
             <p className="muted">
               {forecast
-                ? `Strict mode: pessimistic AI penalties applied. Confidence: ${forecast.confidence}.`
+                ? `Conservative AI forecast with risk-adjusted confidence: ${forecast.confidence}.`
                 : analytics
                   ? "Fallback: live Supabase analytics."
                   : "Take a full test to generate rank forecast."}
@@ -336,7 +365,13 @@ export function Dashboard() {
                 {growth === null ? "No trend yet" : `${growth >= 0 ? "+" : ""}${growth.toFixed(1)} trend`}
               </span>
             </div>
-            <svg className="graph-svg" viewBox="0 0 420 210" role="img" aria-label="Detailed score trend graph">
+            <svg
+              className="graph-svg"
+              viewBox="0 0 420 210"
+              role="img"
+              aria-label="Detailed score trend graph"
+              onMouseLeave={() => setHoveredPointIndex(null)}
+            >
               <polyline className="graph-axis" points="40,20 40,170 390,170" />
               {geometry.guides.map((guide) => (
                 <g key={guide.y}>
@@ -352,10 +387,23 @@ export function Dashboard() {
                   cx={point.x}
                   cy={point.y}
                   r={idx === geometry.points.length - 1 ? 4.4 : 3}
-                  className={idx === geometry.points.length - 1 ? "graph-dot graph-dot-latest" : "graph-dot"}
+                  className={idx === geometry.points.length - 1 ? "graph-dot graph-dot-latest graph-dot-hoverable" : "graph-dot graph-dot-hoverable"}
+                  onMouseEnter={() => setHoveredPointIndex(idx)}
                 />
               ))}
             </svg>
+            {hoveredPoint?.meta ? (
+              <div className="graph-hover-panel">
+                <strong>{hoveredPoint.meta.testName}</strong>
+                <small>
+                  {hoveredPoint.meta.attemptedAt} | Score: {hoveredPoint.meta.score} | Percentile: {hoveredPoint.meta.percentile}
+                </small>
+              </div>
+            ) : (
+              <div className="graph-hover-panel graph-hover-panel-muted">
+                <small>Hover any point to view attempt details.</small>
+              </div>
+            )}
             <div className="dashboard-metrics-grid">
               <div className="dashboard-metric-box">
                 <small>Attempts</small>
@@ -451,7 +499,7 @@ export function Dashboard() {
             </ul>
             <div className="cta-row">
               <button className="btn btn-solid" onClick={() => void runCoachAnalysis()} disabled={coachLoading}>
-                {coachLoading ? "Analyzing..." : "Generate Strict AI Plan"}
+                {coachLoading ? "Analyzing..." : "Generate AI Plan"}
               </button>
             </div>
             {coachError ? <p className="muted">{coachError}</p> : null}

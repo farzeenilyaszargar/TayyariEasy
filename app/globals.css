@@ -821,6 +821,37 @@ small {
   fill: #1d7d3a;
 }
 
+.graph-dot-hoverable {
+  cursor: pointer;
+  transition: r 120ms ease, fill 120ms ease;
+}
+
+.graph-dot-hoverable:hover {
+  fill: #2b3f6e;
+}
+
+.graph-hover-panel {
+  border: 1px solid #d7deea;
+  border-radius: 10px;
+  background: #f7f9fc;
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+}
+
+.graph-hover-panel strong {
+  font-size: 0.86rem;
+  color: #1b2536;
+}
+
+.graph-hover-panel small {
+  color: #4f5a6d;
+}
+
+.graph-hover-panel-muted {
+  background: #fafbfd;
+}
+
 .dashboard-metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
