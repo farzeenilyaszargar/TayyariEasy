@@ -138,10 +138,21 @@ export default function MockExamPage() {
     return Array.from(bucket.entries()).map(([subject, count]) => ({ subject, count }));
   }, [session]);
 
+  const markCurrentVisited = () => {
+    if (!session) {
+      return;
+    }
+    const currentQuestionId = session.questions[currentIdx]?.id;
+    if (currentQuestionId) {
+      setVisited((prev) => ({ ...prev, [currentQuestionId]: true }));
+    }
+  };
+
   const moveTo = (idx: number) => {
     if (!session) {
       return;
     }
+    markCurrentVisited();
     const next = Math.max(0, Math.min(session.questions.length - 1, idx));
     const qid = session.questions[next]?.id;
     if (qid) {
