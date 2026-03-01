@@ -2902,12 +2902,12 @@ button.subject-tag {
 }
 
 .social-icon {
-  border: 1px solid #2b3038;
-  border-radius: 999px;
-  width: 46px;
-  height: 46px;
+  border: none;
+  border-radius: 0;
+  width: 56px;
+  height: 56px;
   font-size: 0.8rem;
-  background: #14171d;
+  background: transparent;
   color: #d9dee7;
   display: inline-flex;
   align-items: center;
@@ -2915,11 +2915,19 @@ button.subject-tag {
 }
 
 .social-icon-img {
-  filter: invert(1) grayscale(1) brightness(1.8);
+  width: 30px;
+  height: 30px;
+  filter: invert(1) grayscale(1) brightness(1.75);
+  transition: filter 140ms ease, transform 140ms ease;
 }
 
 .social-icon:hover {
-  background: #1a1e25;
+  background: transparent;
+}
+
+.social-icon:hover .social-icon-img {
+  filter: invert(1) grayscale(0) brightness(2.4);
+  transform: scale(1.06);
 }
 
 .footer-links {
