@@ -21,32 +21,18 @@ export function ReviewSlider({ reviews }: { reviews: Review[] }) {
     [index, reviews]
   );
 
-  const goPrev = () => {
-    setIndex((prev) => (prev === 0 ? reviews.length - 1 : prev - 1));
-  };
-
-  const goNext = () => {
-    setIndex((prev) => (prev === reviews.length - 1 ? 0 : prev + 1));
-  };
+  
 
   useEffect(() => {
     const timer = window.setInterval(() => {
       setIndex((prev) => (prev === reviews.length - 1 ? 0 : prev + 1));
-    }, 2000);
+    }, 4000);
 
     return () => window.clearInterval(timer);
   }, [reviews.length]);
 
   return (
     <section className="review-slider-block">
-      <div className="slider-controls slider-controls-top">
-        <button className="btn btn-outline slider-btn" onClick={goPrev} aria-label="Previous reviews">
-          Prev
-        </button>
-        <button className="btn btn-outline slider-btn" onClick={goNext} aria-label="Next reviews">
-          Next
-        </button>
-      </div>
 
       <div className="review-slider-track" key={index}>
         {visible.map((review) => (
