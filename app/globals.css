@@ -1647,6 +1647,36 @@ button.subject-tag {
   margin-top: 14px;
 }
 
+.tests-layout-v3 {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.tests-top-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.tests-half-panel,
+.tests-bottom-full {
+  min-width: 0;
+}
+
+.tests-section-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.tests-section-head-row h2 {
+  margin-right: auto;
+}
+
 .tests-left-col {
   display: grid;
   gap: 16px;
@@ -2441,6 +2471,10 @@ button.subject-tag {
   }
 
   .tests-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .tests-top-row {
     grid-template-columns: 1fr;
   }
 

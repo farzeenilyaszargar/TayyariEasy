@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SearchIcon } from "@/components/ui-icons";
+import { ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "@/components/ui-icons";
 import { fetchTestsCatalog, launchBlueprintTest, type TestBlueprintRow } from "@/lib/supabase-db";
 
 function rewardFor(test: TestBlueprintRow) {
@@ -47,6 +47,9 @@ export default function TestsPage() {
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [catalogError, setCatalogError] = useState("");
   const [launchingId, setLaunchingId] = useState("");
+  const [subjectStart, setSubjectStart] = useState(0);
+  const [fullStart, setFullStart] = useState(0);
+  const topCardsPerPanel = 3;
 
   useEffect(() => {
     let alive = true;
@@ -86,6 +89,15 @@ export default function TestsPage() {
   const topicTests = filtered.filter((item) => item.scope === "topic");
   const fullTests = filtered.filter((item) => item.scope === "full_mock");
 
+  const subjectVisible = subjectTests.slice(
+    Math.min(subjectStart, Math.max(subjectTests.length - topCardsPerPanel, 0)),
+    Math.min(subjectStart, Math.max(subjectTests.length - topCardsPerPanel, 0)) + topCardsPerPanel
+  );
+  const fullVisible = fullTests.slice(
+    Math.min(fullStart, Math.max(fullTests.length - topCardsPerPanel, 0)),
+    Math.min(fullStart, Math.max(fullTests.length - topCardsPerPanel, 0)) + topCardsPerPanel
+  );
+
   const startTest = async (blueprintId: string) => {
     setLaunchingId(blueprintId);
     setCatalogError("");
@@ -122,44 +134,84 @@ export default function TestsPage() {
       {loadingCatalog ? <article className="card">Loading test catalog...</article> : null}
       {catalogError ? <article className="card">{catalogError}</article> : null}
 
-      <div className="tests-layout">
-        <div className="tests-left-col">
-          <section className="card test-section-card">
-            <div className="section-head">
+      <div className="tests-layout-v3">
+        <div className="tests-top-row">
+          <section className="card test-section-card tests-half-panel">
+            <div className="section-head tests-section-head-row">
               <h2>Subject-wise Tests</h2>
+              <div className="resource-slider-controls">
+                <button
+                  type="button"
+                  className="resource-slider-btn"
+                  aria-label="Previous subject tests"
+                  disabled={subjectStart <= 0}
+                  onClick={() => setSubjectStart((prev) => Math.max(prev - 1, 0))}
+                >
+                  <ChevronLeftIcon size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="resource-slider-btn"
+                  aria-label="Next subject tests"
+                  disabled={subjectStart >= Math.max(subjectTests.length - topCardsPerPanel, 0)}
+                  onClick={() => setSubjectStart((prev) => Math.min(prev + 1, Math.max(subjectTests.length - topCardsPerPanel, 0)))}
+                >
+                  <ChevronRightIcon size={16} />
+                </button>
+              </div>
             </div>
             <div className="tests-card-grid">
-              {subjectTests.map((test) => (
+              {subjectVisible.map((test) => (
                 <BlueprintCard key={test.id} blueprint={test} onLaunch={startTest} launching={launchingId === test.id} />
               ))}
               {subjectTests.length === 0 ? <p className="muted">No subject-wise tests found.</p> : null}
             </div>
           </section>
 
-          <section className="card test-section-card">
-            <div className="section-head">
-              <h2>Topic-wise Test Series</h2>
+          <aside className="card test-section-card tests-half-panel">
+            <div className="section-head tests-section-head-row">
+              <h2>Full Syllabus All India Tests</h2>
+              <div className="resource-slider-controls">
+                <button
+                  type="button"
+                  className="resource-slider-btn"
+                  aria-label="Previous full tests"
+                  disabled={fullStart <= 0}
+                  onClick={() => setFullStart((prev) => Math.max(prev - 1, 0))}
+                >
+                  <ChevronLeftIcon size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="resource-slider-btn"
+                  aria-label="Next full tests"
+                  disabled={fullStart >= Math.max(fullTests.length - topCardsPerPanel, 0)}
+                  onClick={() => setFullStart((prev) => Math.min(prev + 1, Math.max(fullTests.length - topCardsPerPanel, 0)))}
+                >
+                  <ChevronRightIcon size={16} />
+                </button>
+              </div>
             </div>
-            <div className="tests-card-grid tests-card-grid-topic">
-              {topicTests.map((test) => (
+            <div className="tests-card-grid">
+              {fullVisible.map((test) => (
                 <BlueprintCard key={test.id} blueprint={test} onLaunch={startTest} launching={launchingId === test.id} />
               ))}
-              {topicTests.length === 0 ? <p className="muted">No topic-wise tests found.</p> : null}
+              {fullTests.length === 0 ? <p className="muted">No full syllabus tests found.</p> : null}
             </div>
-          </section>
+          </aside>
         </div>
 
-        <aside className="card test-section-card tests-right-col">
+        <section className="card test-section-card tests-bottom-full">
           <div className="section-head">
-            <h2>Full Syllabus All India Tests</h2>
+            <h2>Topic-wise Test Series</h2>
           </div>
-          <div className="tests-card-grid tests-card-grid-full">
-            {fullTests.map((test) => (
+          <div className="tests-card-grid tests-card-grid-topic">
+            {topicTests.map((test) => (
               <BlueprintCard key={test.id} blueprint={test} onLaunch={startTest} launching={launchingId === test.id} />
             ))}
-            {fullTests.length === 0 ? <p className="muted">No full syllabus tests found.</p> : null}
+            {topicTests.length === 0 ? <p className="muted">No topic-wise tests found.</p> : null}
           </div>
-        </aside>
+        </section>
       </div>
     </section>
   );
