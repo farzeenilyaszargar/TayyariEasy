@@ -89,8 +89,8 @@ export default function LoginPage() {
 
           {!hasSupabaseConfig() ? (
             <p className="login-alert">
-              Supabase is not configured. Set <code>NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-              <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.
+              Authentication is not configured. Add the required environment variables in
+              <code> .env.local</code>.
             </p>
           ) : null}
 

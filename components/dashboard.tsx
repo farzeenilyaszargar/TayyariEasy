@@ -123,7 +123,7 @@ export function Dashboard() {
         }
       } catch (err) {
         if (alive) {
-          setError(err instanceof Error ? err.message : "Failed to load dashboard data from Supabase.");
+          setError(err instanceof Error ? err.message : "Failed to load dashboard data.");
         }
       } finally {
         if (alive) {
@@ -683,7 +683,7 @@ export function Dashboard() {
 
       {loading ? (
         <section className="card dashboard-status">
-          <p className="muted">Loading dashboard from Supabase...</p>
+          <p className="muted">Loading...</p>
         </section>
       ) : null}
 

@@ -44,7 +44,7 @@ export default function LeaderboardsPage() {
         <h1>Compete Through Consistent Performance</h1>
       </div>
 
-      {loading ? <article className="card">Loading leaderboard from Supabase...</article> : null}
+      {loading ? <article className="card">Loading...</article> : null}
       {error ? <article className="card">{error}</article> : null}
 
       {!loading && rows.length > 0 ? (
@@ -57,7 +57,7 @@ export default function LeaderboardsPage() {
             <div className="goal-progress">
               <span style={{ width: `${Math.min(100, 100 - Math.min(99, rankGap / 20))}%` }} />
             </div>
-            <small>Live progress generated from Supabase points.</small>
+            <small>Live progress generated from points.</small>
           </div>
         </article>
       ) : null}

@@ -470,7 +470,7 @@ function MockExamPageContent() {
             Points Earned (same as score): {result.earnedPoints}
           </p>
               <p className="muted">
-                {result.savedToCloud ? "Saved to Supabase profile and attempt history." : "Saved locally on this device. Sign in to sync all future test attempts."}
+                {result.savedToCloud ? "Saved to your profile and attempt history." : "Saved locally on this device. Sign in to sync all future test attempts."}
               </p>
             </div>
             <div className="nta-rank-tile">
