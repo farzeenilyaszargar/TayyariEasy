@@ -169,9 +169,6 @@ export default function TestsPage() {
           <SearchIcon size={17} />
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search tests by topic, subject, or mock name" />
         </div>
-        <p className="muted">
-          Every test has fixed question sets per blueprint to avoid repeated shuffling between attempts. One free test is available before sign-in.
-        </p>
       </div>
 
       {loadingCatalog ? <article className="card">Loading test catalog...</article> : null}
