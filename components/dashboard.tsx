@@ -276,11 +276,13 @@ export function Dashboard() {
   const avgScore = scoreSeries.length > 0 ? mean(scoreSeries) : null;
   const scoreStability = scoreSeries.length > 1 ? stdDev(scoreSeries) : null;
 
-  const rankDisplay = forecast
-    ? `${numberFormatterIN.format(forecast.estimatedRankLow)} - ${numberFormatterIN.format(forecast.estimatedRankHigh)}`
-    : analytics?.predicted_rank_low != null && analytics?.predicted_rank_high != null
-      ? `${numberFormatterIN.format(analytics.predicted_rank_low)} - ${numberFormatterIN.format(analytics.predicted_rank_high)}`
-      : "???";
+  const rankDisplay = loading
+    ? "???"
+    : forecast
+      ? `${numberFormatterIN.format(forecast.estimatedRankLow)} - ${numberFormatterIN.format(forecast.estimatedRankHigh)}`
+      : analytics?.predicted_rank_low != null && analytics?.predicted_rank_high != null
+        ? `${numberFormatterIN.format(analytics.predicted_rank_low)} - ${numberFormatterIN.format(analytics.predicted_rank_high)}`
+        : "???";
 
   const scoreDisplay = forecast
     ? `${numberFormatterIN.format(forecast.estimatedScoreLow)} - ${numberFormatterIN.format(forecast.estimatedScoreHigh)}`
