@@ -550,6 +550,12 @@ export default function MockExamPage() {
 
             <div className="nta-question-body">
               <p>{current.stemMarkdown}</p>
+              {current.diagramImageUrl ? (
+                <figure className="nta-question-diagram">
+                  <img src={current.diagramImageUrl} alt={current.diagramCaption || "Question diagram"} loading="lazy" />
+                  {current.diagramCaption ? <figcaption>{current.diagramCaption}</figcaption> : null}
+                </figure>
+              ) : null}
               {current.questionType === "mcq_single" ? (
                 <div className="nta-options">
                   {current.options.map((option) => {

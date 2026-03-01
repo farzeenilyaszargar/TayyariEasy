@@ -48,6 +48,8 @@ export async function POST(request: NextRequest) {
       question_type: "mcq_single" | "integer";
       stem_markdown: string;
       stem_latex: string | null;
+      diagram_image_url: string | null;
+      diagram_caption: string | null;
       subject: "Physics" | "Chemistry" | "Mathematics";
       topic: string;
       difficulty: "easy" | "medium" | "hard";
@@ -69,6 +71,8 @@ export async function POST(request: NextRequest) {
             question_type: "mcq_single" | "integer";
             stem_markdown: string;
             stem_latex: string | null;
+            diagram_image_url: string | null;
+            diagram_caption: string | null;
             subject: "Physics" | "Chemistry" | "Mathematics";
             topic: string;
             difficulty: "easy" | "medium" | "hard";
@@ -76,7 +80,7 @@ export async function POST(request: NextRequest) {
             negative_marks: number;
           }>
         >(
-          `question_bank?select=id,question_type,stem_markdown,stem_latex,subject,topic,difficulty,marks,negative_marks&id=in.(${inClause})`,
+          `question_bank?select=id,question_type,stem_markdown,stem_latex,diagram_image_url,diagram_caption,subject,topic,difficulty,marks,negative_marks&id=in.(${inClause})`,
           "GET"
         );
         const qMap = new Map(questions.map((q) => [q.id, q]));
@@ -146,6 +150,8 @@ export async function POST(request: NextRequest) {
         questionType: q.question_type,
         stemMarkdown: q.stem_markdown,
         stemLatex: q.stem_latex,
+        diagramImageUrl: q.diagram_image_url,
+        diagramCaption: q.diagram_caption,
         subject: q.subject,
         topic: q.topic,
         difficulty: q.difficulty,

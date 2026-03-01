@@ -2102,6 +2102,29 @@ button.subject-tag {
   color: #181d26;
 }
 
+.nta-question-diagram {
+  margin: 2px 0 8px;
+  border: 1px solid #d4dae3;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.nta-question-diagram img {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  background: #fff;
+}
+
+.nta-question-diagram figcaption {
+  font-size: 0.83rem;
+  color: #4a5362;
+  border-top: 1px solid #e5e9ef;
+  padding: 6px 10px;
+}
+
 .nta-options {
   display: grid;
   gap: 10px;

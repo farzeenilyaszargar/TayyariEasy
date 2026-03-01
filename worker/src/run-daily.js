@@ -73,6 +73,7 @@ function buildMcqQuestion(subject, topic, subtopic, idx, globalIdx) {
     qualityScore: 0.86,
     reviewStatus: "auto_pass",
     publish: true,
+    useAiVetting: true,
     options: [
       { key: "A", text: optionText[0] },
       { key: "B", text: optionText[1] },
@@ -110,6 +111,7 @@ function buildIntegerQuestion(subject, topic, subtopic, idx, globalIdx) {
     qualityScore: 0.82,
     reviewStatus: "auto_pass",
     publish: true,
+    useAiVetting: true,
     answer: {
       answerType: "integer_value",
       correctInteger: answerValue,

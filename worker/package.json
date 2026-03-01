@@ -5,6 +5,8 @@
   "scripts": {
     "ingest:daily": "node --env-file=.env src/run-daily.js",
     "ingest:weekly": "node --env-file=.env src/run-weekly.js",
-    "generate:gaps": "node --env-file=.env src/run-generate-gaps.js"
+    "generate:gaps": "node --env-file=.env src/run-generate-gaps.js",
+    "bank:vet": "node --env-file=.env src/run-vet-bank.js",
+    "bank:backfill": "node --env-file=.env src/run-backfill-bank.js"
   }
 }

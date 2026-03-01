@@ -300,6 +300,8 @@ create table if not exists public.question_bank (
   question_type text not null check (question_type in ('mcq_single', 'integer')),
   stem_markdown text not null,
   stem_latex text,
+  diagram_image_url text,
+  diagram_caption text,
   subject text not null check (subject in ('Physics', 'Chemistry', 'Mathematics')),
   topic text not null,
   subtopic text,
@@ -311,6 +313,9 @@ create table if not exists public.question_bank (
   negative_marks integer not null default 1,
   quality_score numeric(5,2) not null default 0,
   review_status text not null default 'needs_review' check (review_status in ('auto_pass', 'needs_review', 'approved', 'rejected')),
+  ai_vetted_at timestamptz,
+  ai_vetting_score numeric(5,2),
+  ai_vetting_notes text,
   is_published boolean not null default false,
   dedupe_fingerprint text not null unique,
   created_at timestamptz not null default now(),
@@ -434,6 +439,7 @@ create table if not exists public.question_review_queue (
 
 create index if not exists idx_question_bank_publish_scope on public.question_bank (is_published, subject, topic, difficulty);
 create index if not exists idx_question_bank_exam on public.question_bank (exam_year, exam_phase);
+create index if not exists idx_question_bank_ai_vetted on public.question_bank (ai_vetted_at, ai_vetting_score);
 create index if not exists idx_question_review_queue_status on public.question_review_queue (status, priority, created_at);
 create index if not exists idx_test_blueprints_scope on public.test_blueprints (is_active, scope, subject, topic);
 

@@ -59,6 +59,8 @@ This repo now includes:
 - Internal ingestion APIs:
   - `POST /internal/ingest/source-document` (`x-internal-token`)
   - `POST /internal/ingest/questions/bulk` (`x-internal-token`)
+  - `POST /internal/ingest/questions/vet` (`x-internal-token`)
+  - `POST /internal/ingest/stats` (`x-internal-token`)
   - `POST /internal/generate/questions` (`x-internal-token`)
   - `POST /internal/review/decision` (`x-internal-token`)
 

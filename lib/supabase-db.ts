@@ -81,6 +81,8 @@ export type QuestionRow = {
   questionType: "mcq_single" | "integer";
   stemMarkdown: string;
   stemLatex: string | null;
+  diagramImageUrl?: string | null;
+  diagramCaption?: string | null;
   subject: SubjectTag;
   topic: string;
   difficulty: "easy" | "medium" | "hard";
