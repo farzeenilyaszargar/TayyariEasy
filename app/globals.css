@@ -2865,9 +2865,10 @@ button.subject-tag {
 }
 
 .footer-bottom {
-  border-top: 1px solid #1b1f27;
+  border-top: none;
   padding: 16px 0 24px;
   color: #9da5b3;
+  text-align: center;
 }
 
 @keyframes reviewSlide {
