@@ -13,15 +13,24 @@ export async function GET(request: NextRequest) {
 
     const withCounts = await Promise.all(
       blueprints.map(async (blueprint) => {
-        const filters: string[] = ["is_published=eq.true", "select=id"];
+        const scopeFilters: string[] = [];
         if (blueprint.scope === "topic" && blueprint.subject && blueprint.topic) {
-          filters.push(`subject=eq.${encodeURIComponent(blueprint.subject)}`);
-          filters.push(`topic=eq.${encodeURIComponent(blueprint.topic)}`);
+          scopeFilters.push(`subject=eq.${encodeURIComponent(blueprint.subject)}`);
+          scopeFilters.push(`topic=eq.${encodeURIComponent(blueprint.topic)}`);
         } else if (blueprint.scope === "subject" && blueprint.subject) {
-          filters.push(`subject=eq.${encodeURIComponent(blueprint.subject)}`);
+          scopeFilters.push(`subject=eq.${encodeURIComponent(blueprint.subject)}`);
         }
 
-        const items = await supabaseRest<Array<{ id: string }>>(`question_bank?${filters.join("&")}`, "GET");
+        let items = await supabaseRest<Array<{ id: string }>>(
+          `question_bank?select=id&is_published=eq.true&${scopeFilters.join("&")}`,
+          "GET"
+        );
+        if (items.length === 0) {
+          items = await supabaseRest<Array<{ id: string }>>(
+            `question_bank?select=id&review_status=neq.rejected&${scopeFilters.join("&")}`,
+            "GET"
+          );
+        }
         return {
           ...blueprint,
           availableQuestions: items.length

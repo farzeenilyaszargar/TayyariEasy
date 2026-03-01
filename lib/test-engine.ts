@@ -288,7 +288,7 @@ export async function ensureDefaultBlueprints() {
 }
 
 export async function pickQuestionsForBlueprint(blueprint: TestBlueprintRow, seed: string) {
-  const scopeFilters: string[] = ["is_published=eq.true"];
+  const scopeFilters: string[] = [];
   if (blueprint.scope === "topic" && blueprint.subject && blueprint.topic) {
     scopeFilters.push(`subject=eq.${encodeURIComponent(blueprint.subject)}`);
     scopeFilters.push(`topic=eq.${encodeURIComponent(blueprint.topic)}`);
@@ -297,13 +297,22 @@ export async function pickQuestionsForBlueprint(blueprint: TestBlueprintRow, see
   }
 
   const baseSelect = "select=id,question_type,stem_markdown,stem_latex,subject,topic,subtopic,difficulty,marks,negative_marks";
-  const queryBase = `question_bank?${baseSelect}&${scopeFilters.join("&")}`;
+  const buildPools = async (extraFilters: string[]) => {
+    const allFilters = [...scopeFilters, ...extraFilters];
+    const queryBase = `question_bank?${baseSelect}&${allFilters.join("&")}`;
+    return Promise.all([
+      supabaseRest<QuestionRow[]>(`${queryBase}&difficulty=eq.easy`, "GET"),
+      supabaseRest<QuestionRow[]>(`${queryBase}&difficulty=eq.medium`, "GET"),
+      supabaseRest<QuestionRow[]>(`${queryBase}&difficulty=eq.hard`, "GET")
+    ]);
+  };
 
-  const [easyPool, mediumPool, hardPool] = await Promise.all([
-    supabaseRest<QuestionRow[]>(`${queryBase}&difficulty=eq.easy`, "GET"),
-    supabaseRest<QuestionRow[]>(`${queryBase}&difficulty=eq.medium`, "GET"),
-    supabaseRest<QuestionRow[]>(`${queryBase}&difficulty=eq.hard`, "GET")
-  ]);
+  let [easyPool, mediumPool, hardPool] = await buildPools(["is_published=eq.true"]);
+
+  if (easyPool.length + mediumPool.length + hardPool.length === 0) {
+    // Fallback for practice mode when reviewed/published inventory is empty.
+    [easyPool, mediumPool, hardPool] = await buildPools(["review_status=neq.rejected"]);
+  }
 
   const needed = computeDifficultyCounts(blueprint.question_count, blueprint.distribution);
 

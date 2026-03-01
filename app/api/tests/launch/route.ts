@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
       picked = await pickQuestionsForBlueprint(blueprint, seed);
 
       if (picked.length === 0) {
-        return NextResponse.json({ error: "No published questions available for this blueprint." }, { status: 400 });
+        return NextResponse.json({ error: "No eligible questions available for this blueprint yet." }, { status: 400 });
       }
 
       const createdInstances = await supabaseRest<Array<{ id: string; seed: string | null }>>(
