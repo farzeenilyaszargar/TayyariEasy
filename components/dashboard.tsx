@@ -372,6 +372,9 @@ export function Dashboard() {
     : forecast
       ? `${numberFormatterIN.format(forecast.estimatedScoreLow)} - ${numberFormatterIN.format(forecast.estimatedScoreHigh)}`
       : "???";
+  const forecastMetaItems = forecast
+    ? [`Estimate ~${numberFormatterIN.format(forecast.estimatedScore)}`, ...forecast.calculatedFrom.split("|").map((x) => x.trim())]
+    : [];
 
   useEffect(() => {
     if (geometry.points.length > 0) {
@@ -598,11 +601,17 @@ export function Dashboard() {
           <section className="card stat-card stat-score stat-serious">
             <p className="eyebrow">Score Forecast Range</p>
             <h2>{scoreDisplay}</h2>
-            <p className="muted">
-              {forecast
-                ? `Current estimate centers near ~${numberFormatterIN.format(forecast.estimatedScore)} | ${forecast.calculatedFrom}`
-                : "Take a full test to generate score forecast."}
-            </p>
+            {forecast ? (
+              <div className="forecast-meta-grid">
+                {forecastMetaItems.map((item) => (
+                  <div key={item} className="forecast-meta-item">
+                    {item}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="muted">Take a full test to generate score forecast.</p>
+            )}
             {forecastLoading ? <p className="dashboard-note">Recomputing forecast...</p> : null}
             {forecastError ? <p className="dashboard-note">{forecastError}</p> : null}
           </section>
