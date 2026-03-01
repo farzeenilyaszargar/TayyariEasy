@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { TrophyIcon, TrendIcon } from "@/components/ui-icons";
 import { useAuth } from "@/components/auth-provider";
 import { submitBlueprintTest, type TestInstanceRow } from "@/lib/supabase-db";
 
@@ -18,17 +19,94 @@ type SubmitResult = {
   correctCount: number;
   attemptedCount: number;
   totalQuestions: number;
+  savedToCloud?: boolean;
   topicBreakdown: Array<{ topic: string; attempted: number; correct: number; accuracy: number }>;
   difficultyBreakdown: Array<{ difficulty: string; attempted: number; correct: number; accuracy: number }>;
 };
 
+type LocalAttempt = {
+  id: string;
+  testName: string;
+  score: number;
+  maxScore: number;
+  percentile: number;
+  earnedPoints: number;
+  attemptedAt: string;
+  userLabel: string;
+};
+
+type LocalLeaderboardRow = LocalAttempt & {
+  rank: number;
+  isCurrent: boolean;
+};
+
 type QuestionStatus = "not_visited" | "not_answered" | "answered" | "marked" | "answered_marked";
+
+const LOCAL_ATTEMPTS_KEY = "tayyari-local-test-attempts-v1";
 
 function normalizeSubject(subject: string) {
   if (subject === "Mathematics") {
     return "Math";
   }
   return subject;
+}
+
+function safeReadAttempts() {
+  if (typeof window === "undefined") {
+    return [] as LocalAttempt[];
+  }
+
+  const raw = window.localStorage.getItem(LOCAL_ATTEMPTS_KEY);
+  if (!raw) {
+    return [] as LocalAttempt[];
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as LocalAttempt[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [] as LocalAttempt[];
+  }
+}
+
+function saveAttempts(items: LocalAttempt[]) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.setItem(LOCAL_ATTEMPTS_KEY, JSON.stringify(items.slice(-120)));
+}
+
+function makeAttemptId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `attempt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function buildLeaderboardRows(allAttempts: LocalAttempt[], testName: string, currentId: string) {
+  const relevant = allAttempts.filter((item) => item.testName === testName);
+
+  relevant.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+    if (b.percentile !== a.percentile) {
+      return b.percentile - a.percentile;
+    }
+    return new Date(a.attemptedAt).getTime() - new Date(b.attemptedAt).getTime();
+  });
+
+  const rows: LocalLeaderboardRow[] = relevant.map((item, idx) => ({
+    ...item,
+    rank: idx + 1,
+    isCurrent: item.id === currentId
+  }));
+
+  const current = rows.find((item) => item.isCurrent);
+  return {
+    rows,
+    rank: current?.rank || 1
+  };
 }
 
 export default function MockExamPage() {
@@ -45,6 +123,9 @@ export default function MockExamPage() {
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SubmitResult | null>(null);
+  const [leaderboardRows, setLeaderboardRows] = useState<LocalLeaderboardRow[]>([]);
+  const [targetRank, setTargetRank] = useState<number | null>(null);
+  const [animatedRank, setAnimatedRank] = useState<number | null>(null);
 
   useEffect(() => {
     const raw = window.sessionStorage.getItem("tayyari-active-test");
@@ -84,6 +165,29 @@ export default function MockExamPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remainingSec, session]);
+
+  useEffect(() => {
+    if (!targetRank) {
+      return;
+    }
+
+    setAnimatedRank((prev) => (prev && prev > targetRank ? prev : Math.max(targetRank + 7, 10)));
+
+    const timer = window.setInterval(() => {
+      setAnimatedRank((prev) => {
+        if (prev === null) {
+          return targetRank;
+        }
+        if (prev <= targetRank) {
+          window.clearInterval(timer);
+          return targetRank;
+        }
+        return prev - 1;
+      });
+    }, 85);
+
+    return () => window.clearInterval(timer);
+  }, [targetRank]);
 
   const current = session?.questions[currentIdx] || null;
 
@@ -207,11 +311,6 @@ export default function MockExamPage() {
       return;
     }
 
-    if (!isLoggedIn) {
-      setSubmitError("Please login first to submit and save your result.");
-      return;
-    }
-
     setSubmitting(true);
     setSubmitError("");
 
@@ -240,7 +339,29 @@ export default function MockExamPage() {
         timeTakenSeconds: session.blueprint.durationMinutes * 60 - remainingSec
       });
 
-      setResult(res);
+      const currentAttempt: LocalAttempt = {
+        id: makeAttemptId(),
+        testName: session.blueprint.name,
+        score: res.score,
+        maxScore: res.maxScore,
+        percentile: res.percentile,
+        earnedPoints: res.earnedPoints,
+        attemptedAt: new Date().toISOString(),
+        userLabel: isLoggedIn ? user.name || "Aspirant" : "Guest"
+      };
+
+      const allAttempts = [...safeReadAttempts(), currentAttempt];
+      saveAttempts(allAttempts);
+
+      const leaderboard = buildLeaderboardRows(allAttempts, session.blueprint.name, currentAttempt.id);
+      setLeaderboardRows(leaderboard.rows.slice(0, 12));
+      setTargetRank(leaderboard.rank);
+
+      setResult({
+        ...res,
+        savedToCloud: Boolean(res.savedToCloud)
+      });
+
       window.sessionStorage.removeItem("tayyari-active-test");
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Failed to submit test.");
@@ -275,19 +396,62 @@ export default function MockExamPage() {
   if (result) {
     return (
       <section className="page nta-result-page">
-        <article className="card nta-result-card">
-          <h2>Test Submitted Successfully</h2>
-          <p className="muted">Candidate: {user.name}</p>
-          <p className="muted">
-            Score: {result.score} / {result.maxScore} | Percentile: {result.percentile}
-          </p>
-          <p className="muted">
-            Correct: {result.correctCount} | Attempted: {result.attemptedCount} / {result.totalQuestions}
-          </p>
-          <p className="muted">
-            Earned Points: {result.earnedPoints} (Base: {Math.max(0, Math.round(result.score))} + Completion:{" "}
-            {result.completionBonus} + Accuracy: {result.accuracyBonus})
-          </p>
+        <article className="card nta-result-card nta-leaderboard-screen">
+          <div className="nta-rank-hero">
+            <div>
+              <p className="eyebrow">Post Test Ranking</p>
+              <h2>Leaderboard Snapshot: {session.blueprint.name}</h2>
+              <p className="muted">
+                Score: {result.score} / {result.maxScore} | Percentile: {result.percentile}
+              </p>
+              <p className="muted">
+                Correct: {result.correctCount} | Attempted: {result.attemptedCount} / {result.totalQuestions}
+              </p>
+              <p className="muted">
+                Earned Points: {result.earnedPoints} (Base: {Math.max(0, Math.round(result.score))} + Completion: {result.completionBonus} + Accuracy: {result.accuracyBonus})
+              </p>
+              <p className="muted">
+                {result.savedToCloud ? "Saved to Supabase profile and attempt history." : "Saved locally on this device. Sign in to sync all future test attempts."}
+              </p>
+            </div>
+            <div className="nta-rank-tile">
+              <span className="nta-rank-icon"><TrophyIcon size={22} /></span>
+              <p>Your Rank</p>
+              <strong className="nta-rank-value">#{animatedRank ?? targetRank ?? 1}</strong>
+              <small>for this test (local ranking)</small>
+            </div>
+          </div>
+
+          <article className="card nta-inline-leaderboard">
+            <div className="nta-inline-head">
+              <h4>Test Leaderboard</h4>
+              <span className="nta-inline-chip"><TrendIcon size={14} /> Latest attempt highlighted</span>
+            </div>
+            <div className="nta-inline-table-wrap">
+              <table className="leaderboard-table nta-inline-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Candidate</th>
+                    <th>Score</th>
+                    <th>Percentile</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leaderboardRows.map((item) => (
+                    <tr key={item.id} className={item.isCurrent ? "leader-row rank-current" : "leader-row"}>
+                      <td>#{item.rank}</td>
+                      <td>{item.userLabel}</td>
+                      <td>{item.score}</td>
+                      <td>{item.percentile}</td>
+                      <td>{new Date(item.attemptedAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </article>
 
           <div className="grid-2">
             <article className="card">
@@ -316,7 +480,7 @@ export default function MockExamPage() {
 
           <div className="cta-row">
             <button className="btn btn-solid" onClick={() => router.push("/tests")}>Back to Tests</button>
-            <button className="btn btn-outline" onClick={() => router.push("/")}>Go Home</button>
+            <button className="btn btn-outline" onClick={() => router.push("/leaderboards")}>Open Leaderboards</button>
           </div>
         </article>
       </section>
@@ -330,9 +494,7 @@ export default function MockExamPage() {
           <h2>No Questions Available</h2>
           <p className="muted">This test instance has no questions. Please launch another test.</p>
           <div className="cta-row">
-            <button className="btn btn-solid" onClick={() => router.push("/tests")}>
-              Back to Tests
-            </button>
+            <button className="btn btn-solid" onClick={() => router.push("/tests")}>Back to Tests</button>
           </div>
         </article>
       </section>

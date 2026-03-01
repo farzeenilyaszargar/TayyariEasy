@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "@/components/ui-icons";
+import { useAuth } from "@/components/auth-provider";
 import { fetchTestsCatalog, launchBlueprintTest, type TestBlueprintRow } from "@/lib/supabase-db";
+
+const GUEST_FREE_TEST_KEY = "tayyari-guest-free-test-used-v1";
 
 function rewardFor(test: TestBlueprintRow) {
   return {
@@ -42,6 +45,7 @@ function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlue
 
 export default function TestsPage() {
   const router = useRouter();
+  const { isLoggedIn } = useAuth();
   const [query, setQuery] = useState("");
   const [catalog, setCatalog] = useState<TestBlueprintRow[]>([]);
   const [loadingCatalog, setLoadingCatalog] = useState(true);
@@ -99,6 +103,15 @@ export default function TestsPage() {
   );
 
   const startTest = async (blueprintId: string) => {
+    if (!isLoggedIn) {
+      const freeTestUsed = window.localStorage.getItem(GUEST_FREE_TEST_KEY) === "1";
+      if (freeTestUsed) {
+        setCatalogError("Free guest test already used. Please sign in to continue with unlimited tests.");
+        router.push("/login");
+        return;
+      }
+    }
+
     setLaunchingId(blueprintId);
     setCatalogError("");
     try {
@@ -108,6 +121,9 @@ export default function TestsPage() {
         launchedAt: Date.now()
       };
       window.sessionStorage.setItem("tayyari-active-test", JSON.stringify(enriched));
+      if (!isLoggedIn) {
+        window.localStorage.setItem(GUEST_FREE_TEST_KEY, "1");
+      }
       router.push("/tests/mock");
     } catch (error) {
       setCatalogError(error instanceof Error ? error.message : "Failed to launch test.");
@@ -128,7 +144,9 @@ export default function TestsPage() {
           <SearchIcon size={17} />
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search tests by topic, subject, or mock name" />
         </div>
-        <p className="muted">Every test has fixed question sets per blueprint to avoid repeated shuffling between attempts.</p>
+        <p className="muted">
+          Every test has fixed question sets per blueprint to avoid repeated shuffling between attempts. One free test is available before sign-in.
+        </p>
       </div>
 
       {loadingCatalog ? <article className="card">Loading test catalog...</article> : null}

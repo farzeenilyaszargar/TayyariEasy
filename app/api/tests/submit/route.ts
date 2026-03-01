@@ -21,9 +21,7 @@ type QuestionMeta = {
 export async function POST(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser(request);
-    if (!user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const isGuestAttempt = !user?.id;
 
     const body = (await request.json()) as SubmitBody;
     const testInstanceId = body.testInstanceId?.trim();
@@ -118,20 +116,22 @@ export async function POST(request: NextRequest) {
         )
       : [];
 
-    await supabaseRest(
-      "test_attempts",
-      "POST",
-      [
-        {
-          user_id: user.id,
-          test_name: blueprintRows[0]?.name || "Generated Test",
-          score: Number(totalScore.toFixed(2)),
-          percentile: Number(percentile.toFixed(2)),
-          attempted_at: new Date().toISOString().slice(0, 10)
-        }
-      ],
-      "return=minimal"
-    );
+    if (!isGuestAttempt && user?.id) {
+      await supabaseRest(
+        "test_attempts",
+        "POST",
+        [
+          {
+            user_id: user.id,
+            test_name: blueprintRows[0]?.name || "Generated Test",
+            score: Number(totalScore.toFixed(2)),
+            percentile: Number(percentile.toFixed(2)),
+            attempted_at: new Date().toISOString().slice(0, 10)
+          }
+        ],
+        "return=minimal"
+      );
+    }
 
     return NextResponse.json({
       testInstanceId,
@@ -156,7 +156,8 @@ export async function POST(request: NextRequest) {
         correct: val.correct,
         accuracy: val.attempted > 0 ? Number(((val.correct / val.attempted) * 100).toFixed(2)) : 0
       })),
-      timeTakenSeconds: body.timeTakenSeconds || null
+      timeTakenSeconds: body.timeTakenSeconds || null,
+      savedToCloud: !isGuestAttempt
     });
   } catch (error) {
     return NextResponse.json(

@@ -374,6 +374,7 @@ export async function submitBlueprintTest(payload: {
     correctCount: number;
     attemptedCount: number;
     totalQuestions: number;
+    savedToCloud?: boolean;
     topicBreakdown: Array<{ topic: string; attempted: number; correct: number; accuracy: number }>;
     difficultyBreakdown: Array<{ difficulty: string; attempted: number; correct: number; accuracy: number }>;
   };
