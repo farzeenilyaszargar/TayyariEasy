@@ -188,10 +188,16 @@ async function buildForecast(payload: DashboardInput): Promise<ForecastPayload> 
 
   const baseRank = interpolateRank(estimatedScore);
   let estimatedRank = clamp(Math.round(baseRank * (1 + aiRankShiftPct)), 1, MAX_JEE_PARTICIPANTS);
-  const rankSpreadExtra = Math.round(volatility * 850 + (scores.length < 6 ? (6 - scores.length) * 4500 : 0));
-  const estimatedRankLow = clamp(interpolateRank(estimatedScoreHigh) - rankSpreadExtra, 1, MAX_JEE_PARTICIPANTS);
-  const estimatedRankHigh = clamp(interpolateRank(estimatedScoreLow) + rankSpreadExtra, 1, MAX_JEE_PARTICIPANTS);
-  estimatedRank = clamp(estimatedRank, estimatedRankLow, estimatedRankHigh);
+  const sampleGap = scores.length < 8 ? 8 - scores.length : 0;
+  const rankHalfBand = clamp(
+    Math.round(
+      1500 + volatility * 120 + sampleGap * 700 + Math.min(7000, estimatedRank * 0.012)
+    ),
+    1500,
+    12000
+  );
+  const estimatedRankLow = clamp(estimatedRank - rankHalfBand, 1, MAX_JEE_PARTICIPANTS);
+  const estimatedRankHigh = clamp(estimatedRank + rankHalfBand, 1, MAX_JEE_PARTICIPANTS);
 
   const confidence =
     scores.length >= 10 && volatility < 14
