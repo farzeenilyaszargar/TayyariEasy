@@ -638,6 +638,7 @@ small {
 }
 
 .dashboard-grid-beautified {
+  grid-auto-flow: row dense;
   align-items: start;
 }
 
@@ -696,14 +697,9 @@ small {
   grid-column: span 12;
 }
 
-.dashboard-grid > .card:nth-child(4),
-.dashboard-grid > .card:nth-child(5) {
-  grid-column: span 6;
-}
-
 .dashboard-half {
   grid-column: span 6;
-  min-height: 300px;
+  min-height: 0;
 }
 
 .dashboard-tests,
@@ -843,6 +839,27 @@ small {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.bento-rank,
+.bento-score {
+  grid-column: span 6;
+}
+
+.bento-points {
+  grid-column: span 4;
+}
+
+.bento-graph {
+  grid-column: span 8;
+}
+
+.bento-tests {
+  grid-column: span 7;
+}
+
+.bento-ai {
+  grid-column: span 5;
 }
 
 table {
@@ -2740,6 +2757,15 @@ button.subject-tag {
 
   .dashboard-metrics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bento-rank,
+  .bento-score,
+  .bento-points,
+  .bento-graph,
+  .bento-tests,
+  .bento-ai {
+    grid-column: span 12;
   }
 
   .chatbot-shell {

@@ -293,7 +293,7 @@ export function Dashboard() {
         </div>
       </section>
 
-      <section className="card stat-card stat-rank stat-serious">
+      <section className="card stat-card stat-rank stat-serious bento-rank">
         <p className="eyebrow">Conservative AIR Forecast</p>
         <h2>{rankDisplay}</h2>
         <p className="muted">
@@ -306,7 +306,7 @@ export function Dashboard() {
         {forecast?.riskNotes?.[0] ? <p className="dashboard-note">{forecast.riskNotes[0]}</p> : null}
       </section>
 
-      <section className="card stat-card stat-score stat-serious">
+      <section className="card stat-card stat-score stat-serious bento-score">
         <p className="eyebrow">Conservative Score Forecast</p>
         <h2>{scoreDisplay}</h2>
         <p className="muted">
@@ -318,7 +318,7 @@ export function Dashboard() {
         {forecastError ? <p className="dashboard-note">{forecastError}</p> : null}
       </section>
 
-      <section className="card badge-card">
+      <section className="card badge-card bento-points">
         <h3>Points and Badges</h3>
         <div className="point-meter">
           <span>{(data.profile?.points ?? 0).toLocaleString()} points</span>
@@ -338,7 +338,7 @@ export function Dashboard() {
         </div>
       </section>
 
-      <section className="card dashboard-half dashboard-graph dashboard-graph-rich">
+      <section className="card dashboard-half dashboard-graph dashboard-graph-rich bento-graph">
         <div className="dashboard-graph-head">
           <h3>Performance Analytics</h3>
           <span className="dashboard-metric-chip">
@@ -391,7 +391,7 @@ export function Dashboard() {
         </p>
       </section>
 
-      <section className="card dashboard-half dashboard-tests">
+      <section className="card dashboard-half dashboard-tests bento-tests">
         <h3>Tests Taken</h3>
         <div className="table-wrap">
           <table>
@@ -430,7 +430,7 @@ export function Dashboard() {
         </div>
       </section>
 
-      <section className="card dashboard-half dashboard-ai dashboard-ai-strong">
+      <section className="card dashboard-half dashboard-ai dashboard-ai-strong bento-ai">
         <div className="dashboard-ai-head">
           <h3>AI Analysis</h3>
           <span className="dashboard-metric-chip">
