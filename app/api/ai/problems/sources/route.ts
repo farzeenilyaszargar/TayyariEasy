@@ -76,6 +76,35 @@ function scoreRelevance(queryTokens: string[], text: string) {
   return score;
 }
 
+async function imageExists(url: string) {
+  try {
+    const head = await fetch(url, {
+      method: "HEAD",
+      cache: "no-store"
+    });
+    const type = head.headers.get("content-type") || "";
+    if (head.ok && type.toLowerCase().includes("image")) {
+      return true;
+    }
+  } catch {
+    // fallback to lightweight GET
+  }
+
+  try {
+    const get = await fetch(url, {
+      method: "GET",
+      headers: {
+        Range: "bytes=0-1024"
+      },
+      cache: "no-store"
+    });
+    const type = get.headers.get("content-type") || "";
+    return get.ok && type.toLowerCase().includes("image");
+  } catch {
+    return false;
+  }
+}
+
 async function fetchWikipediaSearch(query: string): Promise<SearchResult[]> {
   const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
     query
@@ -177,19 +206,45 @@ export async function POST(request: NextRequest) {
       .slice(0, 3)
       .map(({ relevance: _relevance, ...item }) => item);
 
-    const rankedImages = images
+    const rankedImagesCandidates = images
       .map((item) => ({
         ...item,
         relevance: scoreRelevance(queryTokens, item.title)
       }))
       .filter((item) => item.relevance > 0)
       .sort((a, b) => b.relevance - a.relevance)
-      .slice(0, 2)
-      .map(({ relevance: _relevance, ...item }) => item);
+      .slice(0, 6);
+
+    const verifiedImages: ImageResult[] = [];
+    for (const item of rankedImagesCandidates) {
+      const exists = await imageExists(item.imageUrl);
+      if (exists) {
+        const { relevance: _relevance, ...clean } = item;
+        verifiedImages.push(clean);
+      }
+      if (verifiedImages.length >= 3) {
+        break;
+      }
+    }
+
+    if (verifiedImages.length < 2) {
+      for (const fallbackImage of images) {
+        if (verifiedImages.some((item) => item.imageUrl === fallbackImage.imageUrl)) {
+          continue;
+        }
+        const exists = await imageExists(fallbackImage.imageUrl);
+        if (exists) {
+          verifiedImages.push(fallbackImage);
+        }
+        if (verifiedImages.length >= 2) {
+          break;
+        }
+      }
+    }
 
     return NextResponse.json({
       results: rankedResults.length > 0 ? rankedResults : results.slice(0, 2),
-      images: rankedImages.length > 0 ? rankedImages : images.slice(0, 1)
+      images: verifiedImages.slice(0, 3)
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to fetch web sources.";
