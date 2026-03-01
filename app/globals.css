@@ -1786,6 +1786,15 @@ button.subject-tag {
   font-weight: 600;
 }
 
+.test-xp-formula {
+  border-color: #eadb9e !important;
+  background: #fff8dc !important;
+  color: #7a6214 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .demo-modal-backdrop {
   position: fixed;
   inset: 0;

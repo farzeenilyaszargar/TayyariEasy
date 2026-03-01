@@ -2,18 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "@/components/ui-icons";
+import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, StarIcon } from "@/components/ui-icons";
 import { useAuth } from "@/components/auth-provider";
 import { fetchTestsCatalog, launchBlueprintTest, type TestBlueprintRow } from "@/lib/supabase-db";
 
 const GUEST_FREE_TEST_KEY = "tayyari-guest-free-test-used-v1";
-
-function rewardFor(test: TestBlueprintRow) {
-  return {
-    completion: 20,
-    correctness: Math.min(30, Math.max(12, Math.round(test.question_count * 0.4)))
-  };
-}
 
 type TagTone = "physics" | "chemistry" | "mathematics" | "neutral";
 
@@ -46,8 +39,8 @@ function buildCardTags(blueprint: TestBlueprintRow): Array<{ label: string; tone
 }
 
 function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlueprintRow; onLaunch: (id: string) => void; launching: boolean }) {
-  const reward = rewardFor(blueprint);
   const tags = buildCardTags(blueprint);
+  const maxAchievablePoints = blueprint.question_count * 4;
 
   return (
     <article className="test-card test-card-attractive test-card-polished">
@@ -67,8 +60,10 @@ function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlue
         <span>Pool: {blueprint.availableQuestions}</span>
       </div>
       <div className="test-reward-row">
-        <span className="test-xp">+{reward.completion} completion points</span>
-        <span className="test-xp">+{reward.correctness} correctness bonus</span>
+        <span className="test-xp test-xp-formula">
+          <StarIcon size={14} />
+          Max Points: {maxAchievablePoints} (3 × correct + 1 × attempted)
+        </span>
       </div>
       <div className="test-cta-row">
         <button className="btn btn-solid" onClick={() => onLaunch(blueprint.id)} disabled={blueprint.availableQuestions === 0 || launching}>
