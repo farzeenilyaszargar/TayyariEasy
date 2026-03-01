@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { InstagramIcon, XIcon, YouTubeIcon } from "@/components/ui-icons";
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -19,14 +19,23 @@ export function SiteFooter() {
           <h3>Tayyari</h3>
           <p className="muted">JEE rank prediction, test practice, and focused analytics in one platform.</p>
           <div className="footer-socials" aria-label="Social links">
-            <a href="#" className="social-icon" aria-label="X">
-              <XIcon size={14} />
+            <a
+              href="https://www.youtube.com/@nap-tui"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon"
+              aria-label="YouTube"
+            >
+              <Image src="/youtube.png" alt="" width={18} height={18} className="social-icon-img" />
             </a>
-            <a href="#" className="social-icon" aria-label="YouTube">
-              <YouTubeIcon size={14} />
-            </a>
-            <a href="#" className="social-icon" aria-label="Instagram">
-              <InstagramIcon size={14} />
+            <a
+              href="https://www.instagram.com/tayyari.karo/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon"
+              aria-label="Instagram"
+            >
+              <Image src="/insta.png" alt="" width={18} height={18} className="social-icon-img" />
             </a>
           </div>
         </div>
