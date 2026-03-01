@@ -101,6 +101,7 @@ export function Dashboard() {
   const [forecastLoading, setForecastLoading] = useState(false);
   const [forecastError, setForecastError] = useState("");
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -305,6 +306,10 @@ export function Dashboard() {
     }
   }, [geometry.points.length]);
 
+  useEffect(() => {
+    setAvatarLoadError(false);
+  }, [user.avatarUrl]);
+
   const hoveredPoint =
     hoveredPointIndex == null
       ? null
@@ -321,7 +326,17 @@ export function Dashboard() {
       <section className="card profile-card profile-card-hero">
         <div className="profile-head">
           {user.avatarUrl ? (
-            <img src={user.avatarUrl} alt={`${user.name} profile`} className="profile-avatar" />
+            !avatarLoadError ? (
+              <img
+                src={user.avatarUrl}
+                alt={`${user.name} profile`}
+                className="profile-avatar"
+                referrerPolicy="no-referrer"
+                onError={() => setAvatarLoadError(true)}
+              />
+            ) : (
+              <div className="profile-avatar profile-avatar-fallback">{user.name.charAt(0).toUpperCase()}</div>
+            )
           ) : (
             <div className="profile-avatar profile-avatar-fallback">{user.name.charAt(0).toUpperCase()}</div>
           )}

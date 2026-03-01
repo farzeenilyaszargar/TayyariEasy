@@ -122,6 +122,14 @@ a {
   gap: 10px;
 }
 
+.nav-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid #ccd3de;
+}
+
 .pill {
   font-size: 0.84rem;
   border: 1px solid var(--border);

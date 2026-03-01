@@ -4,11 +4,22 @@ export type SupabaseUser = {
   id: string;
   email?: string;
   phone?: string;
+  identities?: Array<{
+    identity_data?: {
+      avatar_url?: string;
+      picture?: string;
+      full_name?: string;
+      name?: string;
+    };
+    provider?: string;
+  }>;
   user_metadata?: {
     full_name?: string;
     name?: string;
     avatar_url?: string;
     picture?: string;
+    profile_image_url?: string;
+    photo_url?: string;
   };
 };
 

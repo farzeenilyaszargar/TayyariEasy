@@ -9,6 +9,7 @@ import {
   signOutSupabase
 } from "@/lib/supabase-auth";
 import { fetchOwnProfile } from "@/lib/supabase-db";
+import type { SupabaseUser } from "@/lib/supabase-auth";
 
 type UserState = {
   id: string | null;
@@ -30,6 +31,41 @@ const defaultUser: UserState = {
   points: 0,
   avatarUrl: null
 };
+
+function normalizeAvatarUrl(raw: unknown) {
+  const value = typeof raw === "string" ? raw.trim() : "";
+  if (!value) {
+    return null;
+  }
+  if (value.startsWith("//")) {
+    return `https:${value}`;
+  }
+  return value;
+}
+
+function resolveAvatarFromSupabaseUser(supabaseUser: SupabaseUser) {
+  const metadata = supabaseUser.user_metadata ?? {};
+  const metadataCandidate =
+    normalizeAvatarUrl(metadata.avatar_url) ||
+    normalizeAvatarUrl(metadata.picture) ||
+    normalizeAvatarUrl(metadata.profile_image_url) ||
+    normalizeAvatarUrl(metadata.photo_url);
+
+  if (metadataCandidate) {
+    return metadataCandidate;
+  }
+
+  const identities = Array.isArray(supabaseUser.identities) ? supabaseUser.identities : [];
+  for (const identity of identities) {
+    const data = identity.identity_data ?? {};
+    const candidate = normalizeAvatarUrl(data.avatar_url) || normalizeAvatarUrl(data.picture);
+    if (candidate) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
 
 const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
@@ -78,7 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           supabaseUser.email ||
           supabaseUser.phone ||
           defaultUser.name;
-        const avatarUrl = metadata.avatar_url || metadata.picture || null;
+        const avatarUrl = resolveAvatarFromSupabaseUser(supabaseUser);
         let points = 0;
         let profileName: string = name;
         let profileAvatar: string | null = avatarUrl;
@@ -88,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (profile) {
             points = profile.points;
             profileName = profile.full_name || profileName;
-            profileAvatar = profile.avatar_url || profileAvatar;
+            profileAvatar = normalizeAvatarUrl(profile.avatar_url) || profileAvatar;
           }
         } catch {
           points = 0;

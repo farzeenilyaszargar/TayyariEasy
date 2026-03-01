@@ -48,6 +48,9 @@ export function Navbar() {
           })}
         </nav>
         <div className="nav-right">
+          {isLoggedIn && user.avatarUrl ? (
+            <img src={user.avatarUrl} alt="" className="nav-avatar" referrerPolicy="no-referrer" />
+          ) : null}
           {isLoggedIn ? <span className="pill">{user.points} pts</span> : null}
           <button className={`btn ${isLoggedIn ? "btn-outline" : "btn-solid"}`} onClick={isLoggedIn ? logout : login}>
             {isLoggedIn ? "Logout" : "Login"}
