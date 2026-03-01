@@ -2677,6 +2677,7 @@ button.subject-tag {
 .nta-actions-top {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   border-top: 1px solid #e3e7ed;
   padding-top: 12px;
@@ -2719,8 +2720,15 @@ button.subject-tag {
 }
 
 .nta-actions-top .btn {
-  padding: 8px 12px;
+  height: 38px;
+  min-height: 38px;
+  max-height: 38px;
+  padding: 0 12px;
   font-size: 0.86rem;
+  line-height: 1;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  align-self: center;
   border-radius: 9px;
 }
 
