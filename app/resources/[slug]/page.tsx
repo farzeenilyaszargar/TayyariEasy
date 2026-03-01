@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getArticleBySlug, getArticleResources, slugifyResourceTitle } from "@/lib/data";
+import { getArticleBySlug, getArticleResources, getLongformSections, slugifyResourceTitle } from "@/lib/data";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in";
 
@@ -80,6 +80,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
   const related = getArticleResources()
     .filter((item) => item.title !== article.title && (item.subject === article.subject || item.category === article.category))
     .slice(0, 3);
+  const longformSections = getLongformSections(article);
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -122,6 +123,15 @@ export default async function ResourceArticlePage({ params }: PageProps) {
           Use this article as an actionable weekly document: implement one block at a time, track outcomes in your mock
           analysis, and keep revising weak areas every 48-72 hours.
         </p>
+
+        {longformSections.map((section) => (
+          <div key={section.heading}>
+            <h2>{section.heading}</h2>
+            {section.paragraphs.map((paragraph, idx) => (
+              <p key={`${section.heading}-${idx}`}>{paragraph}</p>
+            ))}
+          </div>
+        ))}
 
         <h2>Execution Checklist</h2>
         <ul className="resource-article-list">

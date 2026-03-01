@@ -38,6 +38,10 @@ export type ResourceItem = {
   category: "Roadmaps" | "Strategies" | "Notes" | "Books" | "PYQs";
   preview: string;
   checklist?: string[];
+  longformSections?: Array<{
+    heading: string;
+    paragraphs: string[];
+  }>;
   href: string;
 };
 
@@ -379,4 +383,56 @@ export function getArticleResources(): ArticleResource[] {
 export function getArticleBySlug(slug: string): ArticleResource | null {
   const item = getArticleResources().find((resource) => slugifyResourceTitle(resource.title) === slug);
   return item ?? null;
+}
+
+function buildLongformSentenceSet(article: ArticleResource, heading: string, index: number) {
+  const checklistA = article.checklist?.[0] || "Set chapter targets and weekly checkpoints.";
+  const checklistB = article.checklist?.[1] || "Run timed practice and post-test analysis.";
+  const checklistC = article.checklist?.[2] || "Review mistakes and retest weak areas quickly.";
+
+  return [
+    `In phase ${index + 1} (${heading.toLowerCase()}), start by defining one clear outcome for ${article.subject} that can be measured inside your next two tests.`,
+    `Treat this block as a strict execution window where your main objective is to convert preparation time into score stability, not just chapter completion.`,
+    `For ${article.title}, keep a visible tracker with date, chapter, question volume, accuracy, and average solve time so progress stays evidence-based.`,
+    `Use the first 15 minutes of every study block to reactivate formulas, key definitions, and common traps linked to the topic you are practicing.`,
+    `Apply this checklist anchor daily: ${checklistA} This keeps your plan practical and aligned with exam scoring behavior.`,
+    `Add a second control rule from your plan: ${checklistB} This ensures every attempt gives feedback you can use immediately.`,
+    `Close each day using this recovery loop: ${checklistC} That one loop usually prevents repeat mistakes across the week.`,
+    `If execution drops for two consecutive days, reduce content load by twenty percent and redirect that time to error correction and timed re-attempts.`,
+    `Your decision quality improves when you label questions as sure, workable, or risky before solving, because that mirrors the pressure of the real paper.`,
+    `At the end of this block, compare current metrics with your starting baseline and document one tactical change for the next session.`
+  ];
+}
+
+export function getLongformSections(article: ArticleResource) {
+  if (article.longformSections && article.longformSections.length > 0) {
+    return article.longformSections;
+  }
+
+  const headings = [
+    "Goal Setting and Baseline",
+    "Syllabus Prioritization",
+    "Concept Consolidation",
+    "Timed Practice Design",
+    "Mock Test Integration",
+    "Error Log Engineering",
+    "Accuracy Improvement",
+    "Speed and Selection Control",
+    "Revision Cycle Planning",
+    "Weak Topic Recovery",
+    "Exam Simulation Protocol",
+    "Energy and Focus Management"
+  ];
+
+  return headings.map((heading, index) => {
+    const sentences = buildLongformSentenceSet(article, heading, index);
+    return {
+      heading,
+      paragraphs: [
+        sentences.slice(0, 4).join(" "),
+        sentences.slice(4, 7).join(" "),
+        sentences.slice(7).join(" ")
+      ]
+    };
+  });
 }
