@@ -57,8 +57,6 @@ function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlue
       <div className="test-stats">
         <span>Questions: {blueprint.question_count}</span>
         <span>Duration: {blueprint.duration_minutes} min</span>
-      </div>
-      <div className="test-reward-row">
         <span className="test-xp test-xp-formula">
           <StarIcon size={14} />
           Max Score: {maxAchievablePoints}
