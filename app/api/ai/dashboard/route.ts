@@ -22,6 +22,8 @@ type ForecastPayload = {
   calculatedFrom: string;
 };
 
+const MAX_JEE_PARTICIPANTS = 1_200_000;
+
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
@@ -68,8 +70,10 @@ function interpolateRank(score: number) {
     { score: 120, rank: 145000 },
     { score: 100, rank: 220000 },
     { score: 80, rank: 320000 },
-    { score: 60, rank: 450000 },
-    { score: 0, rank: 650000 }
+    { score: 60, rank: 510000 },
+    { score: 40, rank: 720000 },
+    { score: 20, rank: 950000 },
+    { score: 0, rank: 1120000 }
   ];
 
   const s = clamp(score, 0, 300);
@@ -81,7 +85,7 @@ function interpolateRank(score: number) {
       return Math.round(p2.rank + t * (p1.rank - p2.rank));
     }
   }
-  return 650000;
+  return 1120000;
 }
 
 function parseRiskJson(raw: string) {
@@ -185,12 +189,12 @@ async function buildConservativeForecast(payload: DashboardInput): Promise<Forec
 
   estimatedScore = clamp(Math.round(estimatedScore - aiPenaltyScore), 0, 300);
   const baseRank = interpolateRank(estimatedScore);
-  const volatilityRankPenalty = Math.round(volatility * 650);
-  const sampleRankPenalty = scores.length < 5 ? (5 - scores.length) * 5500 : 0;
+  const volatilityRankPenalty = Math.round(volatility * 900);
+  const sampleRankPenalty = scores.length < 5 ? (5 - scores.length) * 9000 : 0;
   const estimatedRank = clamp(
     Math.round(baseRank * (1 + aiPenaltyRankPct) + volatilityRankPenalty + sampleRankPenalty),
     1,
-    800000
+    MAX_JEE_PARTICIPANTS
   );
 
   const confidence =
