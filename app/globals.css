@@ -2902,12 +2902,12 @@ button.subject-tag {
 }
 
 .social-icon {
-  border: none;
-  border-radius: 0;
+  border: 1px solid #2b3038;
+  border-radius: 999px;
   width: 56px;
   height: 56px;
   font-size: 0.8rem;
-  background: transparent;
+  background: #14171d;
   color: #d9dee7;
   display: inline-flex;
   align-items: center;
@@ -2922,7 +2922,7 @@ button.subject-tag {
 }
 
 .social-icon:hover {
-  background: transparent;
+  background: #1a1e25;
 }
 
 .social-icon:hover .social-icon-img {
