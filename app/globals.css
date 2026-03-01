@@ -830,6 +830,39 @@ small {
   fill: #2b3f6e;
 }
 
+.graph-canvas-wrap {
+  position: relative;
+}
+
+.graph-tooltip-floating {
+  position: absolute;
+  transform: translate(-10%, -120%);
+  border: 1px solid #d5ddeb;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(14, 20, 30, 0.12);
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+  min-width: 170px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.graph-tooltip-floating.right {
+  transform: translate(-94%, -120%);
+}
+
+.graph-tooltip-floating strong {
+  color: #162034;
+  font-size: 0.82rem;
+}
+
+.graph-tooltip-floating small {
+  color: #4f5a6d;
+  font-size: 0.76rem;
+}
+
 .graph-hover-panel {
   border: 1px solid #d7deea;
   border-radius: 10px;
@@ -2960,6 +2993,10 @@ button.subject-tag {
   .dashboard-ai-head {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .graph-tooltip-floating {
+    min-width: 150px;
   }
 
   th,

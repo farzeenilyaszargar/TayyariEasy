@@ -29,7 +29,7 @@ function buildGraphGeometry(values: number[]) {
     return {
       path: fallback,
       area: "40,160 390,160 390,160 40,160",
-      points: [] as Array<{ x: number; y: number; value: number }>,
+      points: [] as Array<{ x: number; y: number; value: number; testNo: number }>,
       guides: [
         { y: 40, label: "--" },
         { y: 100, label: "--" },
@@ -47,7 +47,7 @@ function buildGraphGeometry(values: number[]) {
   const points = values.map((value, idx) => {
     const x = 40 + (idx * 350) / Math.max(1, values.length - 1);
     const y = 160 - ((value - paddedMin) / span) * 120;
-    return { x, y, value };
+    return { x, y, value, testNo: idx + 1 };
   });
 
   const path = points.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
@@ -79,6 +79,14 @@ function stdDev(values: number[]) {
   const avg = mean(values);
   const variance = values.reduce((sum, item) => sum + (item - avg) ** 2, 0) / values.length;
   return Math.sqrt(variance);
+}
+
+function variance(values: number[]) {
+  if (values.length <= 1) {
+    return 0;
+  }
+  const avg = mean(values);
+  return values.reduce((sum, item) => sum + (item - avg) ** 2, 0) / values.length;
 }
 
 export function Dashboard() {
@@ -143,6 +151,12 @@ export function Dashboard() {
   );
 
   const scoreSeries = useMemo(() => scoreTimeline.map((item) => item.score), [scoreTimeline]);
+  const scoreDeltaSeries = useMemo(() => {
+    if (scoreSeries.length <= 1) {
+      return [] as number[];
+    }
+    return scoreSeries.slice(1).map((score, idx) => score - scoreSeries[idx]);
+  }, [scoreSeries]);
 
   const analytics = data.analytics;
 
@@ -268,7 +282,8 @@ export function Dashboard() {
   const bestScore = scoreSeries.length > 0 ? Math.max(...scoreSeries) : null;
   const growth = firstScore !== null && latestScore !== null ? latestScore - firstScore : null;
   const avgScore = scoreSeries.length > 0 ? mean(scoreSeries) : null;
-  const volatility = scoreSeries.length > 1 ? stdDev(scoreSeries) : null;
+  const changeVolatility = scoreDeltaSeries.length > 1 ? stdDev(scoreDeltaSeries) : null;
+  const changeVariance = scoreDeltaSeries.length > 1 ? variance(scoreDeltaSeries) : null;
 
   const rankDisplay = forecast
     ? `~${forecast.estimatedRank.toLocaleString()}`
@@ -297,6 +312,9 @@ export function Dashboard() {
           point: geometry.points[hoveredPointIndex],
           meta: scoreTimeline[hoveredPointIndex]
         };
+  const tooltipLeft = hoveredPoint ? `${(hoveredPoint.point.x / 420) * 100}%` : "0%";
+  const tooltipTop = hoveredPoint ? `${(hoveredPoint.point.y / 210) * 100}%` : "0%";
+  const tooltipAlignRight = hoveredPoint ? hoveredPoint.point.x > 295 : false;
 
   return (
     <div className="dashboard-grid dashboard-grid-beautified">
@@ -357,48 +375,58 @@ export function Dashboard() {
               <h3>Performance Analytics</h3>
               <span className="dashboard-metric-chip">
                 <TrendIcon size={14} />
-                {growth === null ? "No trend yet" : `${growth >= 0 ? "+" : ""}${growth.toFixed(1)} trend`}
+                {growth === null ? "No trend yet" : `${growth >= 0 ? "+" : ""}${growth.toFixed(1)} trend (by tests)`}
               </span>
             </div>
-            <svg
-              className="graph-svg"
-              viewBox="0 0 420 210"
-              role="img"
-              aria-label="Detailed score trend graph"
-              onMouseLeave={() => setHoveredPointIndex(null)}
-            >
-              <polyline className="graph-axis" points="40,20 40,170 390,170" />
-              {geometry.guides.map((guide) => (
-                <g key={guide.y}>
-                  <line x1="40" y1={guide.y} x2="390" y2={guide.y} className="graph-guide" />
-                  <text x="8" y={guide.y + 3} className="graph-label">{guide.label}</text>
-                </g>
-              ))}
-              <polyline className="graph-area" points={geometry.area} />
-              <polyline className="graph-path" points={geometry.path} />
-              {geometry.points.map((point, idx) => (
-                <circle
-                  key={`${point.x}-${point.y}`}
-                  cx={point.x}
-                  cy={point.y}
-                  r={idx === geometry.points.length - 1 ? 4.4 : 3}
-                  className={idx === geometry.points.length - 1 ? "graph-dot graph-dot-latest graph-dot-hoverable" : "graph-dot graph-dot-hoverable"}
-                  onMouseEnter={() => setHoveredPointIndex(idx)}
-                />
-              ))}
-            </svg>
-            {hoveredPoint?.meta ? (
-              <div className="graph-hover-panel">
-                <strong>{hoveredPoint.meta.testName}</strong>
-                <small>
-                  {hoveredPoint.meta.attemptedAt} | Score: {hoveredPoint.meta.score} | Percentile: {hoveredPoint.meta.percentile}
-                </small>
-              </div>
-            ) : (
-              <div className="graph-hover-panel graph-hover-panel-muted">
-                <small>Hover any point to view attempt details.</small>
-              </div>
-            )}
+            <div className="graph-canvas-wrap">
+              <svg
+                className="graph-svg"
+                viewBox="0 0 420 210"
+                role="img"
+                aria-label="Detailed score trend graph by test sequence"
+                onMouseLeave={() => setHoveredPointIndex(null)}
+              >
+                <polyline className="graph-axis" points="40,20 40,170 390,170" />
+                {geometry.guides.map((guide) => (
+                  <g key={guide.y}>
+                    <line x1="40" y1={guide.y} x2="390" y2={guide.y} className="graph-guide" />
+                    <text x="8" y={guide.y + 3} className="graph-label">{guide.label}</text>
+                  </g>
+                ))}
+                {geometry.points.length > 0 ? (
+                  <>
+                    <text x="40" y="188" className="graph-label">T1</text>
+                    <text x="205" y="188" className="graph-label">T{Math.max(1, Math.ceil(geometry.points.length / 2))}</text>
+                    <text x="374" y="188" className="graph-label">T{geometry.points.length}</text>
+                  </>
+                ) : null}
+                <polyline className="graph-area" points={geometry.area} />
+                <polyline className="graph-path" points={geometry.path} />
+                {geometry.points.map((point, idx) => (
+                  <circle
+                    key={`${point.x}-${point.y}`}
+                    cx={point.x}
+                    cy={point.y}
+                    r={idx === geometry.points.length - 1 ? 4.4 : 3}
+                    className={idx === geometry.points.length - 1 ? "graph-dot graph-dot-latest graph-dot-hoverable" : "graph-dot graph-dot-hoverable"}
+                    onMouseEnter={() => setHoveredPointIndex(idx)}
+                  />
+                ))}
+              </svg>
+              {hoveredPoint?.meta ? (
+                <div
+                  className={`graph-tooltip-floating ${tooltipAlignRight ? "right" : ""}`}
+                  style={{ left: tooltipLeft, top: tooltipTop }}
+                >
+                  <strong>Test {hoveredPoint.point.testNo}</strong>
+                  <small>{hoveredPoint.meta.testName}</small>
+                  <small>Score: {hoveredPoint.meta.score} | Percentile: {hoveredPoint.meta.percentile}</small>
+                </div>
+              ) : null}
+            </div>
+            <div className="graph-hover-panel graph-hover-panel-muted">
+              <small>Trend is computed across test sequence (not calendar days).</small>
+            </div>
             <div className="dashboard-metrics-grid">
               <div className="dashboard-metric-box">
                 <small>Attempts</small>
@@ -413,14 +441,14 @@ export function Dashboard() {
                 <strong>{bestScore == null ? "--" : bestScore.toFixed(1)}</strong>
               </div>
               <div className="dashboard-metric-box">
-                <small>Volatility</small>
-                <strong>{volatility == null ? "--" : volatility.toFixed(1)}</strong>
+                <small>Delta Variance</small>
+                <strong>{changeVariance == null ? "--" : changeVariance.toFixed(1)}</strong>
               </div>
             </div>
             <p className="muted">
-              {volatility == null
+              {changeVolatility == null
                 ? "Take a test to unlock trend analytics."
-                : `Volatility-adjusted forecast model is active. Lower volatility generally improves rank stability.`}
+                : `Variance is based on score changes between consecutive tests. Lower change volatility indicates steadier improvement.`}
             </p>
           </section>
         </div>
