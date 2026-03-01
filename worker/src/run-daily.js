@@ -29,8 +29,36 @@ function pickDifficulty(index) {
   return difficultyOrder[index % difficultyOrder.length];
 }
 
+function buildMeaningfulOptions(subject, topic, subtopic, idx) {
+  if (subject === "Physics") {
+    return [
+      `${subtopic} is best analyzed using conservation principles before kinematics substitution.`,
+      `${subtopic} result remains invariant only under linear scaling of all physical dimensions.`,
+      `${subtopic} requires checking sign convention and unit consistency in each step.`,
+      `${subtopic} can be validated by limiting-case behavior at extreme values of variables.`
+    ];
+  }
+
+  if (subject === "Chemistry") {
+    return [
+      `${subtopic} trend is primarily governed by effective factors and reaction conditions.`,
+      `${subtopic} conclusion must satisfy both stoichiometric balance and mechanistic feasibility.`,
+      `${subtopic} is most reliable when intermediate stability and medium effects are evaluated.`,
+      `${subtopic} statement is correct only when thermodynamic favorability aligns with kinetics.`
+    ];
+  }
+
+  return [
+    `${subtopic} expression should be simplified before applying standard theorem-based transformations.`,
+    `${subtopic} relation becomes straightforward after using domain and boundary constraints.`,
+    `${subtopic} form is best handled by converting to an equivalent canonical representation.`,
+    `${subtopic} validity can be checked through substitution and edge-case verification.`
+  ];
+}
+
 function buildMcqQuestion(subject, topic, subtopic, idx, globalIdx) {
   const correct = ["A", "B", "C", "D"][globalIdx % 4];
+  const optionText = buildMeaningfulOptions(subject, topic, subtopic, idx);
   return {
     dedupeFingerprint: `starter-${subject.toLowerCase()}-${topic.toLowerCase().replace(/\s+/g, "-")}-mcq-${idx}`,
     questionType: "mcq_single",
@@ -46,10 +74,10 @@ function buildMcqQuestion(subject, topic, subtopic, idx, globalIdx) {
     reviewStatus: "auto_pass",
     publish: true,
     options: [
-      { key: "A", text: `${subtopic} statement option A` },
-      { key: "B", text: `${subtopic} statement option B` },
-      { key: "C", text: `${subtopic} statement option C` },
-      { key: "D", text: `${subtopic} statement option D` }
+      { key: "A", text: optionText[0] },
+      { key: "B", text: optionText[1] },
+      { key: "C", text: optionText[2] },
+      { key: "D", text: optionText[3] }
     ],
     answer: {
       answerType: "option_key",
