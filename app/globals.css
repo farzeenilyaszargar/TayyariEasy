@@ -316,10 +316,26 @@ small {
 }
 
 .card {
-  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #ffffff 0%, #f5f7fa 52%, #eef2f6 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 22px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 20px rgba(23, 30, 43, 0.06);
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(122deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.16) 28%, transparent 55%);
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .hero {
@@ -3089,6 +3105,10 @@ html[data-theme="dark"] .card::before {
   pointer-events: none;
   background: linear-gradient(118deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.03) 24%, transparent 52%);
   mix-blend-mode: screen;
+}
+
+html[data-theme="dark"] .card::after {
+  display: none;
 }
 
 html[data-theme="dark"] .card > * {
