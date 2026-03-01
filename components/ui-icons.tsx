@@ -228,3 +228,28 @@ export function EditIcon(props: IconProps) {
     </BaseIcon>
   );
 }
+
+export function SunIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2.5M12 19.5V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.5M19.5 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" />
+    </BaseIcon>
+  );
+}
+
+export function MoonIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M20 13.5A8.5 8.5 0 1 1 10.5 4a7 7 0 1 0 9.5 9.5Z" />
+    </BaseIcon>
+  );
+}
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </BaseIcon>
+  );
+}
