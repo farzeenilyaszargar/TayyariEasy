@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "ingest:daily": "node src/run-daily.js",
-    "ingest:weekly": "node src/run-weekly.js",
-    "generate:gaps": "node src/run-generate-gaps.js"
+    "ingest:daily": "node --env-file=.env src/run-daily.js",
+    "ingest:weekly": "node --env-file=.env src/run-weekly.js",
+    "generate:gaps": "node --env-file=.env src/run-generate-gaps.js"
   }
 }
