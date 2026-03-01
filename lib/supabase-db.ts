@@ -204,6 +204,11 @@ export async function fetchOwnProfile(userId: string): Promise<ProfileRow | null
   const rows = await restGet<ProfileRow[]>(
     `user_profiles?select=user_id,full_name,avatar_url,points,target_exam,target_college,current_streak,tests_completed&user_id=eq.${userId}&limit=1`,
     "auth"
+  ).catch(() =>
+    restGet<ProfileRow[]>(
+      `user_profiles?select=user_id,full_name,avatar_url,points,target_exam,current_streak,tests_completed&user_id=eq.${userId}&limit=1`,
+      "auth"
+    )
   );
   return rows[0] ?? null;
 }
@@ -224,6 +229,11 @@ export async function fetchDashboardData(userId: string): Promise<DashboardPaylo
     restGet<ProfileRow[]>(
       `user_profiles?select=user_id,full_name,avatar_url,points,target_exam,target_college,current_streak,tests_completed&${baseFilter}&limit=1`,
       "auth"
+    ).catch(() =>
+      restGet<ProfileRow[]>(
+        `user_profiles?select=user_id,full_name,avatar_url,points,target_exam,current_streak,tests_completed&${baseFilter}&limit=1`,
+        "auth"
+      )
     ),
     restGet<AnalyticsRow[]>(
       `user_analytics?select=user_id,predicted_rank_low,predicted_rank_high,estimated_score_low,estimated_score_high,confidence_label&${baseFilter}&limit=1`,
@@ -327,7 +337,28 @@ export async function updateOwnProfile(payload: {
   }
   const headers = getAuthHeaders();
 
+  const bodyWithCollege = {
+    full_name: payload.fullName.trim() || null,
+    avatar_url: payload.avatarUrl.trim() || null,
+    target_college: payload.targetCollege.trim() || null,
+    updated_at: new Date().toISOString()
+  };
+
   const response = await fetch(`${url}/rest/v1/user_profiles?user_id=eq.${payload.userId}`, {
+    method: "PATCH",
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+      Prefer: "return=representation"
+    },
+    body: JSON.stringify(bodyWithCollege)
+  });
+
+  if (response.ok) {
+    return;
+  }
+
+  const fallback = await fetch(`${url}/rest/v1/user_profiles?user_id=eq.${payload.userId}`, {
     method: "PATCH",
     headers: {
       ...headers,
@@ -337,13 +368,12 @@ export async function updateOwnProfile(payload: {
     body: JSON.stringify({
       full_name: payload.fullName.trim() || null,
       avatar_url: payload.avatarUrl.trim() || null,
-      target_college: payload.targetCollege.trim() || null,
       updated_at: new Date().toISOString()
     })
   });
 
-  if (!response.ok) {
-    const text = await response.text();
+  if (!fallback.ok) {
+    const text = await fallback.text();
     throw new Error(text || "Failed to update profile.");
   }
 }
