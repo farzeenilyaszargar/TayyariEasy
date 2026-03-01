@@ -468,7 +468,6 @@ export function Dashboard() {
               </div>
             ) : profileSaveMessage ? (
               <small className="muted">{profileSaveMessage}</small>
-            )
             ) : null}
           </div>
         </div>
