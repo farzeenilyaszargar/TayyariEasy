@@ -62,7 +62,7 @@ function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlue
       <div className="test-reward-row">
         <span className="test-xp test-xp-formula">
           <StarIcon size={14} />
-          Max Points: {maxAchievablePoints} (3 × correct + 1 × attempted)
+          Max Points: {maxAchievablePoints}
         </span>
       </div>
       <div className="test-cta-row">
