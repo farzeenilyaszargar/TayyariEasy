@@ -250,7 +250,7 @@ export async function POST(request: NextRequest) {
       }))
       .filter((item) => item.relevance > 0)
       .sort((a, b) => b.relevance - a.relevance)
-      .slice(0, 6);
+      .slice(0, 12);
 
     const verifiedImages: ImageResult[] = [];
     for (const item of rankedImagesCandidates) {
@@ -259,12 +259,12 @@ export async function POST(request: NextRequest) {
         const { relevance: _relevance, ...clean } = item;
         verifiedImages.push(clean);
       }
-      if (verifiedImages.length >= 3) {
+      if (verifiedImages.length >= 5) {
         break;
       }
     }
 
-    if (verifiedImages.length < 2) {
+    if (verifiedImages.length < 4) {
       for (const fallbackImage of images) {
         if (verifiedImages.some((item) => item.imageUrl === fallbackImage.imageUrl)) {
           continue;
@@ -273,7 +273,7 @@ export async function POST(request: NextRequest) {
         if (exists) {
           verifiedImages.push(fallbackImage);
         }
-        if (verifiedImages.length >= 2) {
+        if (verifiedImages.length >= 5) {
           break;
         }
       }
@@ -281,7 +281,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       results: rankedResults.length > 0 ? rankedResults : results.slice(0, 2),
-      images: verifiedImages.slice(0, 3)
+      images: verifiedImages.slice(0, 5)
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to fetch web sources.";

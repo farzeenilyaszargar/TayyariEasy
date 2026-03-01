@@ -487,6 +487,7 @@ export default function ProblemsPage() {
                                 className="chat-web-result-card"
                               >
                                 <strong>{item.title}</strong>
+                                <span>{item.source}</span>
                               </a>
                             ))}
                           </div>

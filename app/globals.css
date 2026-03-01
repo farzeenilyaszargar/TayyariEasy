@@ -1256,7 +1256,7 @@ button.subject-tag {
 
 .chat-image-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -1297,6 +1297,12 @@ button.subject-tag {
 @media (max-width: 720px) {
   .chat-image-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1024px) {
+  .chat-image-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
