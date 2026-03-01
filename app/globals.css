@@ -894,9 +894,46 @@ small {
   color: #2d3746;
 }
 
+.forecast-stats-row {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.forecast-stat-pill {
+  border: 1px solid #d9dfeb;
+  background: #f8fafc;
+  border-radius: 999px;
+  padding: 7px 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  line-height: 1;
+}
+
+.forecast-stat-pill small {
+  color: #5b6678;
+  font-size: 0.78rem;
+}
+
+.forecast-stat-pill strong {
+  color: #1b2433;
+  font-size: 0.87rem;
+  font-weight: 700;
+}
+
 @media (max-width: 640px) {
   .forecast-meta-grid {
     grid-template-columns: 1fr;
+  }
+
+  .forecast-stats-row {
+    gap: 6px;
+  }
+
+  .forecast-stat-pill {
+    padding: 7px 10px;
   }
 }
 

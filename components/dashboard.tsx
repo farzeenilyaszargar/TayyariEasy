@@ -372,9 +372,25 @@ export function Dashboard() {
     : forecast
       ? `${numberFormatterIN.format(forecast.estimatedScoreLow)} - ${numberFormatterIN.format(forecast.estimatedScoreHigh)}`
       : "???";
-  const forecastMetaItems = forecast
-    ? [`Estimate ~${numberFormatterIN.format(forecast.estimatedScore)}`, ...forecast.calculatedFrom.split("|").map((x) => x.trim())]
-    : [];
+  const forecastStats = useMemo(() => {
+    if (!forecast) {
+      return [] as Array<{ label: string; value: string }>;
+    }
+    const parts = forecast.calculatedFrom.split("|").map((x) => x.trim().toLowerCase());
+    const attempts = parts.find((part) => part.includes("attempt"));
+    const recent = parts.find((part) => part.startsWith("recent avg"));
+    const overall = parts.find((part) => part.startsWith("overall avg"));
+    const deviation = parts.find((part) => part.startsWith("std dev"));
+
+    const extractValue = (input: string, prefix: string) => input.replace(prefix, "").trim();
+
+    return [
+      { label: "Attempts", value: attempts ? attempts.replace("attempts", "").replace("attempt", "").trim() : "--" },
+      { label: "Recent Avg", value: recent ? extractValue(recent, "recent avg") : "--" },
+      { label: "Overall Avg", value: overall ? extractValue(overall, "overall avg") : "--" },
+      { label: "Std Dev", value: deviation ? extractValue(deviation, "std dev") : "--" }
+    ];
+  }, [forecast]);
 
   useEffect(() => {
     if (geometry.points.length > 0) {
@@ -602,10 +618,11 @@ export function Dashboard() {
             <p className="eyebrow">Score Forecast Range</p>
             <h2>{scoreDisplay}</h2>
             {forecast ? (
-              <div className="forecast-meta-grid">
-                {forecastMetaItems.map((item) => (
-                  <div key={item} className="forecast-meta-item">
-                    {item}
+              <div className="forecast-stats-row">
+                {forecastStats.map((item) => (
+                  <div key={item.label} className="forecast-stat-pill">
+                    <small>{item.label}</small>
+                    <strong>{item.value}</strong>
                   </div>
                 ))}
               </div>
