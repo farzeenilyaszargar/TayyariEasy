@@ -28,30 +28,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "sourceName, baseUrl, url, and documentType are required." }, { status: 400 });
     }
 
-    const sourceRows = await supabaseRest<Array<{ id: string }>>(
-      "question_sources",
-      "POST",
-      [
-        {
-          name: body.sourceName,
-          base_url: body.baseUrl,
-          license_type: body.licenseType || "unknown",
-          is_active: true,
-          robots_allowed: Boolean(body.robotsAllowed),
-          terms_checked_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ],
-      "resolution=merge-duplicates,return=representation"
+    let sourceId = "";
+    const existing = await supabaseRest<Array<{ id: string }>>(
+      `question_sources?select=id&name=eq.${encodeURIComponent(body.sourceName)}&base_url=eq.${encodeURIComponent(body.baseUrl)}&limit=1`,
+      "GET"
     );
+    sourceId = existing[0]?.id || "";
 
-    let sourceId = sourceRows[0]?.id;
     if (!sourceId) {
-      const existing = await supabaseRest<Array<{ id: string }>>(
-        `question_sources?select=id&name=eq.${encodeURIComponent(body.sourceName)}&base_url=eq.${encodeURIComponent(body.baseUrl)}&limit=1`,
-        "GET"
+      const sourceRows = await supabaseRest<Array<{ id: string }>>(
+        "question_sources",
+        "POST",
+        [
+          {
+            name: body.sourceName,
+            base_url: body.baseUrl,
+            license_type: body.licenseType || "unknown",
+            is_active: true,
+            robots_allowed: Boolean(body.robotsAllowed),
+            terms_checked_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ],
+        "return=representation"
       );
-      sourceId = existing[0]?.id;
+      sourceId = sourceRows[0]?.id || "";
     }
 
     if (!sourceId) {
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     await supabaseRest(
-      "source_documents",
+      "source_documents?on_conflict=url",
       "POST",
       [
         {
