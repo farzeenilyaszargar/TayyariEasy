@@ -15,14 +15,50 @@ function rewardFor(test: TestBlueprintRow) {
   };
 }
 
+type TagTone = "physics" | "chemistry" | "mathematics" | "neutral";
+
+function subjectTone(subject: TestBlueprintRow["subject"]): TagTone {
+  if (subject === "Physics") {
+    return "physics";
+  }
+  if (subject === "Chemistry") {
+    return "chemistry";
+  }
+  if (subject === "Mathematics") {
+    return "mathematics";
+  }
+  return "neutral";
+}
+
+function buildCardTags(blueprint: TestBlueprintRow): Array<{ label: string; tone: TagTone }> {
+  if (blueprint.scope === "topic") {
+    return [
+      { label: blueprint.subject || "Topic", tone: subjectTone(blueprint.subject) },
+      { label: blueprint.topic || "Topic", tone: "neutral" }
+    ];
+  }
+
+  if (blueprint.scope === "subject") {
+    return [{ label: blueprint.subject || "Subject", tone: subjectTone(blueprint.subject) }];
+  }
+
+  return [{ label: "Full Syllabus", tone: "neutral" }];
+}
+
 function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlueprintRow; onLaunch: (id: string) => void; launching: boolean }) {
   const reward = rewardFor(blueprint);
+  const tags = buildCardTags(blueprint);
 
   return (
     <article className="test-card test-card-attractive test-card-polished">
       <div className="test-card-head">
-        <span className="tiny-icon">{blueprint.scope === "topic" ? "T" : blueprint.scope === "subject" ? "S" : "F"}</span>
-        <span className="subject-tag">{blueprint.scope.replace("_", " ")}</span>
+        <div className="test-card-tags">
+          {tags.map((tag) => (
+            <span key={`${blueprint.id}-${tag.label}`} className={`test-chip ${tag.tone}`}>
+              {tag.label}
+            </span>
+          ))}
+        </div>
       </div>
       <strong>{blueprint.name}</strong>
       <div className="test-stats">
