@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { TrophyIcon, TrendIcon } from "@/components/ui-icons";
 import { useAuth } from "@/components/auth-provider";
-import { submitBlueprintTest, type TestInstanceRow } from "@/lib/supabase-db";
+import { fetchTestInstanceById, submitBlueprintTest, type TestInstanceRow } from "@/lib/supabase-db";
 
 type ExamSession = TestInstanceRow & { launchedAt: number };
 
@@ -111,6 +111,7 @@ function buildLeaderboardRows(allAttempts: LocalAttempt[], testName: string, cur
 
 export default function MockExamPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isLoggedIn, user } = useAuth();
 
   const [session, setSession] = useState<ExamSession | null>(null);
@@ -128,26 +129,52 @@ export default function MockExamPage() {
   const [animatedRank, setAnimatedRank] = useState<number | null>(null);
 
   useEffect(() => {
-    const raw = window.sessionStorage.getItem(ACTIVE_TEST_KEY) || window.localStorage.getItem(ACTIVE_TEST_FALLBACK_KEY);
-    if (!raw) {
-      setSession(null);
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(raw) as ExamSession;
-      setSession(parsed);
-      window.sessionStorage.setItem(ACTIVE_TEST_KEY, raw);
-      if (parsed.questions.length > 0) {
-        setVisited({ [parsed.questions[0].id]: true });
+    const hydrate = async () => {
+      const raw = window.sessionStorage.getItem(ACTIVE_TEST_KEY) || window.localStorage.getItem(ACTIVE_TEST_FALLBACK_KEY);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw) as ExamSession;
+          setSession(parsed);
+          window.sessionStorage.setItem(ACTIVE_TEST_KEY, raw);
+          if (parsed.questions.length > 0) {
+            setVisited({ [parsed.questions[0].id]: true });
+          }
+          const total = parsed.blueprint.durationMinutes * 60;
+          const elapsed = Math.max(0, Math.floor((Date.now() - (parsed.launchedAt || Date.now())) / 1000));
+          setRemainingSec(Math.max(0, total - elapsed));
+          return;
+        } catch {
+          // fallback to query-based recovery
+        }
       }
-      const total = parsed.blueprint.durationMinutes * 60;
-      const elapsed = Math.max(0, Math.floor((Date.now() - (parsed.launchedAt || Date.now())) / 1000));
-      setRemainingSec(Math.max(0, total - elapsed));
-    } catch {
-      setSession(null);
-    }
-  }, []);
+
+      const instanceId = searchParams.get("instance")?.trim();
+      if (!instanceId) {
+        setSession(null);
+        return;
+      }
+
+      try {
+        const payload = await fetchTestInstanceById(instanceId);
+        const recovered = {
+          ...payload,
+          launchedAt: Date.now()
+        } as ExamSession;
+        const serialized = JSON.stringify(recovered);
+        window.sessionStorage.setItem(ACTIVE_TEST_KEY, serialized);
+        window.localStorage.setItem(ACTIVE_TEST_FALLBACK_KEY, serialized);
+        setSession(recovered);
+        if (recovered.questions.length > 0) {
+          setVisited({ [recovered.questions[0].id]: true });
+        }
+        setRemainingSec(recovered.blueprint.durationMinutes * 60);
+      } catch {
+        setSession(null);
+      }
+    };
+
+    void hydrate();
+  }, [searchParams]);
 
   useEffect(() => {
     if (!session || remainingSec <= 0) {

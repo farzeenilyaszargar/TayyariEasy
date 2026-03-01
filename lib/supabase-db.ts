@@ -386,6 +386,19 @@ export async function submitBlueprintTest(payload: {
   return data;
 }
 
+export async function fetchTestInstanceById(testInstanceId: string) {
+  const response = await fetch(`/api/tests/instance?testInstanceId=${encodeURIComponent(testInstanceId)}`, {
+    cache: "no-store"
+  });
+
+  const payload = (await response.json()) as TestInstanceRow & { error?: string };
+  if (!response.ok) {
+    throw new Error(payload.error || "Failed to load test instance.");
+  }
+
+  return payload;
+}
+
 export async function fetchReviewQueue(adminToken: string, status: "open" | "approved" | "rejected" = "open") {
   const response = await fetch(`/api/questions/review-queue?status=${status}`, {
     headers: {

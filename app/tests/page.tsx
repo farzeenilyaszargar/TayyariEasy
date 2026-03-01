@@ -159,7 +159,7 @@ export default function TestsPage() {
       if (!isLoggedIn) {
         window.localStorage.setItem(GUEST_FREE_TEST_KEY, "1");
       }
-      window.location.assign("/tests/mock");
+      window.location.assign(`/tests/mock?instance=${encodeURIComponent(session.testInstanceId)}`);
     } catch (error) {
       setCatalogError(error instanceof Error ? error.message : "Failed to launch test.");
     } finally {
