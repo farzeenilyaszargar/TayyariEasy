@@ -2904,8 +2904,8 @@ button.subject-tag {
 .social-icon {
   border: 1px solid #2b3038;
   border-radius: 999px;
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   font-size: 0.8rem;
   background: #14171d;
   color: #d9dee7;
@@ -2915,8 +2915,8 @@ button.subject-tag {
 }
 
 .social-icon-img {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   filter: invert(1) grayscale(1) brightness(1.75);
   transition: filter 140ms ease, transform 140ms ease;
 }
