@@ -41,6 +41,8 @@ type LocalLeaderboardRow = LocalAttempt & {
 type QuestionStatus = "not_visited" | "not_answered" | "answered" | "marked" | "answered_marked";
 
 const LOCAL_ATTEMPTS_KEY = "tayyari-local-test-attempts-v1";
+const ACTIVE_TEST_KEY = "tayyari-active-test";
+const ACTIVE_TEST_FALLBACK_KEY = "tayyari-active-test-fallback";
 
 function normalizeSubject(subject: string) {
   if (subject === "Mathematics") {
@@ -126,7 +128,7 @@ export default function MockExamPage() {
   const [animatedRank, setAnimatedRank] = useState<number | null>(null);
 
   useEffect(() => {
-    const raw = window.sessionStorage.getItem("tayyari-active-test");
+    const raw = window.sessionStorage.getItem(ACTIVE_TEST_KEY) || window.localStorage.getItem(ACTIVE_TEST_FALLBACK_KEY);
     if (!raw) {
       setSession(null);
       return;
@@ -135,6 +137,7 @@ export default function MockExamPage() {
     try {
       const parsed = JSON.parse(raw) as ExamSession;
       setSession(parsed);
+      window.sessionStorage.setItem(ACTIVE_TEST_KEY, raw);
       if (parsed.questions.length > 0) {
         setVisited({ [parsed.questions[0].id]: true });
       }
@@ -360,7 +363,8 @@ export default function MockExamPage() {
         savedToCloud: Boolean(res.savedToCloud)
       });
 
-      window.sessionStorage.removeItem("tayyari-active-test");
+      window.sessionStorage.removeItem(ACTIVE_TEST_KEY);
+      window.localStorage.removeItem(ACTIVE_TEST_FALLBACK_KEY);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Failed to submit test.");
     } finally {

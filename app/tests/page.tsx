@@ -7,6 +7,8 @@ import { useAuth } from "@/components/auth-provider";
 import { fetchTestsCatalog, launchBlueprintTest, type TestBlueprintRow } from "@/lib/supabase-db";
 
 const GUEST_FREE_TEST_KEY = "tayyari-guest-free-test-used-v1";
+const ACTIVE_TEST_KEY = "tayyari-active-test";
+const ACTIVE_TEST_FALLBACK_KEY = "tayyari-active-test-fallback";
 
 type TagTone = "physics" | "chemistry" | "mathematics" | "neutral";
 
@@ -151,11 +153,13 @@ export default function TestsPage() {
         ...session,
         launchedAt: Date.now()
       };
-      window.sessionStorage.setItem("tayyari-active-test", JSON.stringify(enriched));
+      const serialized = JSON.stringify(enriched);
+      window.sessionStorage.setItem(ACTIVE_TEST_KEY, serialized);
+      window.localStorage.setItem(ACTIVE_TEST_FALLBACK_KEY, serialized);
       if (!isLoggedIn) {
         window.localStorage.setItem(GUEST_FREE_TEST_KEY, "1");
       }
-      router.push("/tests/mock");
+      window.location.assign("/tests/mock");
     } catch (error) {
       setCatalogError(error instanceof Error ? error.message : "Failed to launch test.");
     } finally {
