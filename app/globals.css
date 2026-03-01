@@ -379,6 +379,10 @@ small {
   font-weight: 700;
 }
 
+.accent-head-1 {
+  color: #3f434a;
+}
+
 .hero-copy {
   margin-top: 14px;
   max-width: 58ch;
