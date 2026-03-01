@@ -37,18 +37,16 @@ function buildGraphGeometry(values: number[]) {
       area: "40,160 390,160 390,160 40,160",
       points: [] as Array<{ x: number; y: number; value: number; testNo: number }>,
       guides: [
-        { y: 40, label: "--" },
-        { y: 100, label: "--" },
-        { y: 160, label: "--" }
+        { y: 40, label: "100%" },
+        { y: 100, label: "50%" },
+        { y: 160, label: "0%" }
       ]
     };
   }
 
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const paddedMin = Math.max(0, min - 8);
-  const paddedMax = Math.min(300, max + 8);
-  const span = Math.max(1, paddedMax - paddedMin);
+  const paddedMin = 0;
+  const paddedMax = 100;
+  const span = 100;
 
   const points = values.map((value, idx) => {
     const x = 40 + (idx * 350) / Math.max(1, values.length - 1);
@@ -64,9 +62,9 @@ function buildGraphGeometry(values: number[]) {
     area,
     points,
     guides: [
-      { y: 40, label: String(Math.round(paddedMax)) },
-      { y: 100, label: String(Math.round((paddedMin + paddedMax) / 2)) },
-      { y: 160, label: String(Math.round(paddedMin)) }
+      { y: 40, label: "100%" },
+      { y: 100, label: "50%" },
+      { y: 160, label: "0%" }
     ]
   };
 }
@@ -138,18 +136,39 @@ export function Dashboard() {
     () =>
       data.tests
         .slice()
-        .reverse()
+        .sort((a, b) => {
+          const aDate = new Date(a.attempted_at).getTime();
+          const bDate = new Date(b.attempted_at).getTime();
+          if (aDate !== bDate) {
+            return aDate - bDate;
+          }
+          return Number(a.id) - Number(b.id);
+        })
         .map((item) => ({
           testName: item.test_name,
           attemptedAt: item.attempted_at,
           score: Number(item.score),
-          percentile: Number(item.percentile)
+          percentile: Number(item.percentile),
+          accuracy:
+            item.accuracy_percent != null
+              ? Number(item.accuracy_percent)
+              : item.total_questions && item.total_questions > 0 && item.correct_count != null
+                ? Number(((item.correct_count / item.total_questions) * 100).toFixed(2))
+                : Number(item.percentile)
         }))
         .filter((item) => !Number.isNaN(item.score)),
     [data.tests]
   );
 
   const scoreSeries = useMemo(() => scoreTimeline.map((item) => item.score), [scoreTimeline]);
+  const accuracySeries = useMemo(
+    () =>
+      scoreTimeline
+        .map((item) => item.accuracy)
+        .map((item) => (Number.isFinite(item) ? item : 0))
+        .map((item) => Math.max(0, Math.min(100, item))),
+    [scoreTimeline]
+  );
   const analytics = data.analytics;
 
   const rawRankRange =
@@ -268,13 +287,13 @@ export function Dashboard() {
     }
   };
 
-  const geometry = useMemo(() => buildGraphGeometry(scoreSeries), [scoreSeries]);
-  const firstScore = scoreSeries[0] ?? null;
-  const latestScore = scoreSeries[scoreSeries.length - 1] ?? null;
-  const bestScore = scoreSeries.length > 0 ? Math.max(...scoreSeries) : null;
-  const growth = firstScore !== null && latestScore !== null ? latestScore - firstScore : null;
-  const avgScore = scoreSeries.length > 0 ? mean(scoreSeries) : null;
-  const scoreStability = scoreSeries.length > 1 ? stdDev(scoreSeries) : null;
+  const geometry = useMemo(() => buildGraphGeometry(accuracySeries), [accuracySeries]);
+  const firstAccuracy = accuracySeries[0] ?? null;
+  const latestAccuracy = accuracySeries[accuracySeries.length - 1] ?? null;
+  const bestAccuracy = accuracySeries.length > 0 ? Math.max(...accuracySeries) : null;
+  const growth = firstAccuracy !== null && latestAccuracy !== null ? latestAccuracy - firstAccuracy : null;
+  const avgAccuracy = accuracySeries.length > 0 ? mean(accuracySeries) : null;
+  const accuracyStability = accuracySeries.length > 1 ? stdDev(accuracySeries) : null;
 
   const rankDisplay = loading
     ? "???"
@@ -382,7 +401,7 @@ export function Dashboard() {
               <h3>Performance Analytics</h3>
               <span className="dashboard-metric-chip">
                 <TrendIcon size={14} />
-                {growth === null ? "No trend yet" : `${growth >= 0 ? "+" : ""}${growth.toFixed(1)} trend (by tests)`}
+                {growth === null ? "No trend yet" : `${growth >= 0 ? "+" : ""}${growth.toFixed(1)}% trend (by tests)`}
               </span>
             </div>
             <div className="graph-canvas-wrap">
@@ -390,7 +409,7 @@ export function Dashboard() {
                 className="graph-svg"
                 viewBox="0 0 420 210"
                 role="img"
-                aria-label="Detailed score trend graph by test sequence"
+                aria-label="Detailed accuracy trend graph by test sequence"
                 onMouseLeave={() => setHoveredPointIndex(null)}
               >
                 <polyline className="graph-axis" points="40,20 40,170 390,170" />
@@ -427,7 +446,7 @@ export function Dashboard() {
                 >
                   <strong>Test {hoveredPoint.point.testNo}</strong>
                   <small>{hoveredPoint.meta.testName}</small>
-                  <small>Score: {hoveredPoint.meta.score} | Percentile: {hoveredPoint.meta.percentile}</small>
+                  <small>Accuracy: {hoveredPoint.meta.accuracy.toFixed(1)}% | Score: {hoveredPoint.meta.score}</small>
                 </div>
               ) : null}
             </div>
@@ -437,25 +456,25 @@ export function Dashboard() {
             <div className="dashboard-metrics-grid">
               <div className="dashboard-metric-box">
                 <small>Attempts</small>
-                <strong>{scoreSeries.length}</strong>
+                <strong>{accuracySeries.length}</strong>
               </div>
               <div className="dashboard-metric-box">
-                <small>Average</small>
-                <strong>{avgScore == null ? "--" : avgScore.toFixed(1)}</strong>
+                <small>Avg Accuracy</small>
+                <strong>{avgAccuracy == null ? "--" : `${avgAccuracy.toFixed(1)}%`}</strong>
               </div>
               <div className="dashboard-metric-box">
-                <small>Best</small>
-                <strong>{bestScore == null ? "--" : bestScore.toFixed(1)}</strong>
+                <small>Best Accuracy</small>
+                <strong>{bestAccuracy == null ? "--" : `${bestAccuracy.toFixed(1)}%`}</strong>
               </div>
               <div className="dashboard-metric-box">
                 <small>Stability (σ)</small>
-                <strong>{scoreStability == null ? "--" : scoreStability.toFixed(1)}</strong>
+                <strong>{accuracyStability == null ? "--" : accuracyStability.toFixed(1)}</strong>
               </div>
             </div>
             <p className="muted">
-              {scoreStability == null
+              {accuracyStability == null
                 ? "Take a test to unlock trend analytics."
-                : "Standard deviation across your test scores. Lower value indicates more stable performance."}
+                : "Standard deviation across your test accuracy percentages. Lower value indicates more stable performance."}
             </p>
           </section>
         </div>

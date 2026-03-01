@@ -39,8 +39,17 @@ create table if not exists public.test_attempts (
   test_name text not null,
   attempted_at date not null default current_date,
   score numeric(6,2) not null,
-  percentile numeric(6,2) not null
+  percentile numeric(6,2) not null,
+  correct_count integer,
+  attempted_count integer,
+  total_questions integer,
+  accuracy_percent numeric(6,2)
 );
+
+alter table public.test_attempts add column if not exists correct_count integer;
+alter table public.test_attempts add column if not exists attempted_count integer;
+alter table public.test_attempts add column if not exists total_questions integer;
+alter table public.test_attempts add column if not exists accuracy_percent numeric(6,2);
 
 create table if not exists public.ai_insights (
   id bigint generated always as identity primary key,

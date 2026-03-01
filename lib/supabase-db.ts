@@ -37,6 +37,10 @@ export type TestAttemptRow = {
   attempted_at: string;
   score: number;
   percentile: number;
+  correct_count?: number | null;
+  attempted_count?: number | null;
+  total_questions?: number | null;
+  accuracy_percent?: number | null;
 };
 
 export type TestCatalogRow = {
@@ -205,6 +209,16 @@ export async function fetchOwnProfile(userId: string): Promise<ProfileRow | null
 
 export async function fetchDashboardData(userId: string): Promise<DashboardPayload> {
   const baseFilter = `user_id=eq.${userId}`;
+  const testsPromise = restGet<TestAttemptRow[]>(
+    `test_attempts?select=id,test_name,attempted_at,score,percentile,correct_count,attempted_count,total_questions,accuracy_percent&${baseFilter}&order=attempted_at.asc&order=id.asc&limit=12`,
+    "auth"
+  ).catch(() =>
+    restGet<TestAttemptRow[]>(
+      `test_attempts?select=id,test_name,attempted_at,score,percentile&${baseFilter}&order=attempted_at.asc&order=id.asc&limit=12`,
+      "auth"
+    )
+  );
+
   const [profiles, analytics, badges, tests, insights] = await Promise.all([
     restGet<ProfileRow[]>(
       `user_profiles?select=user_id,full_name,avatar_url,points,target_exam,current_streak,tests_completed&${baseFilter}&limit=1`,
@@ -218,10 +232,7 @@ export async function fetchDashboardData(userId: string): Promise<DashboardPaylo
       `user_badges?select=id,badge_name,badge_detail,earned_at&${baseFilter}&order=earned_at.desc&limit=6`,
       "auth"
     ),
-    restGet<TestAttemptRow[]>(
-      `test_attempts?select=id,test_name,attempted_at,score,percentile&${baseFilter}&order=attempted_at.desc&limit=12`,
-      "auth"
-    ),
+    testsPromise,
     restGet<InsightRow[]>(
       `ai_insights?select=id,insight&${baseFilter}&order=created_at.desc&limit=8`,
       "auth"

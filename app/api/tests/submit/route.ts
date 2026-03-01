@@ -100,6 +100,8 @@ export async function POST(request: NextRequest) {
 
     const maxScore = questionIds.length * 4;
     const percentile = maxScore > 0 ? Math.max(0, Math.min(99.99, (Math.max(0, totalScore) / maxScore) * 100)) : 0;
+    const accuracyPercent =
+      questionIds.length > 0 ? Math.max(0, Math.min(100, (correctCount / questionIds.length) * 100)) : 0;
     const earnedPoints = Math.round(totalScore);
 
     const instanceRows = await supabaseRest<Array<{ blueprint_id: string }>>(
@@ -114,20 +116,33 @@ export async function POST(request: NextRequest) {
       : [];
 
     if (!isGuestAttempt && user?.id) {
-      await supabaseRest(
-        "test_attempts",
-        "POST",
-        [
-          {
-            user_id: user.id,
-            test_name: blueprintRows[0]?.name || "Generated Test",
-            score: Number(totalScore.toFixed(2)),
-            percentile: Number(percentile.toFixed(2)),
-            attempted_at: new Date().toISOString().slice(0, 10)
-          }
-        ],
-        "return=minimal"
-      );
+      const baseAttempt = {
+        user_id: user.id,
+        test_name: blueprintRows[0]?.name || "Generated Test",
+        score: Number(totalScore.toFixed(2)),
+        percentile: Number(percentile.toFixed(2)),
+        attempted_at: new Date().toISOString().slice(0, 10)
+      };
+
+      try {
+        await supabaseRest(
+          "test_attempts",
+          "POST",
+          [
+            {
+              ...baseAttempt,
+              correct_count: correctCount,
+              attempted_count: attemptedCount,
+              total_questions: questionIds.length,
+              accuracy_percent: Number(accuracyPercent.toFixed(2))
+            }
+          ],
+          "return=minimal"
+        );
+      } catch {
+        // Backward-compatible fallback if new accuracy columns are not yet added.
+        await supabaseRest("test_attempts", "POST", [baseAttempt], "return=minimal");
+      }
     }
 
     return NextResponse.json({
@@ -136,6 +151,7 @@ export async function POST(request: NextRequest) {
       maxScore,
       earnedPoints,
       percentile: Number(percentile.toFixed(2)),
+      accuracyPercent: Number(accuracyPercent.toFixed(2)),
       correctCount,
       attemptedCount,
       totalQuestions: questionIds.length,
