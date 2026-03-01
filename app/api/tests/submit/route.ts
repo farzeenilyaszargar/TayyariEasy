@@ -143,6 +143,31 @@ export async function POST(request: NextRequest) {
         // Backward-compatible fallback if new accuracy columns are not yet added.
         await supabaseRest("test_attempts", "POST", [baseAttempt], "return=minimal");
       }
+
+      // Award first-test badge immediately after first successful cloud test attempt.
+      try {
+        const badgeName = "First Test Completed";
+        const existingBadges = await supabaseRest<Array<{ id: number }>>(
+          `user_badges?select=id&user_id=eq.${user.id}&badge_name=eq.${encodeURIComponent(badgeName)}&limit=1`,
+          "GET"
+        );
+        if (existingBadges.length === 0) {
+          await supabaseRest(
+            "user_badges",
+            "POST",
+            [
+              {
+                user_id: user.id,
+                badge_name: badgeName,
+                badge_detail: "Awarded for completing your first scored test."
+              }
+            ],
+            "return=minimal"
+          );
+        }
+      } catch {
+        // Badge failure should not block test submission success.
+      }
     }
 
     return NextResponse.json({

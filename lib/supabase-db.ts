@@ -11,6 +11,7 @@ export type ProfileRow = {
   avatar_url: string | null;
   points: number;
   target_exam: string | null;
+  target_college?: string | null;
   current_streak: number;
   tests_completed: number;
 };
@@ -201,7 +202,7 @@ async function restGet<T>(path: string, mode: "auth" | "public"): Promise<T> {
 
 export async function fetchOwnProfile(userId: string): Promise<ProfileRow | null> {
   const rows = await restGet<ProfileRow[]>(
-    `user_profiles?select=user_id,full_name,avatar_url,points,target_exam,current_streak,tests_completed&user_id=eq.${userId}&limit=1`,
+    `user_profiles?select=user_id,full_name,avatar_url,points,target_exam,target_college,current_streak,tests_completed&user_id=eq.${userId}&limit=1`,
     "auth"
   );
   return rows[0] ?? null;
@@ -221,7 +222,7 @@ export async function fetchDashboardData(userId: string): Promise<DashboardPaylo
 
   const [profiles, analytics, badges, tests, insights] = await Promise.all([
     restGet<ProfileRow[]>(
-      `user_profiles?select=user_id,full_name,avatar_url,points,target_exam,current_streak,tests_completed&${baseFilter}&limit=1`,
+      `user_profiles?select=user_id,full_name,avatar_url,points,target_exam,target_college,current_streak,tests_completed&${baseFilter}&limit=1`,
       "auth"
     ),
     restGet<AnalyticsRow[]>(
@@ -311,6 +312,90 @@ export async function createTestAttempt(payload: {
   if (!response.ok) {
     const text = await response.text();
     throw new Error(text || "Failed to create test attempt.");
+  }
+}
+
+export async function updateOwnProfile(payload: {
+  userId: string;
+  fullName: string;
+  avatarUrl: string;
+  targetCollege: string;
+}) {
+  const url = getSupabaseUrl();
+  if (!url) {
+    throw new Error("Supabase URL unavailable.");
+  }
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${url}/rest/v1/user_profiles?user_id=eq.${payload.userId}`, {
+    method: "PATCH",
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+      Prefer: "return=representation"
+    },
+    body: JSON.stringify({
+      full_name: payload.fullName.trim() || null,
+      avatar_url: payload.avatarUrl.trim() || null,
+      target_college: payload.targetCollege.trim() || null,
+      updated_at: new Date().toISOString()
+    })
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || "Failed to update profile.");
+  }
+}
+
+export async function awardBadgeIfMissing(payload: {
+  userId: string;
+  badgeName: string;
+  badgeDetail: string;
+}) {
+  const url = getSupabaseUrl();
+  if (!url) {
+    throw new Error("Supabase URL unavailable.");
+  }
+  const headers = getAuthHeaders();
+  const badgeNameFilter = encodeURIComponent(payload.badgeName);
+  const existingResponse = await fetch(
+    `${url}/rest/v1/user_badges?select=id&user_id=eq.${payload.userId}&badge_name=eq.${badgeNameFilter}&limit=1`,
+    {
+      headers,
+      cache: "no-store"
+    }
+  );
+
+  if (!existingResponse.ok) {
+    const text = await existingResponse.text();
+    throw new Error(text || "Failed to verify existing badge.");
+  }
+
+  const existing = (await existingResponse.json()) as Array<{ id: number }>;
+  if (existing.length > 0) {
+    return;
+  }
+
+  const insertResponse = await fetch(`${url}/rest/v1/user_badges`, {
+    method: "POST",
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal"
+    },
+    body: JSON.stringify([
+      {
+        user_id: payload.userId,
+        badge_name: payload.badgeName,
+        badge_detail: payload.badgeDetail
+      }
+    ])
+  });
+
+  if (!insertResponse.ok) {
+    const text = await insertResponse.text();
+    throw new Error(text || "Failed to award badge.");
   }
 }
 

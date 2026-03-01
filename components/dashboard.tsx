@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { TargetIcon, TrendIcon } from "@/components/ui-icons";
-import { fetchDashboardData, type DashboardPayload } from "@/lib/supabase-db";
+import { awardBadgeIfMissing, fetchDashboardData, type DashboardPayload, updateOwnProfile } from "@/lib/supabase-db";
 
 const emptyData: DashboardPayload = {
   profile: null,
@@ -86,7 +86,7 @@ function stdDev(values: number[]) {
 }
 
 export function Dashboard() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [data, setData] = useState<DashboardPayload>(emptyData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -98,6 +98,11 @@ export function Dashboard() {
   const [forecastError, setForecastError] = useState("");
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
   const [avatarLoadError, setAvatarLoadError] = useState(false);
+  const [profileNameInput, setProfileNameInput] = useState("");
+  const [profileAvatarInput, setProfileAvatarInput] = useState("");
+  const [targetCollegeInput, setTargetCollegeInput] = useState("");
+  const [profileSaveLoading, setProfileSaveLoading] = useState(false);
+  const [profileSaveMessage, setProfileSaveMessage] = useState("");
 
   useEffect(() => {
     let alive = true;
@@ -131,6 +136,12 @@ export function Dashboard() {
       alive = false;
     };
   }, [user.id]);
+
+  useEffect(() => {
+    setProfileNameInput(data.profile?.full_name || user.name || "");
+    setProfileAvatarInput(data.profile?.avatar_url || user.avatarUrl || "");
+    setTargetCollegeInput(data.profile?.target_college || "");
+  }, [data.profile?.full_name, data.profile?.avatar_url, data.profile?.target_college, user.name, user.avatarUrl]);
 
   const scoreTimeline = useMemo(
     () =>
@@ -287,6 +298,35 @@ export function Dashboard() {
     }
   };
 
+  const saveProfileCustomizations = async () => {
+    if (!user.id || profileSaveLoading) {
+      return;
+    }
+    setProfileSaveLoading(true);
+    setProfileSaveMessage("");
+    try {
+      await updateOwnProfile({
+        userId: user.id,
+        fullName: profileNameInput,
+        avatarUrl: profileAvatarInput,
+        targetCollege: targetCollegeInput
+      });
+      await awardBadgeIfMissing({
+        userId: user.id,
+        badgeName: "Profile Customized",
+        badgeDetail: "Awarded for setting your profile identity and target college."
+      });
+      await refreshUser();
+      const latest = await fetchDashboardData(user.id);
+      setData(latest);
+      setProfileSaveMessage("Profile updated.");
+    } catch (err) {
+      setProfileSaveMessage(err instanceof Error ? err.message : "Unable to save profile.");
+    } finally {
+      setProfileSaveLoading(false);
+    }
+  };
+
   const geometry = useMemo(() => buildGraphGeometry(accuracySeries), [accuracySeries]);
   const firstAccuracy = accuracySeries[0] ?? null;
   const latestAccuracy = accuracySeries[accuracySeries.length - 1] ?? null;
@@ -353,8 +393,37 @@ export function Dashboard() {
             <p className="eyebrow">Welcome Back</p>
             <h3>{data.profile?.full_name || user.name}</h3>
             <p className="muted">
-              {data.profile?.target_exam || "No target exam set"} | {data.profile?.current_streak ?? 0} day streak
+              {data.profile?.target_exam || "No target exam set"}
+              {data.profile?.target_college ? ` | Target: ${data.profile.target_college}` : ""}
+              {" | "}
+              {data.profile?.current_streak ?? 0} day streak
             </p>
+            <div className="profile-customize-form">
+              <input
+                value={profileNameInput}
+                onChange={(event) => setProfileNameInput(event.target.value)}
+                placeholder="Your name"
+              />
+              <input
+                value={profileAvatarInput}
+                onChange={(event) => setProfileAvatarInput(event.target.value)}
+                placeholder="Profile image URL"
+              />
+              <input
+                value={targetCollegeInput}
+                onChange={(event) => setTargetCollegeInput(event.target.value)}
+                placeholder="Target college (e.g., IIT Bombay)"
+              />
+              <button
+                type="button"
+                className="btn btn-solid profile-save-btn"
+                onClick={saveProfileCustomizations}
+                disabled={profileSaveLoading}
+              >
+                {profileSaveLoading ? "Saving..." : "Save Profile"}
+              </button>
+              {profileSaveMessage ? <small className="muted">{profileSaveMessage}</small> : null}
+            </div>
           </div>
         </div>
       </section>

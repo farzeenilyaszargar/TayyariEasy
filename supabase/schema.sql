@@ -8,12 +8,15 @@ create table if not exists public.user_profiles (
   full_name text,
   avatar_url text,
   target_exam text default 'JEE Main & Advanced',
+  target_college text,
   current_streak integer not null default 0,
   points integer not null default 0,
   tests_completed integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.user_profiles add column if not exists target_college text;
 
 create table if not exists public.user_analytics (
   user_id uuid primary key references auth.users(id) on delete cascade,
