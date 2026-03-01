@@ -262,3 +262,241 @@ set
   category = excluded.category,
   preview = excluded.preview,
   href = excluded.href;
+
+-- =====================================================
+-- Test Bank Platform (Phase 0 + Phase 1 schema)
+-- =====================================================
+
+create table if not exists public.question_sources (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  base_url text not null,
+  license_type text not null check (license_type in ('official', 'open', 'unknown')),
+  is_active boolean not null default true,
+  robots_allowed boolean not null default false,
+  terms_checked_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.source_documents (
+  id uuid primary key default gen_random_uuid(),
+  source_id uuid not null references public.question_sources(id) on delete cascade,
+  url text not null unique,
+  document_type text not null check (document_type in ('pdf', 'html')),
+  published_year integer,
+  exam text check (exam in ('JEE Main', 'JEE Advanced')),
+  paper_code text,
+  storage_path text,
+  fetched_at timestamptz,
+  content_hash text,
+  parse_status text not null default 'pending' check (parse_status in ('pending', 'parsed', 'failed')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.question_bank (
+  id uuid primary key default gen_random_uuid(),
+  question_type text not null check (question_type in ('mcq_single', 'integer')),
+  stem_markdown text not null,
+  stem_latex text,
+  subject text not null check (subject in ('Physics', 'Chemistry', 'Mathematics')),
+  topic text not null,
+  subtopic text,
+  difficulty text not null check (difficulty in ('easy', 'medium', 'hard')),
+  source_kind text not null check (source_kind in ('historical', 'hard_curated', 'ai_generated')),
+  exam_year integer,
+  exam_phase text check (exam_phase in ('Main', 'Advanced')),
+  marks integer not null default 4,
+  negative_marks integer not null default 1,
+  quality_score numeric(5,2) not null default 0,
+  review_status text not null default 'needs_review' check (review_status in ('auto_pass', 'needs_review', 'approved', 'rejected')),
+  is_published boolean not null default false,
+  dedupe_fingerprint text not null unique,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.question_options (
+  id uuid primary key default gen_random_uuid(),
+  question_id uuid not null references public.question_bank(id) on delete cascade,
+  option_key text not null check (option_key in ('A', 'B', 'C', 'D')),
+  option_text_markdown text not null,
+  option_latex text,
+  created_at timestamptz not null default now(),
+  unique (question_id, option_key)
+);
+
+create table if not exists public.question_answers (
+  question_id uuid primary key references public.question_bank(id) on delete cascade,
+  answer_type text not null check (answer_type in ('option_key', 'integer_value')),
+  correct_option text check (correct_option in ('A', 'B', 'C', 'D')),
+  correct_integer numeric,
+  solution_markdown text,
+  solution_latex text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.question_provenance (
+  id uuid primary key default gen_random_uuid(),
+  question_id uuid not null references public.question_bank(id) on delete cascade,
+  source_document_id uuid references public.source_documents(id) on delete set null,
+  source_question_ref text,
+  source_url text not null,
+  extraction_confidence numeric(5,2) not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.syllabus_topics (
+  id uuid primary key default gen_random_uuid(),
+  subject text not null check (subject in ('Physics', 'Chemistry', 'Mathematics')),
+  topic text not null,
+  subtopic text,
+  syllabus_version text not null default 'jee_main_2026',
+  created_at timestamptz not null default now(),
+  unique (subject, topic, subtopic, syllabus_version)
+);
+
+create table if not exists public.question_topic_map (
+  question_id uuid not null references public.question_bank(id) on delete cascade,
+  topic_id uuid not null references public.syllabus_topics(id) on delete cascade,
+  confidence numeric(5,2) not null default 0,
+  created_at timestamptz not null default now(),
+  primary key (question_id, topic_id)
+);
+
+create table if not exists public.question_generation_jobs (
+  id uuid primary key default gen_random_uuid(),
+  target_subject text not null check (target_subject in ('Physics', 'Chemistry', 'Mathematics')),
+  target_topic text not null,
+  target_subtopic text,
+  target_difficulty text not null check (target_difficulty in ('easy', 'medium', 'hard')),
+  requested_count integer not null default 0,
+  model text not null,
+  status text not null default 'pending' check (status in ('pending', 'running', 'completed', 'failed')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.generated_question_meta (
+  question_id uuid primary key references public.question_bank(id) on delete cascade,
+  generation_job_id uuid references public.question_generation_jobs(id) on delete set null,
+  prompt_template_version text not null,
+  model text not null,
+  validation_report jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.test_blueprints (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  scope text not null check (scope in ('topic', 'subject', 'full_mock')),
+  subject text check (subject in ('Physics', 'Chemistry', 'Mathematics')),
+  topic text,
+  question_count integer not null,
+  distribution jsonb not null default '{"easy":30,"medium":50,"hard":20}'::jsonb,
+  duration_minutes integer not null,
+  negative_marking boolean not null default true,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.test_instances (
+  id uuid primary key default gen_random_uuid(),
+  blueprint_id uuid not null references public.test_blueprints(id) on delete cascade,
+  version integer not null default 1,
+  seed text,
+  published_at timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.test_instance_questions (
+  test_instance_id uuid not null references public.test_instances(id) on delete cascade,
+  question_id uuid not null references public.question_bank(id) on delete cascade,
+  position integer not null,
+  created_at timestamptz not null default now(),
+  primary key (test_instance_id, question_id)
+);
+
+create table if not exists public.question_review_queue (
+  id uuid primary key default gen_random_uuid(),
+  question_id uuid not null references public.question_bank(id) on delete cascade,
+  reason_codes text[] not null default '{}',
+  priority integer not null default 5,
+  assigned_to uuid,
+  status text not null default 'open' check (status in ('open', 'approved', 'rejected')),
+  review_notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_question_bank_publish_scope on public.question_bank (is_published, subject, topic, difficulty);
+create index if not exists idx_question_bank_exam on public.question_bank (exam_year, exam_phase);
+create index if not exists idx_question_review_queue_status on public.question_review_queue (status, priority, created_at);
+create index if not exists idx_test_blueprints_scope on public.test_blueprints (is_active, scope, subject, topic);
+
+alter table public.question_sources enable row level security;
+alter table public.source_documents enable row level security;
+alter table public.question_bank enable row level security;
+alter table public.question_options enable row level security;
+alter table public.question_answers enable row level security;
+alter table public.question_provenance enable row level security;
+alter table public.syllabus_topics enable row level security;
+alter table public.question_topic_map enable row level security;
+alter table public.question_generation_jobs enable row level security;
+alter table public.generated_question_meta enable row level security;
+alter table public.test_blueprints enable row level security;
+alter table public.test_instances enable row level security;
+alter table public.test_instance_questions enable row level security;
+alter table public.question_review_queue enable row level security;
+
+drop policy if exists "question_bank_public_select_published" on public.question_bank;
+create policy "question_bank_public_select_published" on public.question_bank
+for select using (is_published = true);
+
+drop policy if exists "question_options_public_select" on public.question_options;
+create policy "question_options_public_select" on public.question_options
+for select using (
+  exists (
+    select 1 from public.question_bank qb where qb.id = question_id and qb.is_published = true
+  )
+);
+
+drop policy if exists "question_answers_public_select" on public.question_answers;
+create policy "question_answers_public_select" on public.question_answers
+for select using (
+  exists (
+    select 1 from public.question_bank qb where qb.id = question_id and qb.is_published = true
+  )
+);
+
+drop policy if exists "syllabus_topics_public_select" on public.syllabus_topics;
+create policy "syllabus_topics_public_select" on public.syllabus_topics for select using (true);
+
+drop policy if exists "question_topic_map_public_select" on public.question_topic_map;
+create policy "question_topic_map_public_select" on public.question_topic_map
+for select using (
+  exists (
+    select 1 from public.question_bank qb where qb.id = question_id and qb.is_published = true
+  )
+);
+
+drop policy if exists "test_blueprints_public_select" on public.test_blueprints;
+create policy "test_blueprints_public_select" on public.test_blueprints for select using (is_active = true);
+
+drop policy if exists "test_instances_public_select" on public.test_instances;
+create policy "test_instances_public_select" on public.test_instances for select using (true);
+
+drop policy if exists "test_instance_questions_public_select" on public.test_instance_questions;
+create policy "test_instance_questions_public_select" on public.test_instance_questions for select using (true);
+
+-- Note: insert/update/delete for the new platform tables are intentionally done via service role.
+
+insert into public.test_blueprints (name, scope, subject, topic, question_count, distribution, duration_minutes, negative_marking, is_active)
+values
+  ('Physics Mechanics Topic Test', 'topic', 'Physics', 'Mechanics', 20, '{"easy":30,"medium":50,"hard":20}', 45, true, true),
+  ('Chemistry Subject Test', 'subject', 'Chemistry', null, 30, '{"easy":25,"medium":50,"hard":25}', 60, true, true),
+  ('JEE Full Mock Standard', 'full_mock', null, null, 75, '{"easy":30,"medium":50,"hard":20}', 180, true, true)
+on conflict do nothing;

@@ -1,101 +1,45 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { AwardIcon, SearchIcon } from "@/components/ui-icons";
-import { createTestAttempt } from "@/lib/supabase-db";
+import {
+  fetchTestsCatalog,
+  launchBlueprintTest,
+  submitBlueprintTest,
+  type QuestionRow,
+  type TestBlueprintRow,
+  type TestInstanceRow
+} from "@/lib/supabase-db";
 
-type LocalTest = {
-  id: string;
-  name: string;
-  category: "General" | "Basic";
-  avgScore: number;
-  difficulty: "Easy" | "Medium";
-  attempts: number;
-  icon: string;
-};
+type ScopeFilter = "All" | "topic" | "subject" | "full_mock";
 
-type SavedAttempt = {
-  testName: string;
+type SubmitResult = {
   score: number;
+  maxScore: number;
   percentile: number;
-  date: string;
+  correctCount: number;
+  attemptedCount: number;
+  totalQuestions: number;
+  topicBreakdown: Array<{ topic: string; attempted: number; correct: number; accuracy: number }>;
+  difficultyBreakdown: Array<{ difficulty: string; attempted: number; correct: number; accuracy: number }>;
 };
 
-const LOCAL_ATTEMPTS_KEY = "tayyari-local-test-attempts";
-
-const tests: LocalTest[] = [
-  {
-    id: "general-1",
-    name: "General Practice Test 1",
-    category: "General",
-    avgScore: 162,
-    difficulty: "Medium",
-    attempts: 420,
-    icon: "G"
-  },
-  {
-    id: "general-2",
-    name: "General Practice Test 2",
-    category: "General",
-    avgScore: 171,
-    difficulty: "Medium",
-    attempts: 338,
-    icon: "G"
-  },
-  {
-    id: "basic-1",
-    name: "Basic Foundation Test 1",
-    category: "Basic",
-    avgScore: 118,
-    difficulty: "Easy",
-    attempts: 507,
-    icon: "B"
-  },
-  {
-    id: "basic-2",
-    name: "Basic Foundation Test 2",
-    category: "Basic",
-    avgScore: 126,
-    difficulty: "Easy",
-    attempts: 446,
-    icon: "B"
-  }
-];
-
-const demoQuestions = [
-  {
-    question: "A particle moves with constant acceleration. Which graph is linear?",
-    options: ["Displacement vs time", "Velocity vs time", "Acceleration vs time^2", "Kinetic energy vs time"],
-    answerIndex: 1
-  },
-  {
-    question: "For SN1 reactions, the rate depends primarily on:",
-    options: ["Nucleophile strength", "Substrate concentration", "Solvent viscosity", "Temperature only"],
-    answerIndex: 1
-  },
-  {
-    question: "If f(x)=x^2 then integral from 0 to 2 of f(x) dx is:",
-    options: ["4", "6", "8/3", "10/3"],
-    answerIndex: 2
-  }
-];
-
-function TestCardView({ test, onAttempt }: { test: LocalTest; onAttempt: (test: LocalTest) => void }) {
+function BlueprintCard({ blueprint, onLaunch }: { blueprint: TestBlueprintRow; onLaunch: (id: string) => void }) {
   return (
     <li className="test-card test-card-attractive">
       <div className="test-card-head">
-        <span className="tiny-icon">{test.icon}</span>
-        <span className="subject-tag">{test.category}</span>
+        <span className="tiny-icon">{blueprint.scope === "topic" ? "T" : blueprint.scope === "subject" ? "S" : "F"}</span>
+        <span className="subject-tag">{blueprint.scope.replace("_", " ")}</span>
       </div>
-      <strong>{test.name}</strong>
+      <strong>{blueprint.name}</strong>
       <div className="test-stats">
-        <span>Avg score: {test.avgScore}</span>
-        <span>Difficulty: {test.difficulty}</span>
-        <span>Attempts: {test.attempts}</span>
+        <span>Questions: {blueprint.question_count}</span>
+        <span>Duration: {blueprint.duration_minutes} min</span>
+        <span>Pool: {blueprint.availableQuestions}</span>
       </div>
       <div className="test-cta-row">
-        <button className="btn btn-solid" onClick={() => onAttempt(test)}>
+        <button className="btn btn-solid" onClick={() => onLaunch(blueprint.id)} disabled={blueprint.availableQuestions === 0}>
           Attempt
         </button>
       </div>
@@ -104,260 +48,274 @@ function TestCardView({ test, onAttempt }: { test: LocalTest; onAttempt: (test: 
 }
 
 export default function TestsPage() {
-  const { user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<"All" | "General" | "Basic">("All");
-  const [activeTest, setActiveTest] = useState<LocalTest | null>(null);
+  const [scope, setScope] = useState<ScopeFilter>("All");
+  const [catalog, setCatalog] = useState<TestBlueprintRow[]>([]);
+  const [loadingCatalog, setLoadingCatalog] = useState(true);
+  const [catalogError, setCatalogError] = useState("");
+
+  const [active, setActive] = useState<TestInstanceRow | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [selected, setSelected] = useState<string>("");
-  const [finished, setFinished] = useState(false);
-  const [correct, setCorrect] = useState(0);
-  const [savedAttempts, setSavedAttempts] = useState<SavedAttempt[]>([]);
-  const [syncing, setSyncing] = useState(false);
-  const [syncMessage, setSyncMessage] = useState("");
+  const [answers, setAnswers] = useState<Record<string, string | number>>({});
+  const [launching, setLaunching] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [result, setResult] = useState<SubmitResult | null>(null);
 
   useEffect(() => {
-    const raw = window.localStorage.getItem(LOCAL_ATTEMPTS_KEY);
-    if (!raw) {
-      return;
-    }
-    try {
-      const parsed = JSON.parse(raw) as SavedAttempt[];
-      setSavedAttempts(parsed);
-    } catch {
-      setSavedAttempts([]);
-    }
+    let alive = true;
+    const run = async () => {
+      setLoadingCatalog(true);
+      setCatalogError("");
+      try {
+        const rows = await fetchTestsCatalog();
+        if (alive) {
+          setCatalog(rows);
+        }
+      } catch (error) {
+        if (alive) {
+          setCatalogError(error instanceof Error ? error.message : "Failed to load tests catalog.");
+        }
+      } finally {
+        if (alive) {
+          setLoadingCatalog(false);
+        }
+      }
+    };
+    void run();
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const filtered = useMemo(
     () =>
-      tests.filter(
-        (test) =>
-          test.name.toLowerCase().includes(query.toLowerCase()) &&
-          (category === "All" || test.category === category)
+      catalog.filter(
+        (item) =>
+          item.name.toLowerCase().includes(query.toLowerCase()) &&
+          (scope === "All" || item.scope === scope)
       ),
-    [query, category]
+    [catalog, query, scope]
   );
 
-  const startDemo = (test: LocalTest) => {
-    setActiveTest(test);
-    setQuestionIndex(0);
-    setSelected("");
-    setFinished(false);
-    setCorrect(0);
+  const current: QuestionRow | null = active?.questions[questionIndex] || null;
+
+  const startTest = async (blueprintId: string) => {
+    setLaunching(true);
+    setSubmitError("");
+    setResult(null);
+    try {
+      const session = await launchBlueprintTest(blueprintId);
+      setActive(session);
+      setQuestionIndex(0);
+      setAnswers({});
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Failed to launch test.");
+    } finally {
+      setLaunching(false);
+    }
   };
 
-  const closeDemo = () => {
-    setActiveTest(null);
+  const closeTest = () => {
+    setActive(null);
     setQuestionIndex(0);
-    setSelected("");
-    setFinished(false);
-    setCorrect(0);
-    setSyncing(false);
-    setSyncMessage("");
+    setAnswers({});
+    setSubmitting(false);
+    setSubmitError("");
+    setResult(null);
   };
 
-  const onNext = async () => {
-    const current = demoQuestions[questionIndex];
-    const isCorrect = current.options[current.answerIndex] === selected;
-    const nextCorrect = correct + (isCorrect ? 1 : 0);
+  const updateAnswer = (questionId: string, value: string | number) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+  };
 
-    if (questionIndex === demoQuestions.length - 1) {
-      setCorrect(nextCorrect);
-      setFinished(true);
-
-      if (activeTest) {
-        const score = Math.round((nextCorrect / demoQuestions.length) * 300);
-        const percentile = Math.round((nextCorrect / demoQuestions.length) * 10000) / 100;
-        const saved: SavedAttempt = {
-          testName: activeTest.name,
-          score,
-          percentile,
-          date: new Date().toISOString().slice(0, 10)
-        };
-        const updated = [saved, ...savedAttempts].slice(0, 10);
-        setSavedAttempts(updated);
-        window.localStorage.setItem(LOCAL_ATTEMPTS_KEY, JSON.stringify(updated));
-
-        if (user.id) {
-          setSyncing(true);
-          setSyncMessage("");
-          try {
-            await createTestAttempt({
-              userId: user.id,
-              testName: activeTest.name,
-              score,
-              percentile
-            });
-            setSyncMessage("Score synced to Supabase.");
-          } catch (error) {
-            setSyncMessage(error instanceof Error ? `Supabase sync failed: ${error.message}` : "Supabase sync failed.");
-          } finally {
-            setSyncing(false);
-          }
-        } else {
-          setSyncMessage("Login to sync this score to Supabase.");
-        }
-      }
+  const submitTest = async () => {
+    if (!active) {
       return;
     }
 
-    setCorrect(nextCorrect);
-    setQuestionIndex((prev) => prev + 1);
-    setSelected("");
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const payload = await submitBlueprintTest({
+        testInstanceId: active.testInstanceId,
+        answers
+      });
+      setResult(payload);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Failed to submit test.");
+    } finally {
+      setSubmitting(false);
+    }
   };
-
-  const current = demoQuestions[questionIndex];
 
   return (
     <section className="page">
       <div className="page-head">
         <p className="eyebrow">Tests</p>
-        <h1>General and Basic Tests (Local Mode)</h1>
+        <h1>Topic, Subject, and Full Mock Tests</h1>
       </div>
 
       <div className="search-row card tests-search-box">
         <div className="search-input-wrap">
           <SearchIcon size={17} />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search general or basic tests"
-          />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search tests" />
         </div>
         <div className="tag-filter">
-          <button className={`subject-tag ${category === "All" ? "active" : ""}`} onClick={() => setCategory("All")}>
+          <button className={`subject-tag ${scope === "All" ? "active" : ""}`} onClick={() => setScope("All")}>
             All
           </button>
-          <button
-            className={`subject-tag ${category === "General" ? "active" : ""}`}
-            onClick={() => setCategory("General")}
-          >
-            General
+          <button className={`subject-tag ${scope === "topic" ? "active" : ""}`} onClick={() => setScope("topic")}>
+            Topic
           </button>
-          <button
-            className={`subject-tag ${category === "Basic" ? "active" : ""}`}
-            onClick={() => setCategory("Basic")}
-          >
-            Basic
+          <button className={`subject-tag ${scope === "subject" ? "active" : ""}`} onClick={() => setScope("subject")}>
+            Subject
+          </button>
+          <button className={`subject-tag ${scope === "full_mock" ? "active" : ""}`} onClick={() => setScope("full_mock")}>
+            Full Mock
           </button>
         </div>
       </div>
 
       <article className="card">
         <h3>Available Tests</h3>
-        <p className="muted">Local testing mode active. Scores are saved in your browser only.</p>
+        <p className="muted">
+          {loadingCatalog ? "Loading test catalog..." : "Generated from the live question bank and blueprint distribution."}
+        </p>
+        {catalogError ? <p className="muted">{catalogError}</p> : null}
+        {submitError && !active ? <p className="muted">{submitError}</p> : null}
+        {launching ? <p className="muted">Launching test...</p> : null}
         <ul className="test-list">
           {filtered.map((test) => (
-            <TestCardView key={test.id} test={test} onAttempt={startDemo} />
+            <BlueprintCard key={test.id} blueprint={test} onLaunch={startTest} />
           ))}
-          {filtered.length === 0 ? <li className="empty-state">No tests found.</li> : null}
+          {!loadingCatalog && filtered.length === 0 ? <li className="empty-state">No tests found.</li> : null}
         </ul>
       </article>
 
-      <article className="card" style={{ marginTop: "16px" }}>
-        <h3>Recent Local Scores</h3>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Test</th>
-                <th>Date</th>
-                <th>Score</th>
-                <th>Percentile</th>
-              </tr>
-            </thead>
-            <tbody>
-              {savedAttempts.length > 0 ? (
-                savedAttempts.map((attempt, idx) => (
-                  <tr key={`${attempt.testName}-${attempt.date}-${idx}`}>
-                    <td>{attempt.testName}</td>
-                    <td>{attempt.date}</td>
-                    <td>{attempt.score}</td>
-                    <td>{attempt.percentile}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="muted">
-                    No local attempts yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </article>
-
-      {activeTest ? (
-        <div className="demo-modal-backdrop" role="dialog" aria-modal="true" aria-label="Demo test interface">
+      {active ? (
+        <div className="demo-modal-backdrop" role="dialog" aria-modal="true" aria-label="Live test interface">
           <div className="demo-modal">
             <div className="demo-modal-head">
               <div>
-                <p className="eyebrow">Demo Test UI</p>
-                <h3>{activeTest.name}</h3>
+                <p className="eyebrow">Live Test Session</p>
+                <h3>{active.blueprint.name}</h3>
               </div>
-              <button className="btn btn-outline" onClick={closeDemo}>
+              <button className="btn btn-outline" onClick={closeTest}>
                 Close
               </button>
             </div>
 
-            {finished ? (
+            {result ? (
               <div className="demo-finish">
                 <span className="tiny-icon blue">
                   <AwardIcon size={14} />
                 </span>
-                <h3>Demo completed</h3>
+                <h3>Test submitted</h3>
                 <p className="muted">
-                  Correct answers: {correct}/{demoQuestions.length}
+                  Score: {result.score} / {result.maxScore} | Percentile: {result.percentile}
                 </p>
                 <p className="muted">
-                  Score: {Math.round((correct / demoQuestions.length) * 300)} | Percentile:{" "}
-                  {Math.round((correct / demoQuestions.length) * 10000) / 100}
+                  Correct: {result.correctCount} | Attempted: {result.attemptedCount} / {result.totalQuestions}
                 </p>
-                <p className="muted">Saved locally for testing.</p>
-                <button className="btn btn-solid" onClick={closeDemo}>
+                {!isLoggedIn ? <p className="muted">Login required for score sync. Please log in and submit again.</p> : null}
+                <div className="grid-2">
+                  <article className="card">
+                    <h4>Topic Accuracy</h4>
+                    <ul className="list-clean">
+                      {result.topicBreakdown.map((item) => (
+                        <li key={item.topic}>
+                          <span>{item.topic}</span>
+                          <strong>{item.accuracy}%</strong>
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                  <article className="card">
+                    <h4>Difficulty Accuracy</h4>
+                    <ul className="list-clean">
+                      {result.difficultyBreakdown.map((item) => (
+                        <li key={item.difficulty}>
+                          <span>{item.difficulty}</span>
+                          <strong>{item.accuracy}%</strong>
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                </div>
+                <button className="btn btn-solid" onClick={closeTest}>
                   Back to Tests
                 </button>
               </div>
-            ) : (
+            ) : current ? (
               <>
                 <div className="demo-progress">
                   <span>
-                    Question {questionIndex + 1} / {demoQuestions.length}
+                    Question {questionIndex + 1} / {active.questions.length}
                   </span>
                   <div className="xp-track">
-                    <span style={{ width: `${((questionIndex + 1) / demoQuestions.length) * 100}%` }} />
+                    <span style={{ width: `${((questionIndex + 1) / Math.max(1, active.questions.length)) * 100}%` }} />
                   </div>
                 </div>
 
                 <article className="demo-question card">
-                  <h4>{current.question}</h4>
-                  <div className="demo-options">
-                    {current.options.map((option) => (
-                      <button
-                        key={option}
-                        className={`demo-option ${selected === option ? "active" : ""}`}
-                        onClick={() => setSelected(option)}
-                      >
-                        {option}
-                      </button>
-                    ))}
-                  </div>
+                  <p className="muted">
+                    {current.subject} • {current.topic} • {current.difficulty}
+                  </p>
+                  <h4>{current.stemMarkdown}</h4>
+
+                  {current.questionType === "mcq_single" ? (
+                    <div className="demo-options">
+                      {current.options.map((option) => (
+                        <button
+                          key={option.key}
+                          className={`demo-option ${String(answers[current.id] || "") === option.key ? "active" : ""}`}
+                          onClick={() => updateAnswer(current.id, option.key)}
+                        >
+                          {option.key}. {option.text}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="demo-options">
+                      <input
+                        className="demo-option"
+                        type="number"
+                        placeholder="Enter integer answer"
+                        value={String(answers[current.id] || "")}
+                        onChange={(event) => updateAnswer(current.id, Number(event.target.value))}
+                      />
+                    </div>
+                  )}
                 </article>
 
                 <div className="demo-actions">
-                  <button className="btn btn-outline" onClick={closeDemo}>
-                    Exit Demo
+                  <button
+                    className="btn btn-outline"
+                    onClick={() => setQuestionIndex((prev) => Math.max(0, prev - 1))}
+                    disabled={questionIndex === 0 || submitting}
+                  >
+                    Previous
                   </button>
-                  <button className="btn btn-solid" onClick={() => void onNext()} disabled={!selected}>
-                    {questionIndex === demoQuestions.length - 1 ? "Submit" : "Next"}
-                  </button>
+
+                  {questionIndex < active.questions.length - 1 ? (
+                    <button
+                      className="btn btn-solid"
+                      onClick={() => setQuestionIndex((prev) => Math.min(active.questions.length - 1, prev + 1))}
+                      disabled={submitting}
+                    >
+                      Next
+                    </button>
+                  ) : (
+                    <button className="btn btn-solid" onClick={() => void submitTest()} disabled={submitting || !isLoggedIn}>
+                      {submitting ? "Submitting..." : isLoggedIn ? "Submit Test" : "Login to Submit"}
+                    </button>
+                  )}
                 </div>
+                {submitError ? <p className="muted">{submitError}</p> : null}
               </>
-            )}
-            {syncing ? <p className="muted">Syncing score to Supabase...</p> : null}
-            {syncMessage ? <p className="muted">{syncMessage}</p> : null}
+            ) : null}
           </div>
         </div>
       ) : null}

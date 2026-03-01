@@ -24,6 +24,9 @@ Open http://localhost:3000
 2. Fill:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `INTERNAL_INGEST_TOKEN`
+   - `ADMIN_REVIEW_TOKEN`
    - `DEEPSEEK_API_KEY`
    - optional: `DEEPSEEK_MODEL` (default `deepseek-chat`)
 3. In Supabase dashboard:
@@ -42,3 +45,21 @@ Then use `/login` for Google sign-in or phone OTP auth.
 - `POST /api/ai/dashboard` for dashboard coach analysis
 
 Both use the server-side DeepSeek key from `.env.local`.
+
+## Test Bank Platform (V1)
+
+This repo now includes:
+- Real test engine APIs:
+  - `GET /api/tests/catalog`
+  - `POST /api/tests/launch`
+  - `POST /api/tests/submit`
+- Admin review APIs:
+  - `GET /api/questions/review-queue` (`x-admin-token`)
+  - `POST /api/questions/review` (`x-admin-token`)
+- Internal ingestion APIs:
+  - `POST /internal/ingest/source-document` (`x-internal-token`)
+  - `POST /internal/ingest/questions/bulk` (`x-internal-token`)
+  - `POST /internal/generate/questions` (`x-internal-token`)
+  - `POST /internal/review/decision` (`x-internal-token`)
+
+The external worker scaffold is in `/worker`.

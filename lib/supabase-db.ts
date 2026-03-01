@@ -75,6 +75,71 @@ export type LeaderboardRow = {
   tests_completed: number;
 };
 
+export type QuestionRow = {
+  id: string;
+  position: number;
+  questionType: "mcq_single" | "integer";
+  stemMarkdown: string;
+  stemLatex: string | null;
+  subject: SubjectTag;
+  topic: string;
+  difficulty: "easy" | "medium" | "hard";
+  marks: number;
+  negativeMarks: number;
+  options: Array<{
+    key: "A" | "B" | "C" | "D";
+    text: string;
+    latex: string | null;
+  }>;
+};
+
+export type TestBlueprintRow = {
+  id: string;
+  name: string;
+  scope: "topic" | "subject" | "full_mock";
+  subject: SubjectTag | null;
+  topic: string | null;
+  question_count: number;
+  duration_minutes: number;
+  negative_marking: boolean;
+  availableQuestions: number;
+};
+
+export type TestInstanceRow = {
+  testInstanceId: string;
+  blueprint: {
+    id: string;
+    name: string;
+    scope: "topic" | "subject" | "full_mock";
+    subject: SubjectTag | null;
+    topic: string | null;
+    durationMinutes: number;
+    negativeMarking: boolean;
+  };
+  questions: QuestionRow[];
+};
+
+export type ReviewQueueRow = {
+  id: string;
+  question_id: string;
+  reason_codes: string[];
+  priority: number;
+  status: "open" | "approved" | "rejected";
+  review_notes: string | null;
+  created_at: string;
+  updated_at: string;
+  question_bank?: {
+    id: string;
+    subject: SubjectTag;
+    topic: string;
+    subtopic: string | null;
+    difficulty: "easy" | "medium" | "hard";
+    source_kind: "historical" | "hard_curated" | "ai_generated";
+    quality_score: number;
+    stem_markdown: string;
+  };
+};
+
 export type DashboardPayload = {
   profile: ProfileRow | null;
   analytics: AnalyticsRow | null;
@@ -234,4 +299,126 @@ export async function createTestAttempt(payload: {
     const text = await response.text();
     throw new Error(text || "Failed to create test attempt.");
   }
+}
+
+function getApiHeaders() {
+  const session = getStoredSession();
+  return {
+    "Content-Type": "application/json",
+    ...(session?.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {})
+  };
+}
+
+export async function fetchTestsCatalog(params?: {
+  scope?: "topic" | "subject" | "full_mock";
+  subject?: SubjectTag;
+  topic?: string;
+}) {
+  const query = new URLSearchParams();
+  if (params?.scope) {
+    query.set("scope", params.scope);
+  }
+  if (params?.subject) {
+    query.set("subject", params.subject);
+  }
+  if (params?.topic) {
+    query.set("topic", params.topic);
+  }
+
+  const response = await fetch(`/api/tests/catalog${query.toString() ? `?${query.toString()}` : ""}`, {
+    cache: "no-store"
+  });
+
+  const payload = (await response.json()) as { items?: TestBlueprintRow[]; error?: string };
+  if (!response.ok) {
+    throw new Error(payload.error || "Failed to load tests catalog.");
+  }
+
+  return payload.items || [];
+}
+
+export async function launchBlueprintTest(blueprintId: string) {
+  const response = await fetch("/api/tests/launch", {
+    method: "POST",
+    headers: getApiHeaders(),
+    body: JSON.stringify({ blueprintId })
+  });
+
+  const payload = (await response.json()) as TestInstanceRow & { error?: string };
+  if (!response.ok) {
+    throw new Error(payload.error || "Failed to launch test.");
+  }
+
+  return payload;
+}
+
+export async function submitBlueprintTest(payload: {
+  testInstanceId: string;
+  answers: Record<string, string | number>;
+  timeTakenSeconds?: number;
+}) {
+  const response = await fetch("/api/tests/submit", {
+    method: "POST",
+    headers: getApiHeaders(),
+    body: JSON.stringify(payload)
+  });
+
+  const data = (await response.json()) as {
+    error?: string;
+    score: number;
+    maxScore: number;
+    percentile: number;
+    correctCount: number;
+    attemptedCount: number;
+    totalQuestions: number;
+    topicBreakdown: Array<{ topic: string; attempted: number; correct: number; accuracy: number }>;
+    difficultyBreakdown: Array<{ difficulty: string; attempted: number; correct: number; accuracy: number }>;
+  };
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to submit test.");
+  }
+
+  return data;
+}
+
+export async function fetchReviewQueue(adminToken: string, status: "open" | "approved" | "rejected" = "open") {
+  const response = await fetch(`/api/questions/review-queue?status=${status}`, {
+    headers: {
+      "x-admin-token": adminToken
+    },
+    cache: "no-store"
+  });
+  const payload = (await response.json()) as { items?: ReviewQueueRow[]; error?: string };
+  if (!response.ok) {
+    throw new Error(payload.error || "Failed to fetch review queue.");
+  }
+  return payload.items || [];
+}
+
+export async function submitReviewDecision(payload: {
+  adminToken: string;
+  queueId: string;
+  action: "approved" | "rejected";
+  notes?: string;
+  publish?: boolean;
+}) {
+  const response = await fetch("/api/questions/review", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-token": payload.adminToken
+    },
+    body: JSON.stringify({
+      queueId: payload.queueId,
+      action: payload.action,
+      notes: payload.notes,
+      publish: payload.publish
+    })
+  });
+  const data = (await response.json()) as { ok?: boolean; error?: string };
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to submit review decision.");
+  }
+  return data.ok === true;
 }
