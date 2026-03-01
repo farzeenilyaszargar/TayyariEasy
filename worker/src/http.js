@@ -9,7 +9,8 @@ function assertEnv() {
 
 export async function callInternal(path, body) {
   assertEnv();
-  const response = await fetch(`${APP_BASE_URL}${path}`, {
+  const url = `${APP_BASE_URL}${path}`;
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -18,9 +19,23 @@ export async function callInternal(path, body) {
     body: JSON.stringify(body)
   });
 
-  const payload = await response.json().catch(() => ({}));
+  const rawText = await response.text();
+  let payload = {};
+  if (rawText) {
+    try {
+      payload = JSON.parse(rawText);
+    } catch {
+      payload = { raw: rawText };
+    }
+  }
+
   if (!response.ok) {
-    throw new Error(payload.error || `Internal call failed: ${path}`);
+    const data = payload && typeof payload === "object" ? payload : {};
+    const message =
+      data.error ||
+      data.raw ||
+      `Internal call failed: ${path}`;
+    throw new Error(`HTTP ${response.status} ${response.statusText} at ${url} -> ${String(message).slice(0, 500)}`);
   }
   return payload;
 }
