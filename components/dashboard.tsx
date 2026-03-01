@@ -293,166 +293,172 @@ export function Dashboard() {
         </div>
       </section>
 
-      <section className="card stat-card stat-rank stat-serious bento-rank">
-        <p className="eyebrow">Conservative AIR Forecast</p>
-        <h2>{rankDisplay}</h2>
-        <p className="muted">
-          {forecast
-            ? `Strict mode: pessimistic AI penalties applied. Confidence: ${forecast.confidence}.`
-            : analytics
-              ? "Fallback: live Supabase analytics."
-              : "Take a full test to generate rank forecast."}
-        </p>
-        {forecast?.riskNotes?.[0] ? <p className="dashboard-note">{forecast.riskNotes[0]}</p> : null}
-      </section>
+      <div className="dashboard-columns">
+        <div className="dashboard-col">
+          <section className="card stat-card stat-rank stat-serious">
+            <p className="eyebrow">Conservative AIR Forecast</p>
+            <h2>{rankDisplay}</h2>
+            <p className="muted">
+              {forecast
+                ? `Strict mode: pessimistic AI penalties applied. Confidence: ${forecast.confidence}.`
+                : analytics
+                  ? "Fallback: live Supabase analytics."
+                  : "Take a full test to generate rank forecast."}
+            </p>
+            {forecast?.riskNotes?.[0] ? <p className="dashboard-note">{forecast.riskNotes[0]}</p> : null}
+          </section>
 
-      <section className="card stat-card stat-score stat-serious bento-score">
-        <p className="eyebrow">Conservative Score Forecast</p>
-        <h2>{scoreDisplay}</h2>
-        <p className="muted">
-          {forecast
-            ? `${forecast.calculatedFrom}`
-            : `Confidence: ${analytics?.confidence_label || "Take a test"}`}
-        </p>
-        {forecastLoading ? <p className="dashboard-note">Recomputing strict forecast...</p> : null}
-        {forecastError ? <p className="dashboard-note">{forecastError}</p> : null}
-      </section>
-
-      <section className="card badge-card bento-points">
-        <h3>Points and Badges</h3>
-        <div className="point-meter">
-          <span>{(data.profile?.points ?? 0).toLocaleString()} points</span>
-          <small>{(data.profile?.tests_completed ?? 0).toLocaleString()} tests completed</small>
-        </div>
-        <div className="badge-list">
-          {data.badges.length > 0 ? (
-            data.badges.map((badge, idx) => (
-              <div key={badge.id} className={`badge-item badge-tone-${(idx % 3) + 1}`}>
-                <strong>{badge.badge_name}</strong>
-                <p>{badge.badge_detail}</p>
-              </div>
-            ))
-          ) : (
-            <p className="muted">Take a test to start earning badges.</p>
-          )}
-        </div>
-      </section>
-
-      <section className="card dashboard-half dashboard-graph dashboard-graph-rich bento-graph">
-        <div className="dashboard-graph-head">
-          <h3>Performance Analytics</h3>
-          <span className="dashboard-metric-chip">
-            <TrendIcon size={14} />
-            {growth === null ? "No trend yet" : `${growth >= 0 ? "+" : ""}${growth.toFixed(1)} trend`}
-          </span>
-        </div>
-        <svg className="graph-svg" viewBox="0 0 420 210" role="img" aria-label="Detailed score trend graph">
-          <polyline className="graph-axis" points="40,20 40,170 390,170" />
-          {geometry.guides.map((guide) => (
-            <g key={guide.y}>
-              <line x1="40" y1={guide.y} x2="390" y2={guide.y} className="graph-guide" />
-              <text x="8" y={guide.y + 3} className="graph-label">{guide.label}</text>
-            </g>
-          ))}
-          <polyline className="graph-area" points={geometry.area} />
-          <polyline className="graph-path" points={geometry.path} />
-          {geometry.points.map((point, idx) => (
-            <circle
-              key={`${point.x}-${point.y}`}
-              cx={point.x}
-              cy={point.y}
-              r={idx === geometry.points.length - 1 ? 4.4 : 3}
-              className={idx === geometry.points.length - 1 ? "graph-dot graph-dot-latest" : "graph-dot"}
-            />
-          ))}
-        </svg>
-        <div className="dashboard-metrics-grid">
-          <div className="dashboard-metric-box">
-            <small>Attempts</small>
-            <strong>{scoreSeries.length}</strong>
-          </div>
-          <div className="dashboard-metric-box">
-            <small>Average</small>
-            <strong>{avgScore == null ? "--" : avgScore.toFixed(1)}</strong>
-          </div>
-          <div className="dashboard-metric-box">
-            <small>Best</small>
-            <strong>{bestScore == null ? "--" : bestScore.toFixed(1)}</strong>
-          </div>
-          <div className="dashboard-metric-box">
-            <small>Volatility</small>
-            <strong>{volatility == null ? "--" : volatility.toFixed(1)}</strong>
-          </div>
-        </div>
-        <p className="muted">
-          {volatility == null
-            ? "Take a test to unlock trend analytics."
-            : `Volatility-adjusted forecast model is active. Lower volatility generally improves rank stability.`}
-        </p>
-      </section>
-
-      <section className="card dashboard-half dashboard-tests bento-tests">
-        <h3>Tests Taken</h3>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Test</th>
-                <th>Date</th>
-                <th>Score</th>
-                <th>Percentile</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.tests.length > 0 ? (
-                data.tests.map((test) => (
-                  <tr key={test.id}>
-                    <td>{test.test_name}</td>
-                    <td>{test.attempted_at}</td>
-                    <td>{test.score}</td>
-                    <td>{test.percentile}</td>
-                  </tr>
+          <section className="card badge-card">
+            <h3>Points and Badges</h3>
+            <div className="point-meter">
+              <span>{(data.profile?.points ?? 0).toLocaleString()} points</span>
+              <small>{(data.profile?.tests_completed ?? 0).toLocaleString()} tests completed</small>
+            </div>
+            <div className="badge-list">
+              {data.badges.length > 0 ? (
+                data.badges.map((badge, idx) => (
+                  <div key={badge.id} className={`badge-item badge-tone-${(idx % 3) + 1}`}>
+                    <strong>{badge.badge_name}</strong>
+                    <p>{badge.badge_detail}</p>
+                  </div>
                 ))
               ) : (
-                <tr>
-                  <td colSpan={4} className="muted">
-                    Take a test to populate this section.
-                  </td>
-                </tr>
+                <p className="muted">Take a test to start earning badges.</p>
               )}
-            </tbody>
-          </table>
-        </div>
-        <div className="cta-row">
-          <Link href="/tests" className="btn btn-solid">
-            Take Test
-          </Link>
-        </div>
-      </section>
+            </div>
+          </section>
 
-      <section className="card dashboard-half dashboard-ai dashboard-ai-strong bento-ai">
-        <div className="dashboard-ai-head">
-          <h3>AI Analysis</h3>
-          <span className="dashboard-metric-chip">
-            <TargetIcon size={14} />
-            Conservative mode
-          </span>
+          <section className="card dashboard-half dashboard-graph dashboard-graph-rich">
+            <div className="dashboard-graph-head">
+              <h3>Performance Analytics</h3>
+              <span className="dashboard-metric-chip">
+                <TrendIcon size={14} />
+                {growth === null ? "No trend yet" : `${growth >= 0 ? "+" : ""}${growth.toFixed(1)} trend`}
+              </span>
+            </div>
+            <svg className="graph-svg" viewBox="0 0 420 210" role="img" aria-label="Detailed score trend graph">
+              <polyline className="graph-axis" points="40,20 40,170 390,170" />
+              {geometry.guides.map((guide) => (
+                <g key={guide.y}>
+                  <line x1="40" y1={guide.y} x2="390" y2={guide.y} className="graph-guide" />
+                  <text x="8" y={guide.y + 3} className="graph-label">{guide.label}</text>
+                </g>
+              ))}
+              <polyline className="graph-area" points={geometry.area} />
+              <polyline className="graph-path" points={geometry.path} />
+              {geometry.points.map((point, idx) => (
+                <circle
+                  key={`${point.x}-${point.y}`}
+                  cx={point.x}
+                  cy={point.y}
+                  r={idx === geometry.points.length - 1 ? 4.4 : 3}
+                  className={idx === geometry.points.length - 1 ? "graph-dot graph-dot-latest" : "graph-dot"}
+                />
+              ))}
+            </svg>
+            <div className="dashboard-metrics-grid">
+              <div className="dashboard-metric-box">
+                <small>Attempts</small>
+                <strong>{scoreSeries.length}</strong>
+              </div>
+              <div className="dashboard-metric-box">
+                <small>Average</small>
+                <strong>{avgScore == null ? "--" : avgScore.toFixed(1)}</strong>
+              </div>
+              <div className="dashboard-metric-box">
+                <small>Best</small>
+                <strong>{bestScore == null ? "--" : bestScore.toFixed(1)}</strong>
+              </div>
+              <div className="dashboard-metric-box">
+                <small>Volatility</small>
+                <strong>{volatility == null ? "--" : volatility.toFixed(1)}</strong>
+              </div>
+            </div>
+            <p className="muted">
+              {volatility == null
+                ? "Take a test to unlock trend analytics."
+                : `Volatility-adjusted forecast model is active. Lower volatility generally improves rank stability.`}
+            </p>
+          </section>
         </div>
-        <ul className="insight-list">
-          {data.insights.length > 0 ? (
-            data.insights.map((item) => <li key={item.id}>{item.insight}</li>)
-          ) : (
-            <li className="muted">Take a test to generate AI insights.</li>
-          )}
-        </ul>
-        <div className="cta-row">
-          <button className="btn btn-solid" onClick={() => void runCoachAnalysis()} disabled={coachLoading}>
-            {coachLoading ? "Analyzing..." : "Generate Strict AI Plan"}
-          </button>
+
+        <div className="dashboard-col">
+          <section className="card stat-card stat-score stat-serious">
+            <p className="eyebrow">Conservative Score Forecast</p>
+            <h2>{scoreDisplay}</h2>
+            <p className="muted">
+              {forecast
+                ? `${forecast.calculatedFrom}`
+                : `Confidence: ${analytics?.confidence_label || "Take a test"}`}
+            </p>
+            {forecastLoading ? <p className="dashboard-note">Recomputing strict forecast...</p> : null}
+            {forecastError ? <p className="dashboard-note">{forecastError}</p> : null}
+          </section>
+
+          <section className="card dashboard-half dashboard-tests">
+            <h3>Tests Taken</h3>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Test</th>
+                    <th>Date</th>
+                    <th>Score</th>
+                    <th>Percentile</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.tests.length > 0 ? (
+                    data.tests.map((test) => (
+                      <tr key={test.id}>
+                        <td>{test.test_name}</td>
+                        <td>{test.attempted_at}</td>
+                        <td>{test.score}</td>
+                        <td>{test.percentile}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="muted">
+                        Take a test to populate this section.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="cta-row">
+              <Link href="/tests" className="btn btn-solid">
+                Take Test
+              </Link>
+            </div>
+          </section>
+
+          <section className="card dashboard-half dashboard-ai dashboard-ai-strong">
+            <div className="dashboard-ai-head">
+              <h3>AI Analysis</h3>
+              <span className="dashboard-metric-chip">
+                <TargetIcon size={14} />
+                Conservative mode
+              </span>
+            </div>
+            <ul className="insight-list">
+              {data.insights.length > 0 ? (
+                data.insights.map((item) => <li key={item.id}>{item.insight}</li>)
+              ) : (
+                <li className="muted">Take a test to generate AI insights.</li>
+              )}
+            </ul>
+            <div className="cta-row">
+              <button className="btn btn-solid" onClick={() => void runCoachAnalysis()} disabled={coachLoading}>
+                {coachLoading ? "Analyzing..." : "Generate Strict AI Plan"}
+              </button>
+            </div>
+            {coachError ? <p className="muted">{coachError}</p> : null}
+            {coachAnalysis ? <pre className="coach-analysis">{coachAnalysis}</pre> : null}
+          </section>
         </div>
-        {coachError ? <p className="muted">{coachError}</p> : null}
-        {coachAnalysis ? <pre className="coach-analysis">{coachAnalysis}</pre> : null}
-      </section>
+      </div>
 
       {loading ? (
         <section className="card dashboard-status">

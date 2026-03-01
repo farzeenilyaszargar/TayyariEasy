@@ -638,8 +638,25 @@ small {
 }
 
 .dashboard-grid-beautified {
-  grid-auto-flow: row dense;
   align-items: start;
+}
+
+.dashboard-columns {
+  grid-column: span 12;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.dashboard-col {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.dashboard-col > .card {
+  grid-column: auto;
 }
 
 .stat-card {
@@ -839,27 +856,6 @@ small {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-}
-
-.bento-rank,
-.bento-score {
-  grid-column: span 6;
-}
-
-.bento-points {
-  grid-column: span 4;
-}
-
-.bento-graph {
-  grid-column: span 8;
-}
-
-.bento-tests {
-  grid-column: span 7;
-}
-
-.bento-ai {
-  grid-column: span 5;
 }
 
 table {
@@ -2729,7 +2725,8 @@ button.subject-tag {
   .feature-row,
   .feature-row.feature-row-alt,
   .podium,
-  .dashboard-grid {
+  .dashboard-grid,
+  .dashboard-columns {
     grid-template-columns: 1fr;
   }
 
@@ -2745,9 +2742,7 @@ button.subject-tag {
   .stat-card,
   .badge-card,
   .dashboard-half,
-  .dashboard-status,
-  .dashboard-grid > .card:nth-child(4),
-  .dashboard-grid > .card:nth-child(5) {
+  .dashboard-status {
     grid-column: span 1;
   }
 
@@ -2759,13 +2754,9 @@ button.subject-tag {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .bento-rank,
-  .bento-score,
-  .bento-points,
-  .bento-graph,
-  .bento-tests,
-  .bento-ai {
-    grid-column: span 12;
+  .dashboard-columns,
+  .dashboard-col {
+    gap: 14px;
   }
 
   .chatbot-shell {
