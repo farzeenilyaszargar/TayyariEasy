@@ -18,11 +18,15 @@ export function Navbar() {
   const pathname = usePathname();
   const { isLoggedIn, login, logout, user } = useAuth();
 
+  if (pathname.startsWith("/tests/mock")) {
+    return null;
+  }
+
   return (
     <header className="site-header">
       <div className="container nav-wrap">
         <Link href="/" className="brand">
-          <Image src="/logo.png" alt="Tayyari logo" width={28} height={28} className="brand-logo" priority />
+          <Image src="/logo.png" alt="Tayyari logo" width={35} height={35} className="brand-logo" priority />
           <span className="brand-main">Tayyari</span>
         </Link>
         <nav className="nav-links" aria-label="Main navigation">

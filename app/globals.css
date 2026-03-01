@@ -1875,6 +1875,343 @@ button.subject-tag {
   gap: 8px;
 }
 
+.nta-page {
+  background: #eceef2;
+  min-height: 100dvh;
+  padding: 0;
+}
+
+.nta-shell {
+  width: min(1320px, 100%);
+  margin: 0 auto;
+  background: #f1f3f6;
+  min-height: 100dvh;
+  border-left: 1px solid #cfd5de;
+  border-right: 1px solid #cfd5de;
+}
+
+.nta-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #cfd5de;
+  background: #e7eaee;
+  padding: 14px 20px;
+}
+
+.nta-brand {
+  display: grid;
+  gap: 3px;
+}
+
+.nta-brand strong {
+  font-family: var(--font-display), "Avenir Next", sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+}
+
+.nta-brand small {
+  color: #4b5463;
+}
+
+.nta-candidate {
+  border: 1px solid #cfd5de;
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 3px;
+  min-width: 320px;
+}
+
+.nta-candidate p {
+  line-height: 1.35;
+  font-size: 0.92rem;
+}
+
+.nta-subject-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #cfd5de;
+  background: #f7f8fa;
+}
+
+.nta-subject-pill {
+  border: 1px solid #b9c3d2;
+  background: #fff;
+  color: #1f2736;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nta-subject-pill.active {
+  background: #12161e;
+  color: #fff;
+  border-color: #12161e;
+}
+
+.nta-lang-wrap {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nta-lang-wrap label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #353e4d;
+}
+
+.nta-lang-wrap select {
+  border: 1px solid #c8ced8;
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.nta-main {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  padding: 18px 20px 22px;
+}
+
+.nta-question-card {
+  border: 1px solid #cfd5de;
+  border-radius: 10px;
+  background: #fff;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.nta-question-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid #e3e7ed;
+  padding-bottom: 10px;
+}
+
+.nta-question-head h3 {
+  font-size: 1.32rem;
+  margin-bottom: 0;
+}
+
+.nta-question-body {
+  display: grid;
+  gap: 14px;
+}
+
+.nta-question-body p {
+  white-space: pre-wrap;
+  font-size: 1.03rem;
+  color: #181d26;
+}
+
+.nta-options {
+  display: grid;
+  gap: 10px;
+}
+
+.nta-option {
+  border: 1px solid #ccd3dd;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 8px;
+  cursor: pointer;
+  font: inherit;
+  color: #1c2330;
+}
+
+.nta-option.active {
+  border-color: #141820;
+  background: #f1f4f8;
+}
+
+.nta-integer-wrap {
+  display: grid;
+  gap: 8px;
+}
+
+.nta-integer-wrap label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.nta-integer-wrap input {
+  border: 1px solid #cfd5de;
+  border-radius: 9px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.nta-actions-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-top: 1px solid #e3e7ed;
+  padding-top: 12px;
+}
+
+.nta-actions-bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid #e3e7ed;
+  padding-top: 12px;
+}
+
+.nta-submit-btn {
+  margin-left: auto;
+}
+
+.nta-btn-save {
+  background: #24a85e;
+  border-color: #24a85e;
+  color: #fff;
+}
+
+.nta-btn-mark {
+  background: #d5922b;
+  border-color: #d5922b;
+  color: #fff;
+}
+
+.nta-btn-nextmark {
+  background: #2871c7;
+  border-color: #2871c7;
+  color: #fff;
+}
+
+.nta-btn-clear {
+  background: #fff;
+  color: #1d2534;
+  border-color: #bcc6d4;
+}
+
+.nta-sidebar {
+  border: 1px solid #cfd5de;
+  border-radius: 10px;
+  background: #fff;
+  padding: 12px;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.nta-status-legend {
+  display: grid;
+  gap: 8px;
+}
+
+.nta-status-row {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.nta-chip {
+  width: 42px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid #ccd4de;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #17202d;
+  background: #eef2f7;
+}
+
+.nta-chip.not-visited {
+  background: #eef2f7;
+}
+
+.nta-chip.not-answered {
+  background: #ffe7df;
+  color: #9d2f1f;
+}
+
+.nta-chip.answered {
+  background: #e7f7ea;
+  color: #1f7d35;
+}
+
+.nta-chip.marked {
+  background: #f1eaff;
+  color: #5b2ba2;
+}
+
+.nta-chip.answered-marked {
+  background: #e8edff;
+  color: #2d4ea3;
+}
+
+.nta-question-palette {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.nta-qbtn {
+  border: 1px solid #c7ced9;
+  border-radius: 7px;
+  background: #f2f4f8;
+  color: #202838;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.nta-qbtn.active {
+  box-shadow: inset 0 0 0 2px #171b23;
+}
+
+.nta-qbtn.not-answered {
+  background: #ffe7df;
+  color: #8f2718;
+}
+
+.nta-qbtn.answered {
+  background: #e7f7ea;
+  color: #1f7d35;
+}
+
+.nta-qbtn.marked {
+  background: #f1eaff;
+  color: #5b2ba2;
+}
+
+.nta-qbtn.answered_marked {
+  background: #e8edff;
+  color: #2d4ea3;
+}
+
+.nta-result-page {
+  padding-top: 26px;
+}
+
+.nta-result-card {
+  display: grid;
+  gap: 12px;
+}
+
 .site-footer {
   margin-top: 30px;
   background: #0e0f12;
@@ -2042,6 +2379,18 @@ button.subject-tag {
     width: min(920px, 95vw);
   }
 
+  .nta-main {
+    grid-template-columns: 1fr;
+  }
+
+  .nta-candidate {
+    min-width: 0;
+  }
+
+  .nta-question-palette {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+
   .problems-center.initial .chatbot-shell {
     width: min(760px, 92vw);
   }
@@ -2104,6 +2453,44 @@ button.subject-tag {
 
   .feature-image-slot {
     height: 128px;
+  }
+
+  .nta-shell {
+    border-left: none;
+    border-right: none;
+  }
+
+  .nta-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  .nta-subject-row {
+    padding: 10px 12px;
+  }
+
+  .nta-main {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .nta-question-card,
+  .nta-sidebar {
+    padding: 12px;
+  }
+
+  .nta-question-palette {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .nta-actions-bottom {
+    flex-wrap: wrap;
+  }
+
+  .nta-submit-btn {
+    margin-left: 0;
+    width: 100%;
   }
 
   .badge-preview-grid {
