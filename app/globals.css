@@ -696,6 +696,50 @@ small {
   gap: 14px;
 }
 
+.profile-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.profile-edit-toggle {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-avatar-wrap {
+  position: relative;
+}
+
+.profile-avatar-edit {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid #d5dbe7;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.profile-avatar-edit input {
+  display: none;
+}
+
+.profile-avatar-edit.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .profile-customize-form {
   margin-top: 10px;
   display: grid;

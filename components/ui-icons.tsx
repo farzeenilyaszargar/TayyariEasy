@@ -219,3 +219,12 @@ export function ChevronRightIcon(props: IconProps) {
     </BaseIcon>
   );
 }
+
+export function EditIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M3 21h6l11-11a2 2 0 0 0-6-6L3 15v6Z" />
+      <path d="m13 5 6 6" />
+    </BaseIcon>
+  );
+}

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
-import { TargetIcon, TrendIcon } from "@/components/ui-icons";
+import { EditIcon, TargetIcon, TrendIcon } from "@/components/ui-icons";
 import { awardBadgeIfMissing, fetchDashboardData, type DashboardPayload, updateOwnProfile } from "@/lib/supabase-db";
 
 const emptyData: DashboardPayload = {
@@ -98,6 +98,7 @@ export function Dashboard() {
   const [forecastError, setForecastError] = useState("");
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
   const [avatarLoadError, setAvatarLoadError] = useState(false);
+  const [isProfileEditing, setIsProfileEditing] = useState(false);
   const [profileNameInput, setProfileNameInput] = useState("");
   const [profileAvatarInput, setProfileAvatarInput] = useState("");
   const [targetCollegeInput, setTargetCollegeInput] = useState("");
@@ -320,11 +321,36 @@ export function Dashboard() {
       const latest = await fetchDashboardData(user.id);
       setData(latest);
       setProfileSaveMessage("Profile updated.");
+      setIsProfileEditing(false);
     } catch (err) {
       setProfileSaveMessage(err instanceof Error ? err.message : "Unable to save profile.");
     } finally {
       setProfileSaveLoading(false);
     }
+  };
+
+  const onAvatarFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      setProfileSaveMessage("Please choose an image file.");
+      return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      setProfileSaveMessage("Image must be under 4MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const value = typeof reader.result === "string" ? reader.result : "";
+      if (value) {
+        setProfileAvatarInput(value);
+        setProfileSaveMessage("Profile image selected. Click Save Profile.");
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const geometry = useMemo(() => buildGraphGeometry(accuracySeries), [accuracySeries]);
@@ -357,7 +383,7 @@ export function Dashboard() {
 
   useEffect(() => {
     setAvatarLoadError(false);
-  }, [user.avatarUrl]);
+  }, [user.avatarUrl, profileAvatarInput]);
 
   const hoveredPoint =
     hoveredPointIndex == null
@@ -374,56 +400,76 @@ export function Dashboard() {
     <div className="dashboard-grid dashboard-grid-beautified">
       <section className="card profile-card profile-card-hero">
         <div className="profile-head">
-          {user.avatarUrl ? (
-            !avatarLoadError ? (
-              <img
-                src={user.avatarUrl}
-                alt={`${user.name} profile`}
-                className="profile-avatar"
-                referrerPolicy="no-referrer"
-                onError={() => setAvatarLoadError(true)}
-              />
+          <div className="profile-avatar-wrap">
+            {profileAvatarInput || user.avatarUrl ? (
+              !avatarLoadError ? (
+                <img
+                  src={profileAvatarInput || user.avatarUrl || ""}
+                  alt={`${user.name} profile`}
+                  className="profile-avatar"
+                  referrerPolicy="no-referrer"
+                  onError={() => setAvatarLoadError(true)}
+                />
+              ) : (
+                <div className="profile-avatar profile-avatar-fallback">{user.name.charAt(0).toUpperCase()}</div>
+              )
             ) : (
               <div className="profile-avatar profile-avatar-fallback">{user.name.charAt(0).toUpperCase()}</div>
-            )
-          ) : (
-            <div className="profile-avatar profile-avatar-fallback">{user.name.charAt(0).toUpperCase()}</div>
-          )}
+            )}
+            <label className={`profile-avatar-edit ${!isProfileEditing ? "disabled" : ""}`} aria-label="Change profile image">
+              <EditIcon size={14} />
+              <input type="file" accept="image/*" onChange={onAvatarFileChange} disabled={!isProfileEditing} />
+            </label>
+          </div>
           <div>
-            <p className="eyebrow">Welcome Back</p>
-            <h3>{data.profile?.full_name || user.name}</h3>
+            <div className="profile-head-row">
+              <div>
+                <p className="eyebrow">Welcome Back</p>
+                <h3>{data.profile?.full_name || user.name}</h3>
+              </div>
+              <button
+                type="button"
+                className="btn btn-outline profile-edit-toggle"
+                onClick={() => {
+                  setProfileSaveMessage("");
+                  setIsProfileEditing((prev) => !prev);
+                }}
+              >
+                <EditIcon size={14} />
+              </button>
+            </div>
             <p className="muted">
               {data.profile?.target_exam || "No target exam set"}
               {data.profile?.target_college ? ` | Target: ${data.profile.target_college}` : ""}
               {" | "}
               {data.profile?.current_streak ?? 0} day streak
             </p>
-            <div className="profile-customize-form">
-              <input
-                value={profileNameInput}
-                onChange={(event) => setProfileNameInput(event.target.value)}
-                placeholder="Your name"
-              />
-              <input
-                value={profileAvatarInput}
-                onChange={(event) => setProfileAvatarInput(event.target.value)}
-                placeholder="Profile image URL"
-              />
-              <input
-                value={targetCollegeInput}
-                onChange={(event) => setTargetCollegeInput(event.target.value)}
-                placeholder="Target college (e.g., IIT Bombay)"
-              />
-              <button
-                type="button"
-                className="btn btn-solid profile-save-btn"
-                onClick={saveProfileCustomizations}
-                disabled={profileSaveLoading}
-              >
-                {profileSaveLoading ? "Saving..." : "Save Profile"}
-              </button>
-              {profileSaveMessage ? <small className="muted">{profileSaveMessage}</small> : null}
-            </div>
+            {isProfileEditing ? (
+              <div className="profile-customize-form">
+                <input
+                  value={profileNameInput}
+                  onChange={(event) => setProfileNameInput(event.target.value)}
+                  placeholder="Your name"
+                />
+                <input
+                  value={targetCollegeInput}
+                  onChange={(event) => setTargetCollegeInput(event.target.value)}
+                  placeholder="Target college (e.g., IIT Bombay)"
+                />
+                <button
+                  type="button"
+                  className="btn btn-solid profile-save-btn"
+                  onClick={saveProfileCustomizations}
+                  disabled={profileSaveLoading}
+                >
+                  {profileSaveLoading ? "Saving..." : "Save Profile"}
+                </button>
+                {profileSaveMessage ? <small className="muted">{profileSaveMessage}</small> : null}
+              </div>
+            ) : profileSaveMessage ? (
+              <small className="muted">{profileSaveMessage}</small>
+            )
+            ) : null}
           </div>
         </div>
       </section>
