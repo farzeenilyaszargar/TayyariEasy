@@ -663,7 +663,7 @@ html[data-theme="dark"] .feature-img-dark {
 
 .feature-copy {
   display: grid;
-  gap: 10px;
+  gap: 0px;
 }
 
 .feature-copy h3 {
@@ -907,7 +907,7 @@ html[data-theme="dark"] .feature-img-dark {
 }
 
 .badge-card {
-  grid-column: span 12;
+  overflow: visible;
 }
 
 .dashboard-half {
@@ -3134,6 +3134,10 @@ html[data-theme="dark"] .card {
   background: linear-gradient(160deg, #242b37 0%, #1c232e 48%, #171d27 100%);
   border-color: #3a4455;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+html[data-theme="dark"] .badge-card {
+  overflow: visible;
 }
 
 html[data-theme="dark"] .card::before {

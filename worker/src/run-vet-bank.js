@@ -13,7 +13,8 @@ async function run() {
       limit: BATCH,
       onlyUnvetted: true,
       publishOnHighQuality: true,
-      minQualityToPublish: 0.88
+      minQualityToPublish: 0.93,
+      strictMode: true
     });
 
     const batchProcessed = Number(res.processed || 0);

@@ -14,7 +14,8 @@ async function run() {
       ...target,
       autoVet: true,
       examPhase: "Main",
-      examYear: 2025
+      examYear: 2025,
+      preferDiagrams: true
     });
 
     const items = Array.isArray(generated.items) ? generated.items : [];

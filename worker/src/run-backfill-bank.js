@@ -1,76 +1,89 @@
 import { callInternal } from "./http.js";
+import { flattenJeeTargets } from "./jee-targets.js";
 
-const TARGET_TOTAL = Math.max(500, Number(process.env.TARGET_QUESTION_BANK_SIZE || 800));
-const GENERATE_COUNT_PER_TARGET = Math.max(2, Math.min(12, Number(process.env.GENERATE_COUNT_PER_TARGET || 6)));
-const MAX_ROUNDS = Math.max(1, Number(process.env.BACKFILL_MAX_ROUNDS || 40));
+const TARGET_TOTAL = Math.max(1000, Number(process.env.TARGET_QUESTION_BANK_SIZE || 1200));
+const PER_TARGET_COUNT = Math.max(2, Math.min(10, Number(process.env.GENERATE_COUNT_PER_TARGET || 5)));
+const TARGET_MIN_PER_TOPIC = Math.max(6, Number(process.env.TARGET_MIN_PER_TOPIC || 12));
+const ROUND_TARGETS = Math.max(6, Number(process.env.BACKFILL_TARGETS_PER_ROUND || 18));
+const MAX_ROUNDS = Math.max(1, Number(process.env.BACKFILL_MAX_ROUNDS || 60));
 
-const targets = [
-  { subject: "Physics", topic: "Mechanics", subtopic: "Laws of Motion" },
-  { subject: "Physics", topic: "Mechanics", subtopic: "Work Power Energy" },
-  { subject: "Physics", topic: "Mechanics", subtopic: "Rotational Motion" },
-  { subject: "Physics", topic: "Electrodynamics", subtopic: "Current Electricity" },
-  { subject: "Physics", topic: "Electrodynamics", subtopic: "Capacitance" },
-  { subject: "Physics", topic: "Modern Physics", subtopic: "Atomic Models" },
-  { subject: "Physics", topic: "Optics", subtopic: "Ray Optics" },
-  { subject: "Chemistry", topic: "Physical Chemistry", subtopic: "Mole Concept" },
-  { subject: "Chemistry", topic: "Physical Chemistry", subtopic: "Thermodynamics" },
-  { subject: "Chemistry", topic: "Physical Chemistry", subtopic: "Electrochemistry" },
-  { subject: "Chemistry", topic: "Organic Chemistry", subtopic: "GOC" },
-  { subject: "Chemistry", topic: "Organic Chemistry", subtopic: "Hydrocarbons" },
-  { subject: "Chemistry", topic: "Inorganic Chemistry", subtopic: "Chemical Bonding" },
-  { subject: "Chemistry", topic: "Inorganic Chemistry", subtopic: "Coordination Compounds" },
-  { subject: "Mathematics", topic: "Algebra", subtopic: "Quadratic Equations" },
-  { subject: "Mathematics", topic: "Algebra", subtopic: "Complex Numbers" },
-  { subject: "Mathematics", topic: "Calculus", subtopic: "Limits and Continuity" },
-  { subject: "Mathematics", topic: "Calculus", subtopic: "Differentiation" },
-  { subject: "Mathematics", topic: "Calculus", subtopic: "Definite Integration" },
-  { subject: "Mathematics", topic: "Coordinate Geometry", subtopic: "Straight Line" },
-  { subject: "Mathematics", topic: "Coordinate Geometry", subtopic: "Circle" },
-  { subject: "Mathematics", topic: "Probability", subtopic: "Conditional Probability" }
-];
+const SOURCE_BY_SUBJECT = {
+  Physics: "https://jeemain.nta.ac.in/question-papers",
+  Chemistry: "https://jeemain.nta.ac.in/question-papers",
+  Mathematics: "https://jeemain.nta.ac.in/question-papers"
+};
 
-const difficulties = ["easy", "medium", "hard"];
+function topicKey(subject, topic) {
+  return `${subject}::${topic}`;
+}
 
-function pickDifficulty(round, index) {
-  return difficulties[(round + index) % difficulties.length];
+function difficultyForTarget(target, round, slot) {
+  if (target.phaseBias === "Advanced") {
+    return (round + slot) % 2 === 0 ? "hard" : "medium";
+  }
+  return (round + slot) % 4 === 0 ? "hard" : "medium";
 }
 
 async function getStats() {
   const stats = await callInternal("/internal/ingest/stats", {});
   return {
     total: Number(stats.total || 0),
-    published: Number(stats.published || 0)
+    published: Number(stats.published || 0),
+    byTopic: stats.byTopic && typeof stats.byTopic === "object" ? stats.byTopic : {}
   };
 }
 
-async function run() {
-  const before = await getStats();
-  console.log(`Question bank before backfill: total=${before.total}, published=${before.published}`);
+function chooseRoundTargets(allTargets, byTopic, count) {
+  const scored = allTargets.map((target) => {
+    const current = Number(byTopic[topicKey(target.subject, target.topic)] || 0);
+    const deficit = Math.max(0, TARGET_MIN_PER_TOPIC - current);
+    return { ...target, current, deficit };
+  });
 
+  scored.sort((a, b) => {
+    if (b.deficit !== a.deficit) {
+      return b.deficit - a.deficit;
+    }
+    if (a.subject !== b.subject) {
+      return a.subject.localeCompare(b.subject);
+    }
+    return a.topic.localeCompare(b.topic) || a.subtopic.localeCompare(b.subtopic);
+  });
+
+  return scored.slice(0, count);
+}
+
+export async function runBackfillBank() {
+  const allTargets = flattenJeeTargets();
   let insertedTotal = 0;
 
   for (let round = 0; round < MAX_ROUNDS; round += 1) {
     const stats = await getStats();
     if (stats.total >= TARGET_TOTAL) {
-      console.log(`Target reached. total=${stats.total}, published=${stats.published}`);
+      console.log(`Target reached. total=${stats.total} published=${stats.published}`);
       break;
     }
 
-    console.log(`Backfill round ${round + 1}/${MAX_ROUNDS} ...`);
+    const selectedTargets = chooseRoundTargets(allTargets, stats.byTopic, ROUND_TARGETS);
+    console.log(
+      `Backfill round ${round + 1}/${MAX_ROUNDS} start total=${stats.total} published=${stats.published} targets=${selectedTargets.length}`
+    );
 
-    for (let i = 0; i < targets.length; i += 1) {
-      const t = targets[i];
-      const difficulty = pickDifficulty(round, i);
+    for (let idx = 0; idx < selectedTargets.length; idx += 1) {
+      const target = selectedTargets[idx];
+      const difficulty = difficultyForTarget(target, round, idx);
+      const examPhase = target.phaseBias === "Advanced" ? "Advanced" : "Main";
 
       const generated = await callInternal("/internal/generate/questions", {
-        subject: t.subject,
-        topic: t.topic,
-        subtopic: t.subtopic,
+        subject: target.subject,
+        topic: target.topic,
+        subtopic: target.subtopic,
         difficulty,
-        count: GENERATE_COUNT_PER_TARGET,
-        examPhase: round % 2 === 0 ? "Main" : "Advanced",
-        examYear: 2019 + (round % 7),
-        autoVet: true
+        count: PER_TARGET_COUNT,
+        examPhase,
+        examYear: 2026,
+        autoVet: true,
+        preferDiagrams: target.diagramFriendly
       });
 
       const items = Array.isArray(generated.items) ? generated.items : [];
@@ -78,19 +91,16 @@ async function run() {
         continue;
       }
 
-      const withProvenance = items.map((item) => ({
-        ...item,
-        useAiVetting: false,
-        publish: item.publish === true,
-        provenance: {
-          sourceUrl: "https://generated.tayyari.local/deepseek",
-          sourceQuestionRef: `${t.subject}-${t.topic}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          extractionConfidence: 0.93
-        }
-      }));
-
       const ingested = await callInternal("/internal/ingest/questions/bulk", {
-        questions: withProvenance
+        questions: items.map((item) => ({
+          ...item,
+          useAiVetting: false,
+          provenance: {
+            sourceUrl: SOURCE_BY_SUBJECT[target.subject] || "https://jeemain.nta.ac.in/question-papers",
+            sourceQuestionRef: `${target.subject}-${target.topic}-${target.subtopic}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+            extractionConfidence: 0.91
+          }
+        }))
       });
 
       const inserted = Number(ingested.inserted || 0);
@@ -98,20 +108,46 @@ async function run() {
 
       const live = await getStats();
       console.log(
-        `[${t.subject}/${t.topic}/${difficulty}] generated=${items.length} inserted=${inserted} total=${live.total} published=${live.published}`
+        `[${target.subject}/${target.topic}/${target.subtopic}] deficit=${target.deficit} diff=${difficulty} phase=${examPhase} generated=${items.length} inserted=${inserted} total=${live.total} published=${live.published}`
       );
 
       if (live.total >= TARGET_TOTAL) {
         break;
       }
     }
+
+    await callInternal("/internal/ingest/questions/vet", {
+      limit: 80,
+      onlyUnvetted: true,
+      publishOnHighQuality: true,
+      minQualityToPublish: 0.93,
+      strictMode: true
+    });
+  }
+
+  // Final strict sweep.
+  for (let i = 0; i < 6; i += 1) {
+    const sweep = await callInternal("/internal/ingest/questions/vet", {
+      limit: 80,
+      onlyUnvetted: true,
+      publishOnHighQuality: true,
+      minQualityToPublish: 0.93,
+      strictMode: true
+    });
+    if (Number(sweep.processed || 0) === 0) {
+      break;
+    }
   }
 
   const after = await getStats();
-  console.log(`Backfill complete. inserted=${insertedTotal}, total=${after.total}, published=${after.published}`);
+  console.log(
+    `Backfill complete. inserted=${insertedTotal} total=${after.total} published=${after.published} target=${TARGET_TOTAL}`
+  );
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (import.meta.url === `file://${process.argv[1]}`) {
+  runBackfillBank().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

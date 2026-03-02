@@ -3,7 +3,10 @@ import { hasDeepSeekConfig } from "@/lib/deepseek";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as { prompt?: string };
+    const body = (await request.json()) as {
+      prompt?: string;
+      history?: Array<{ role?: string; text?: string }>;
+    };
     const prompt = body.prompt?.trim();
 
     if (!prompt) {
@@ -20,6 +23,19 @@ export async function POST(request: NextRequest) {
     const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
     const deepseekBaseUrl = process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com";
     const deepseekModel = process.env.DEEPSEEK_MODEL || "deepseek-chat";
+    const history = Array.isArray(body.history)
+      ? body.history
+          .map((item) => ({
+            role: item?.role === "assistant" ? "assistant" : item?.role === "user" ? "user" : null,
+            text: item?.text?.trim() || ""
+          }))
+          .filter((item): item is { role: "user" | "assistant"; text: string } => Boolean(item.role) && item.text.length > 0)
+          .slice(-12)
+      : [];
+    const historyMessages = history.map((item) => ({
+      role: item.role,
+      content: item.text.slice(0, 1800)
+    }));
 
     const upstream = await fetch(`${deepseekBaseUrl}/chat/completions`, {
       method: "POST",
@@ -36,11 +52,12 @@ export async function POST(request: NextRequest) {
           {
             role: "system",
             content:
-              "You are a strict but helpful JEE tutor. Explain clearly but stay within a strict output budget so the answer never gets cut off. Keep the full response concise and complete in under 450 words. Use this format only: 1) Concept in simple terms, 2) Step-by-step solution/logic, 3) Final answer, 4) One-line revision tip. Put key formulas on separate lines and render them in LaTeX using display math blocks like \\[ ... \\]."
+              "You are a strict but helpful JEE tutor. Explain clearly and naturally in concise paragraphs, adapting structure to the question (conceptual, numerical, or strategy). Do not force a fixed template or numbered sections unless the user asks. Keep the response complete and concise (generally under 350 words) so it never gets cut off. Use LaTeX only when needed; put key formulas on separate lines in display math blocks like \\[ ... \\]."
           },
+          ...historyMessages,
           {
             role: "user",
-            content: `Question/Doubt: ${prompt}\n\nImportant: Keep the answer complete within the token limit. Do not leave any section unfinished.`
+            content: `Question/Doubt: ${prompt}\n\nImportant: Keep the answer concise, complete, and natural. Do not leave the response unfinished.`
           }
         ]
       })
@@ -58,6 +75,34 @@ export async function POST(request: NextRequest) {
       async start(controller) {
         const reader = upstream.body!.getReader();
         let buffer = "";
+        const processEvent = (rawEvent: string) => {
+          const dataLines = rawEvent
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter((line) => line.startsWith("data:"))
+            .map((line) => line.slice(5).trim());
+
+          if (dataLines.length === 0) {
+            return;
+          }
+
+          const data = dataLines.join("\n").trim();
+          if (!data || data === "[DONE]") {
+            return;
+          }
+
+          try {
+            const parsed = JSON.parse(data) as {
+              choices?: Array<{ delta?: { content?: string } }>;
+            };
+            const token = parsed.choices?.[0]?.delta?.content;
+            if (token) {
+              controller.enqueue(encoder.encode(token));
+            }
+          } catch {
+            // Ignore malformed SSE chunks and continue.
+          }
+        };
 
         try {
           while (true) {
@@ -67,31 +112,18 @@ export async function POST(request: NextRequest) {
             }
 
             buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() ?? "";
+            let boundaryIndex = buffer.indexOf("\n\n");
+            while (boundaryIndex !== -1) {
+              processEvent(buffer.slice(0, boundaryIndex));
+              buffer = buffer.slice(boundaryIndex + 2);
+              boundaryIndex = buffer.indexOf("\n\n");
+            }
+          }
 
-            for (const rawLine of lines) {
-              const line = rawLine.trim();
-              if (!line.startsWith("data:")) {
-                continue;
-              }
-
-              const data = line.slice(5).trim();
-              if (!data || data === "[DONE]") {
-                continue;
-              }
-
-              try {
-                const parsed = JSON.parse(data) as {
-                  choices?: Array<{ delta?: { content?: string } }>;
-                };
-                const token = parsed.choices?.[0]?.delta?.content;
-                if (token) {
-                  controller.enqueue(encoder.encode(token));
-                }
-              } catch {
-                continue;
-              }
+          buffer += decoder.decode();
+          for (const eventChunk of buffer.split(/\n\n+/)) {
+            if (eventChunk.trim()) {
+              processEvent(eventChunk);
             }
           }
         } finally {

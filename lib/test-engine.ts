@@ -249,6 +249,47 @@ function seededShuffle<T>(items: T[], seed: string) {
   return arr;
 }
 
+const CORE_TOPICS_BY_SUBJECT: Record<"Physics" | "Chemistry" | "Mathematics", string[]> = {
+  Physics: [
+    "Mechanics",
+    "Properties of Matter",
+    "Thermodynamics",
+    "Oscillations and Waves",
+    "Electrodynamics",
+    "Optics",
+    "Modern Physics"
+  ],
+  Chemistry: [
+    "Physical Chemistry",
+    "Organic Chemistry",
+    "Inorganic Chemistry",
+    "Thermodynamics",
+    "Chemical Kinetics",
+    "Coordination Compounds"
+  ],
+  Mathematics: [
+    "Algebra",
+    "Calculus",
+    "Coordinate Geometry",
+    "Vector and 3D Geometry",
+    "Probability",
+    "Trigonometry"
+  ]
+};
+
+function splitAcrossSubjects(total: number) {
+  const subjects: Array<"Physics" | "Chemistry" | "Mathematics"> = ["Physics", "Chemistry", "Mathematics"];
+  const base = Math.floor(total / subjects.length);
+  let remainder = total - base * subjects.length;
+  const result = new Map<"Physics" | "Chemistry" | "Mathematics", number>();
+  for (const subject of subjects) {
+    const extra = remainder > 0 ? 1 : 0;
+    result.set(subject, base + extra);
+    remainder = Math.max(0, remainder - 1);
+  }
+  return result;
+}
+
 export async function fetchActiveBlueprints(params?: {
   scope?: "topic" | "subject" | "full_mock";
   subject?: string;
@@ -314,18 +355,19 @@ export async function pickQuestionsForBlueprint(blueprint: TestBlueprintRow, see
     [easyPool, mediumPool, hardPool] = await buildPools(["review_status=neq.rejected"]);
   }
 
-  const needed = computeDifficultyCounts(blueprint.question_count, blueprint.distribution);
-
   const selected: QuestionRow[] = [];
   const picked = new Set<string>();
 
-  const take = (pool: QuestionRow[], count: number, localSeed: string) => {
+  const take = (pool: QuestionRow[], count: number, localSeed: string, predicate?: (q: QuestionRow) => boolean) => {
     const shuffled = seededShuffle(pool, localSeed);
     for (const q of shuffled) {
       if (selected.length >= blueprint.question_count || count <= 0) {
         break;
       }
       if (picked.has(q.id)) {
+        continue;
+      }
+      if (predicate && !predicate(q)) {
         continue;
       }
       selected.push(q);
@@ -335,12 +377,114 @@ export async function pickQuestionsForBlueprint(blueprint: TestBlueprintRow, see
     return count;
   };
 
-  const remainingEasy = take(easyPool, needed.easy, `${seed}:easy`);
-  const remainingMedium = take(mediumPool, needed.medium + remainingEasy, `${seed}:medium`);
-  const remainingHard = take(hardPool, needed.hard + remainingMedium, `${seed}:hard`);
+  if (blueprint.scope === "topic") {
+    const needed = computeDifficultyCounts(blueprint.question_count, blueprint.distribution);
+    const remainingEasy = take(easyPool, needed.easy, `${seed}:topic:easy`);
+    const remainingMedium = take(mediumPool, needed.medium + remainingEasy, `${seed}:topic:medium`);
+    const remainingHard = take(hardPool, needed.hard + remainingMedium, `${seed}:topic:hard`);
 
-  if (remainingHard > 0) {
-    const fallbackPool = seededShuffle([...easyPool, ...mediumPool, ...hardPool], `${seed}:fallback`);
+    if (remainingHard > 0) {
+      const fallbackPool = seededShuffle([...easyPool, ...mediumPool, ...hardPool], `${seed}:topic:fallback`);
+      for (const q of fallbackPool) {
+        if (selected.length >= blueprint.question_count) {
+          break;
+        }
+        if (picked.has(q.id)) {
+          continue;
+        }
+        selected.push(q);
+        picked.add(q.id);
+      }
+    }
+
+    return selected.slice(0, blueprint.question_count);
+  }
+
+  const subjectTargets: Map<"Physics" | "Chemistry" | "Mathematics", number> =
+    blueprint.scope === "full_mock"
+      ? splitAcrossSubjects(blueprint.question_count)
+      : blueprint.subject
+        ? new Map<"Physics" | "Chemistry" | "Mathematics", number>([
+            [blueprint.subject as "Physics" | "Chemistry" | "Mathematics", blueprint.question_count]
+          ])
+        : new Map<"Physics" | "Chemistry" | "Mathematics", number>();
+
+  // First pass: ensure each subject test includes important topics.
+  for (const [subject, quota] of subjectTargets) {
+    const topics = CORE_TOPICS_BY_SUBJECT[subject] || [];
+    const topicLimit = Math.min(topics.length, Math.max(0, quota - 8));
+    for (let i = 0; i < topicLimit; i += 1) {
+      const topic = topics[i];
+      const predicate = (q: QuestionRow) => q.subject === subject && q.topic === topic;
+      let remaining = take(mediumPool, 1, `${seed}:${subject}:${topic}:medium`, predicate);
+      if (remaining > 0) {
+        remaining = take(hardPool, remaining, `${seed}:${subject}:${topic}:hard`, predicate);
+      }
+      if (remaining > 0) {
+        take(easyPool, remaining, `${seed}:${subject}:${topic}:easy`, predicate);
+      }
+    }
+  }
+
+  // Second pass: satisfy per-subject quotas while preserving difficulty mix.
+  for (const [subject, quota] of subjectTargets) {
+    const currentForSubject = selected.filter((q) => q.subject === subject);
+    if (currentForSubject.length >= quota) {
+      continue;
+    }
+
+    const subjectNeed = computeDifficultyCounts(quota, blueprint.distribution);
+    const subjectHave = {
+      easy: currentForSubject.filter((q) => q.difficulty === "easy").length,
+      medium: currentForSubject.filter((q) => q.difficulty === "medium").length,
+      hard: currentForSubject.filter((q) => q.difficulty === "hard").length
+    };
+    const subjectPredicate = (q: QuestionRow) => q.subject === subject;
+
+    take(easyPool, Math.max(0, subjectNeed.easy - subjectHave.easy), `${seed}:${subject}:easy`, subjectPredicate);
+    take(
+      mediumPool,
+      Math.max(0, subjectNeed.medium - subjectHave.medium),
+      `${seed}:${subject}:medium`,
+      subjectPredicate
+    );
+    take(hardPool, Math.max(0, subjectNeed.hard - subjectHave.hard), `${seed}:${subject}:hard`, subjectPredicate);
+
+    const stillNeeded = quota - selected.filter((q) => q.subject === subject).length;
+    if (stillNeeded > 0) {
+      const fallbackPool = seededShuffle([...mediumPool, ...hardPool, ...easyPool], `${seed}:${subject}:fill`);
+      for (const q of fallbackPool) {
+        if (selected.length >= blueprint.question_count) {
+          break;
+        }
+        if (picked.has(q.id) || q.subject !== subject) {
+          continue;
+        }
+        selected.push(q);
+        picked.add(q.id);
+        if (selected.filter((item) => item.subject === subject).length >= quota) {
+          break;
+        }
+      }
+    }
+  }
+
+  // Final pass: top up by global difficulty distribution if gaps remain.
+  if (selected.length < blueprint.question_count) {
+    const globalNeed = computeDifficultyCounts(blueprint.question_count, blueprint.distribution);
+    const globalHave = {
+      easy: selected.filter((q) => q.difficulty === "easy").length,
+      medium: selected.filter((q) => q.difficulty === "medium").length,
+      hard: selected.filter((q) => q.difficulty === "hard").length
+    };
+
+    take(easyPool, Math.max(0, globalNeed.easy - globalHave.easy), `${seed}:global:easy`);
+    take(mediumPool, Math.max(0, globalNeed.medium - globalHave.medium), `${seed}:global:medium`);
+    take(hardPool, Math.max(0, globalNeed.hard - globalHave.hard), `${seed}:global:hard`);
+  }
+
+  if (selected.length < blueprint.question_count) {
+    const fallbackPool = seededShuffle([...mediumPool, ...hardPool, ...easyPool], `${seed}:global:fallback`);
     for (const q of fallbackPool) {
       if (selected.length >= blueprint.question_count) {
         break;

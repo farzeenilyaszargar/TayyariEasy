@@ -8,6 +8,7 @@ type VetBody = {
   onlyUnvetted?: boolean;
   publishOnHighQuality?: boolean;
   minQualityToPublish?: number;
+  strictMode?: boolean;
 };
 
 type QuestionRow = {
@@ -28,6 +29,30 @@ type QuestionRow = {
   is_published: boolean;
 };
 
+const STRICT_MIN_QUALITY = 0.9;
+const STRICT_REJECT_ISSUES = new Set([
+  "not_jee_relevant",
+  "below_class_11",
+  "outside_jee_syllabus",
+  "concept_error",
+  "ambiguous_prompt",
+  "multiple_correct_options",
+  "missing_correct_option",
+  "missing_integer_answer",
+  "insufficient_data",
+  "non_deterministic_answer",
+  "invalid_question_type",
+  "invalid_options"
+]);
+
+function normalizeIssueCode(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
 export async function POST(request: NextRequest) {
   try {
     if (!assertInternalIngestAuth(request)) {
@@ -37,8 +62,9 @@ export async function POST(request: NextRequest) {
     const body = (await request.json().catch(() => ({}))) as VetBody;
     const limit = Math.max(1, Math.min(80, Number(body.limit || 20)));
     const onlyUnvetted = body.onlyUnvetted !== false;
-    const publishOnHighQuality = body.publishOnHighQuality === true;
-    const minQualityToPublish = Math.max(0.6, Math.min(0.99, Number(body.minQualityToPublish || 0.88)));
+    const publishOnHighQuality = body.publishOnHighQuality !== false;
+    const minQualityToPublish = Math.max(0.75, Math.min(0.99, Number(body.minQualityToPublish || 0.93)));
+    const strictMode = body.strictMode !== false;
 
     const filters = [
       "select=id,question_type,stem_markdown,stem_latex,subject,topic,subtopic,difficulty,source_kind,exam_year,exam_phase,marks,negative_marks,dedupe_fingerprint,is_published",
@@ -122,9 +148,29 @@ export async function POST(request: NextRequest) {
         }
       });
 
+      const normalizedIssues = Array.from(new Set((vetted.issues || []).map(normalizeIssueCode).filter(Boolean)));
+      const strictRejected =
+        strictMode &&
+        (vetted.examFit === "Not_JEE" ||
+          vetted.gradeBand === "below_11" ||
+          vetted.gradeBand === "outside_jee" ||
+          vetted.difficulty === "easy" ||
+          vetted.qualityScore < STRICT_MIN_QUALITY ||
+          normalizedIssues.some((code) => STRICT_REJECT_ISSUES.has(code)));
+      const resolvedReviewStatus =
+        strictRejected
+          ? "rejected"
+          : vetted.reviewStatus === "auto_pass" &&
+              vetted.qualityScore >= STRICT_MIN_QUALITY &&
+              normalizedIssues.length === 0 &&
+              vetted.difficulty !== "easy"
+            ? "auto_pass"
+            : "needs_review";
       const nextPublish = publishOnHighQuality
-        ? vetted.qualityScore >= minQualityToPublish && vetted.reviewStatus === "auto_pass"
+        ? resolvedReviewStatus === "auto_pass" && vetted.qualityScore >= minQualityToPublish
         : row.is_published;
+      const resolvedExamPhase =
+        vetted.examFit === "Advanced" ? "Advanced" : vetted.examFit === "Main" ? "Main" : row.exam_phase;
 
       await supabaseRest(
         `question_bank?id=eq.${row.id}`,
@@ -133,14 +179,15 @@ export async function POST(request: NextRequest) {
           stem_markdown: vetted.stemMarkdown,
           stem_latex: vetted.stemLatex,
           difficulty: vetted.difficulty,
+          exam_phase: resolvedExamPhase,
           quality_score: vetted.qualityScore,
-          review_status: vetted.reviewStatus,
+          review_status: resolvedReviewStatus,
           is_published: nextPublish,
           diagram_image_url: vetted.diagramImageUrl,
           diagram_caption: vetted.diagramCaption,
           ai_vetted_at: new Date().toISOString(),
           ai_vetting_score: vetted.qualityScore,
-          ai_vetting_notes: vetted.issues.length > 0 ? vetted.issues.join(", ") : "passed",
+          ai_vetting_notes: normalizedIssues.length > 0 ? normalizedIssues.join(", ") : "passed",
           updated_at: new Date().toISOString()
         },
         "return=minimal"
@@ -178,7 +225,7 @@ export async function POST(request: NextRequest) {
         "resolution=merge-duplicates,return=minimal"
       );
 
-      if (vetted.reviewStatus === "needs_review") {
+      if (resolvedReviewStatus === "needs_review" || resolvedReviewStatus === "rejected") {
         const existingOpenQueue = await supabaseRest<Array<{ id: string }>>(
           `question_review_queue?select=id&question_id=eq.${row.id}&status=eq.open&limit=1`,
           "GET"
@@ -190,8 +237,8 @@ export async function POST(request: NextRequest) {
             [
               {
                 question_id: row.id,
-                reason_codes: vetted.issues.length > 0 ? vetted.issues : ["needs_manual_review"],
-                priority: vetted.qualityScore < 0.7 ? 3 : 5,
+                reason_codes: normalizedIssues.length > 0 ? normalizedIssues : ["needs_manual_review"],
+                priority: resolvedReviewStatus === "rejected" ? 2 : vetted.qualityScore < 0.7 ? 3 : 5,
                 status: "open",
                 updated_at: new Date().toISOString()
               }

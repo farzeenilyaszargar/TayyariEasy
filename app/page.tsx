@@ -17,7 +17,7 @@ import { fetchSearchIndex } from "@/lib/supabase-db";
 const highlights = [
   {
     icon: TrendIcon,
-    title: "Rank Intelligence Engine",
+    title: "Rank Prediction Engine",
     detail:
       "Get a clear rank projection after every mock with confidence-based updates. Track movement quickly and decide your next revision focus with certainty.",
     imageLight: "/f1-light.png",
@@ -197,7 +197,7 @@ function Hero() {
             </svg>
             <p className="muted">Average mock score moved from 142 to 198 in the last 8 tracked tests.</p>
           </article>
-          <article className="card">
+          <article className="card badge-card">
             <h3>Achievements and Badges</h3>
             <p className="muted">Hover each badge to see what it means and how to unlock it.</p>
             <div className="badge-preview-grid">

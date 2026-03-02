@@ -14,6 +14,7 @@ type GenerateBody = {
   examPhase?: "Main" | "Advanced";
   examYear?: number;
   autoVet?: boolean;
+  preferDiagrams?: boolean;
 };
 
 type GeneratedItem = {
@@ -162,6 +163,7 @@ export async function POST(request: NextRequest) {
     const examPhase = body.examPhase || "Main";
     const examYear = Number(body.examYear || 2025);
     const autoVet = body.autoVet !== false;
+    const preferDiagrams = body.preferDiagrams === true;
 
     if (!subject || !topic) {
       return NextResponse.json({ error: "subject and topic are required." }, { status: 400 });
@@ -202,11 +204,15 @@ export async function POST(request: NextRequest) {
       `Subtopic: ${subtopic || "General"}`,
       `Difficulty: ${difficulty}`,
       `Exam phase style: ${examPhase}`,
-      "Question types: mix of mcq_single and integer.",
+      "Target class level: ONLY class 11/12 JEE syllabus.",
+      "Reject school-level or olympiad-outlier framing.",
+      "Question types: mix of mcq_single and integer with deterministic answers.",
       "For mcq_single, provide exactly 4 options A-D and one correct option.",
       "For integer, provide exact integer answer.",
       "Add concise solutionMarkdown for each.",
-      "If a question needs a diagram, set diagramImageUrl as placeholder like https://example.com/diagrams/q123.png and give diagramCaption.",
+      preferDiagrams
+        ? "Prefer diagram-compatible questions when natural. If a diagram is required, set diagramImageUrl to a valid reachable image URL and add diagramCaption."
+        : "Only set diagramImageUrl when a real reachable source diagram URL is known.",
       "Schema per item:",
       '{"questionType":"mcq_single|integer","stemMarkdown":"...","stemLatex":null,"subject":"Physics|Chemistry|Mathematics","topic":"...","subtopic":"...","difficulty":"easy|medium|hard","options":[{"key":"A","text":"...","latex":null}],"answer":{"answerType":"option_key|integer_value","correctOption":"A","correctInteger":null,"solutionMarkdown":"...","solutionLatex":null},"diagramImageUrl":null,"diagramCaption":null}'
     ].join("\n");
@@ -215,7 +221,8 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: "system",
-          content: "You generate high-quality JEE questions. Return strict JSON only and never markdown fences."
+          content:
+            "You generate high-quality JEE Main/Advanced questions only. Return strict JSON only and never markdown fences."
         },
         {
           role: "user",
@@ -258,6 +265,16 @@ export async function POST(request: NextRequest) {
 
     const items = normalized.map((item, idx) => {
       const checked = vetted[idx];
+      const checkedExamFit = checked?.examFit || null;
+      const checkedGradeBand = checked?.gradeBand || null;
+      const strictAutoPass =
+        Boolean(checked) &&
+        checked.reviewStatus === "auto_pass" &&
+        checked.qualityScore >= 0.93 &&
+        checked.gradeBand === "class_11_12" &&
+        checked.examFit !== "Not_JEE" &&
+        checked.difficulty !== "easy" &&
+        checked.issues.length === 0;
       const source = checked
         ? {
             ...item,
@@ -282,13 +299,21 @@ export async function POST(request: NextRequest) {
         difficulty: source.difficulty,
         sourceKind: "ai_generated" as const,
         examYear,
-        examPhase,
+        examPhase:
+          checkedExamFit === "Advanced"
+            ? "Advanced"
+            : checkedExamFit === "Main"
+              ? "Main"
+              : examPhase,
         marks: 4,
         negativeMarks: 1,
         qualityScore: checked?.qualityScore ?? 0.78,
         reviewStatus: checked?.reviewStatus || "needs_review",
-        publish: checked ? checked.reviewStatus === "auto_pass" : false,
+        publish: strictAutoPass,
         useAiVetting: false,
+        vetIssues: checked?.issues ?? [],
+        vetExamFit: checkedExamFit,
+        vetGradeBand: checkedGradeBand,
         diagramImageUrl: source.diagramImageUrl || undefined,
         diagramCaption: source.diagramCaption || undefined,
         options: source.questionType === "mcq_single" ? source.options : undefined,

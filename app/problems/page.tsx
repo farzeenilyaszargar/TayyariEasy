@@ -14,6 +14,11 @@ type Message = {
   sourcesLoading?: boolean;
 };
 
+type ChatHistoryMessage = {
+  role: "user" | "assistant";
+  text: string;
+};
+
 type WebSource = {
   title: string;
   url: string;
@@ -257,6 +262,7 @@ function MarkdownBlock({ text }: { text: string }) {
 }
 
 export default function ProblemsPage() {
+  const CHAT_CACHE_KEY = "tayyari:doubts-chat:v1";
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -272,6 +278,60 @@ export default function ProblemsPage() {
     "Doubt: Solve this kinematics question step-by-step."
   ];
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    try {
+      const raw = window.localStorage.getItem(CHAT_CACHE_KEY);
+      if (!raw) {
+        return;
+      }
+      const parsed = JSON.parse(raw) as Message[];
+      if (!Array.isArray(parsed)) {
+        return;
+      }
+      const hydrated = parsed
+        .filter((item): item is Message => item?.role === "user" || item?.role === "assistant")
+        .map((item) => ({
+          id: item.id || crypto.randomUUID(),
+          role: item.role,
+          text: typeof item.text === "string" ? item.text : "",
+          sources: Array.isArray(item.sources) ? item.sources : [],
+          images: Array.isArray(item.images) ? item.images : [],
+          sourcesLoading: false
+        }))
+        .filter((item) => item.text.trim().length > 0)
+        .slice(-24);
+      if (hydrated.length > 0) {
+        setMessages(hydrated);
+      }
+    } catch {
+      // Ignore local cache parse errors.
+    }
+  }, [CHAT_CACHE_KEY]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    try {
+      const persistable = messages
+        .filter((message) => message.text.trim().length > 0)
+        .map((message) => ({
+          id: message.id,
+          role: message.role,
+          text: message.text,
+          sources: message.sources || [],
+          images: message.images || []
+        }))
+        .slice(-24);
+      window.localStorage.setItem(CHAT_CACHE_KEY, JSON.stringify(persistable));
+    } catch {
+      // Ignore local cache write errors.
+    }
+  }, [messages, CHAT_CACHE_KEY]);
+
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const prompt = input.trim();
@@ -282,6 +342,13 @@ export default function ProblemsPage() {
     const userMessage: Message = { id: crypto.randomUUID(), role: "user", text: prompt };
     const assistantId = crypto.randomUUID();
     const needsWeb = shouldFetchWebSources(prompt);
+    const history: ChatHistoryMessage[] = messages
+      .filter((message) => message.text.trim().length > 0)
+      .map((message) => ({
+        role: message.role,
+        text: message.text
+      }))
+      .slice(-12);
     setMessages((prev) => [
       ...prev,
       userMessage,
@@ -314,7 +381,7 @@ export default function ProblemsPage() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ prompt, history })
       });
 
       if (!response.ok) {
@@ -384,6 +451,9 @@ export default function ProblemsPage() {
   }, [messages]);
 
   useEffect(() => {
+    if (loading) {
+      return;
+    }
     if (!window.MathJax?.typesetPromise) {
       return;
     }

@@ -21,6 +21,9 @@ type IngestQuestion = {
   reviewStatus?: "auto_pass" | "needs_review" | "approved" | "rejected";
   useAiVetting?: boolean;
   publish?: boolean;
+  vetIssues?: string[];
+  vetExamFit?: "Main" | "Advanced" | "Not_JEE" | null;
+  vetGradeBand?: "class_11_12" | "below_11" | "outside_jee" | "unknown" | null;
   diagramImageUrl?: string;
   diagramCaption?: string;
   options?: Array<{
@@ -46,6 +49,31 @@ type IngestQuestion = {
 type BulkPayload = {
   questions?: IngestQuestion[];
 };
+
+const STRICT_MIN_QUALITY = 0.9;
+const STRICT_MIN_PUBLISH_QUALITY = 0.93;
+const STRICT_REJECT_ISSUES = new Set([
+  "not_jee_relevant",
+  "below_class_11",
+  "outside_jee_syllabus",
+  "concept_error",
+  "ambiguous_prompt",
+  "multiple_correct_options",
+  "missing_correct_option",
+  "missing_integer_answer",
+  "insufficient_data",
+  "non_deterministic_answer",
+  "invalid_question_type",
+  "invalid_options"
+]);
+
+function normalizeIssueCode(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -89,12 +117,43 @@ export async function POST(request: NextRequest) {
       const options = vetted?.options || item.options || [];
       const answer = vetted?.answer || item.answer;
       const qualityScore = Number((vetted?.qualityScore ?? item.qualityScore ?? 0).toFixed(2));
-      const aiIssues = vetted?.issues || [];
-      const reviewStatus = item.reviewStatus || vetted?.reviewStatus || "needs_review";
-      const publish = item.publish === true && (reviewStatus === "auto_pass" || reviewStatus === "approved");
+      const aiIssues = Array.from(
+        new Set([...(vetted?.issues || []), ...(Array.isArray(item.vetIssues) ? item.vetIssues : [])].map(normalizeIssueCode).filter(Boolean))
+      );
+      const vetExamFit = vetted?.examFit ?? item.vetExamFit ?? null;
+      const vetGradeBand = vetted?.gradeBand ?? item.vetGradeBand ?? null;
+      const inferredExamPhase =
+        vetExamFit === "Advanced"
+          ? "Advanced"
+          : vetExamFit === "Main"
+            ? "Main"
+            : item.examPhase || (difficulty === "hard" ? "Advanced" : "Main");
+      const examPhase = vetExamFit === "Not_JEE" ? null : inferredExamPhase;
+      const inputReviewStatus = item.reviewStatus || vetted?.reviewStatus || "needs_review";
+      const strictRejected =
+        vetExamFit === "Not_JEE" ||
+        vetGradeBand === "below_11" ||
+        vetGradeBand === "outside_jee" ||
+        qualityScore < STRICT_MIN_QUALITY ||
+        difficulty === "easy" ||
+        aiIssues.some((code) => STRICT_REJECT_ISSUES.has(code));
+      const reviewStatus =
+        strictRejected
+          ? "rejected"
+          : inputReviewStatus === "approved" || inputReviewStatus === "rejected"
+            ? inputReviewStatus
+            : qualityScore >= STRICT_MIN_QUALITY && aiIssues.length === 0
+              ? "auto_pass"
+              : "needs_review";
+      const publish =
+        (item.publish === true || reviewStatus === "approved") &&
+        (reviewStatus === "auto_pass" || reviewStatus === "approved") &&
+        qualityScore >= STRICT_MIN_PUBLISH_QUALITY &&
+        difficulty !== "easy" &&
+        vetExamFit !== "Not_JEE";
       const diagramImageUrl = vetted?.diagramImageUrl ?? item.diagramImageUrl ?? null;
       const diagramCaption = vetted?.diagramCaption ?? item.diagramCaption ?? null;
-      const aiVettedAt = item.useAiVetting ? new Date().toISOString() : null;
+      const aiVettedAt = item.useAiVetting || vetted ? new Date().toISOString() : null;
 
       const existing = await supabaseRest<Array<{ id: string }>>(
         `question_bank?select=id&dedupe_fingerprint=eq.${encodeURIComponent(item.dedupeFingerprint)}&limit=1`,
@@ -117,7 +176,7 @@ export async function POST(request: NextRequest) {
               difficulty,
               source_kind: item.sourceKind,
               exam_year: item.examYear || null,
-              exam_phase: item.examPhase || null,
+              exam_phase: examPhase,
               marks: item.marks ?? 4,
               negative_marks: item.negativeMarks ?? 1,
               quality_score: qualityScore,
@@ -126,8 +185,8 @@ export async function POST(request: NextRequest) {
               diagram_image_url: diagramImageUrl,
               diagram_caption: diagramCaption,
               ai_vetted_at: aiVettedAt,
-              ai_vetting_score: item.useAiVetting ? qualityScore : null,
-              ai_vetting_notes: item.useAiVetting ? (aiIssues.length > 0 ? aiIssues.join(", ") : "passed") : null,
+              ai_vetting_score: item.useAiVetting || vetted ? qualityScore : null,
+              ai_vetting_notes: item.useAiVetting || vetted ? (aiIssues.length > 0 ? aiIssues.join(", ") : "passed") : null,
               dedupe_fingerprint: item.dedupeFingerprint,
               updated_at: new Date().toISOString()
             }
@@ -149,7 +208,7 @@ export async function POST(request: NextRequest) {
             difficulty,
             source_kind: item.sourceKind,
             exam_year: item.examYear || null,
-            exam_phase: item.examPhase || null,
+            exam_phase: examPhase,
             marks: item.marks ?? 4,
             negative_marks: item.negativeMarks ?? 1,
             quality_score: qualityScore,
@@ -158,8 +217,8 @@ export async function POST(request: NextRequest) {
             diagram_image_url: diagramImageUrl,
             diagram_caption: diagramCaption,
             ai_vetted_at: aiVettedAt,
-            ai_vetting_score: item.useAiVetting ? qualityScore : null,
-            ai_vetting_notes: item.useAiVetting ? (aiIssues.length > 0 ? aiIssues.join(", ") : "passed") : null,
+            ai_vetting_score: item.useAiVetting || vetted ? qualityScore : null,
+            ai_vetting_notes: item.useAiVetting || vetted ? (aiIssues.length > 0 ? aiIssues.join(", ") : "passed") : null,
             updated_at: new Date().toISOString()
           },
           "return=minimal"
@@ -221,7 +280,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const needsReview = reviewStatus === "needs_review";
+      const needsReview = reviewStatus === "needs_review" || reviewStatus === "rejected";
       if (needsReview) {
         const existingOpenQueue = await supabaseRest<Array<{ id: string }>>(
           `question_review_queue?select=id&question_id=eq.${questionId}&status=eq.open&limit=1`,
@@ -235,7 +294,7 @@ export async function POST(request: NextRequest) {
               {
                 question_id: questionId,
                 reason_codes: aiIssues.length > 0 ? aiIssues : ["low_confidence"],
-                priority: qualityScore < 0.7 ? 3 : 5,
+                priority: reviewStatus === "rejected" ? 2 : qualityScore < 0.7 ? 3 : 5,
                 status: "open",
                 updated_at: new Date().toISOString()
               }
