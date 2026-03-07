@@ -129,6 +129,27 @@ export default function LeaderboardsPage() {
             </tbody>
           </table>
         </div>
+        <div className="leaderboard-mobile-list">
+          {rows.map((entry, idx) => {
+            const rank = idx + 1;
+            return (
+              <article key={`mobile-${entry.user_id}`} className={`leaderboard-mobile-item rank-${rank}`}>
+                <div className="leaderboard-mobile-top">
+                  <span className="rank-badge">#{rank}</span>
+                  <strong>{entry.full_name || "Student"}</strong>
+                </div>
+                <div className="leaderboard-mobile-meta">
+                  <span>Points: {entry.points}</span>
+                  <span className="streak-chip">{entry.current_streak}d streak</span>
+                </div>
+                <div className="leaderboard-mobile-meta">
+                  <span className="reward-pill">{rank <= 3 ? "Legend Chest" : rank <= 8 ? "XP Boost" : "Coin Pack"}</span>
+                  <span>Tests: {entry.tests_completed}</span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </article>
     </section>
   );

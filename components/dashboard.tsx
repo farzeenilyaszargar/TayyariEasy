@@ -665,6 +665,22 @@ export function Dashboard() {
                 </tbody>
               </table>
             </div>
+            <div className="dashboard-tests-mobile-list">
+              {data.tests.length > 0 ? (
+                data.tests.map((test) => (
+                  <article key={`mobile-${test.id}`} className="dashboard-test-mobile-item">
+                    <strong>{test.test_name}</strong>
+                    <small>{test.attempted_at}</small>
+                    <div className="dashboard-test-mobile-meta">
+                      <span>Score: {test.score}</span>
+                      <span>Percentile: {test.percentile}</span>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <p className="muted">Take a test to populate this section.</p>
+              )}
+            </div>
             <div className="cta-row">
               <Link href="/tests" className="btn btn-solid">
                 Take Test
