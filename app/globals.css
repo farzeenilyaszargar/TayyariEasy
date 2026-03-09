@@ -220,6 +220,7 @@ a {
   font-size: clamp(1.98rem, 3.6vw, 2.85rem);
   line-height: 1.12;
   max-width: 24ch;
+  text-align: center;
 }
 
 .eyebrow {
