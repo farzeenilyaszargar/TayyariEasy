@@ -75,7 +75,7 @@ const reviews = [
 
 export default function MarketingPage() {
   return (
-    <section className="page">
+    <section className="page marketing-page">
       <div className="page-head">
         <p className="eyebrow">Platform Overview</p>
         <h1>One Focused Workspace for JEE Preparation</h1>

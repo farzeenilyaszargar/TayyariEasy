@@ -6,12 +6,11 @@ import { Dashboard } from "@/components/dashboard";
 import { useAuth } from "@/components/auth-provider";
 import { ReviewSlider } from "@/components/review-slider";
 import {
-  AwardIcon,
   BrainIcon,
-  SearchIcon,
   TargetIcon,
   TrendIcon
 } from "@/components/ui-icons";
+import { BADGE_PREVIEWS } from "@/lib/badge-assets";
 import { fetchSearchIndex } from "@/lib/supabase-db";
 
 const highlights = [
@@ -74,24 +73,6 @@ const reviews = [
   }
 ];
 
-const badgePreviews = [
-  { id: "precision", name: "Precision Pilot", how: "Maintain 85%+ accuracy across 5 tests." },
-  { id: "streak14", name: "Streak Builder", how: "Study or test for 14 consecutive days." },
-  { id: "speed50", name: "Speed Solver", how: "Solve 50 timed questions under target." },
-  { id: "mock3", name: "Mock Marathon", how: "Complete 3 full mocks in one week." },
-  { id: "physics", name: "Physics Pro", how: "Score 90+ in two Physics tests in a row." },
-  { id: "chemistry", name: "Chem Master", how: "Score 90+ in two Chemistry tests in a row." },
-  { id: "math", name: "Math Ace", how: "Score 90+ in two Math tests in a row." },
-  { id: "comeback", name: "Comeback Clutch", how: "Improve total score by 30+ marks in 7 days." },
-  { id: "consistency", name: "Consistency Crown", how: "Keep score variance under 10 marks for 5 tests." },
-  { id: "accuracy95", name: "Accuracy Titan", how: "Hit 95%+ accuracy in any full mock." },
-  { id: "daily7", name: "Seven Day Focus", how: "Complete at least one practice session daily for 7 days." },
-  { id: "revision", name: "Revision Master", how: "Finish 3 planned revision cycles in one week." },
-  { id: "timing", name: "Timing Tactician", how: "Finish two full tests within planned exam time." },
-  { id: "streak30", name: "Streak 30", how: "Maintain a 30-day active prep streak." },
-  { id: "allrounder", name: "All-Rounder", how: "Score above 80 in Physics, Chemistry, and Math in one mock." }
-];
-
 function Hero() {
   const [query, setQuery] = useState("");
   const [allItems, setAllItems] = useState<string[]>([]);
@@ -127,21 +108,21 @@ function Hero() {
 
       <div className="hero-grid">
         <div>
-          <p className="eyebrow">Built for serious JEE aspirants</p>
+          <p className="eyebrow">Built for JEE 2026 and 2027 Aspirants</p>
           <h1 className="accent-head-1">
-            Make Every Test Count.
-            <span className="accent-head">Predict Rank with Confidence.</span>
+            Score Higher in JEE with Smart Mock Tests.
+            <span className="accent-head">Predict Rank, Fix Doubts, and Improve Faster.</span>
           </h1>
           <p className="hero-copy">
-            Tayyari blends score prediction, structured testing, and AI insights into a high-performance
-            preparation workspace that stays clean, fast, and exam-focused.
+            Attempt chapter-wise and full syllabus tests, get rank insights, and solve doubts instantly.
+            Tayyari turns daily practice into measurable score improvement.
           </p>
           <div className="hero-actions">
             <Link href="/tests" className="btn btn-solid">
-              Start Practicing
+              Start JEE Mock Test
             </Link>
             <Link href="#core-features" className="btn btn-outline">
-              View Features
+              See How It Works
             </Link>
           </div>
         </div>
@@ -201,11 +182,9 @@ function Hero() {
             <h3>Achievements and Badges</h3>
             <p className="muted">Hover each badge to see what it means and how to unlock it.</p>
             <div className="badge-preview-grid">
-              {badgePreviews.map((badge) => (
+              {BADGE_PREVIEWS.map((badge) => (
                 <div key={badge.id} className="badge-preview-item" aria-label={badge.name}>
-                  <span className="badge-placeholder">
-                    <AwardIcon size={16} />
-                  </span>
+                  <img src={badge.image} alt={badge.name} className="badge-image" loading="lazy" />
                   <div className="badge-tooltip">
                     <strong>{badge.name}</strong>
                     <small>{badge.how}</small>
@@ -237,9 +216,43 @@ function Hero() {
 
 export default function Page() {
   const { isLoggedIn } = useAuth();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in";
+  const homeStructuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        name: "Tayyari JEE Preparation Platform",
+        url: siteUrl,
+        description: "JEE preparation platform with mock tests, rank prediction engine, AI doubt solving, and analytics."
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "Is Tayyari useful for JEE Main and JEE Advanced preparation?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. Tayyari offers topic-wise and full syllabus mock tests, rank prediction, and doubt solving for JEE Main and Advanced."
+            }
+          },
+          {
+            "@type": "Question",
+            name: "Does Tayyari provide mock tests and rank prediction?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. The platform includes JEE mock tests, score analytics, and a rank prediction engine to help track progress."
+            }
+          }
+        ]
+      }
+    ]
+  };
 
   return (
     <section className="page">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeStructuredData) }} />
       {isLoggedIn ? (
         <>
           <div className="page-head">

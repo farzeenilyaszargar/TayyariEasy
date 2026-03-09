@@ -28,33 +28,34 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Tayyari | Rank Predictor, Mock Tests, AI Doubt Solver",
+    default: "Tayyari | JEE Preparation, Mock Tests, Rank Prediction",
     template: "%s | Tayyari"
   },
   description:
-    "Tayyari helps JEE aspirants improve scores with mock tests, rank prediction, AI doubt solving, analytics dashboards, and strategy articles.",
+    "Tayyari is a JEE preparation platform for JEE Main and Advanced with mock tests, rank prediction engine, AI doubt solving, and chapter-wise resources.",
   keywords: [
-    "JEE preparation platform",
-    "JEE rank predictor",
-    "JEE score predictor",
-    "JEE Main mock test",
-    "JEE Advanced preparation",
-    "JEE strategy articles",
-    "JEE roadmaps",
-    "JEE analytics dashboard",
-    "JEE doubts chatbot",
-    "JEE exam strategy blog"
+    "jee preparation",
+    "jee preparation platform",
+    "jee mock tests",
+    "jee main mock test",
+    "jee advanced preparation",
+    "jee rank prediction",
+    "jee rank predictor",
+    "jee study materials",
+    "jee materials",
+    "jee matrials",
+    "tayyari",
+    "tayyari jee",
+    "jee test series",
+    "ai doubt solver for jee"
   ],
   applicationName: "Tayyari",
   category: "education",
-  alternates: {
-    canonical: "/"
-  },
   openGraph: {
-    title: "Tayyari | Rank Predictor, Mock Tests, AI Doubt Solver",
+    title: "Tayyari | JEE Preparation with Mock Tests and Rank Prediction",
     description:
-      "All-in-one JEE prep with rank prediction, subject tests, AI analysis, doubt solving, and roadmap articles.",
-    url: siteUrl,
+      "Prepare for JEE Main and Advanced with high-quality mock tests, rank prediction engine, analytics, and AI doubt solving.",
+    url: "/",
     siteName: "Tayyari",
     locale: "en_IN",
     type: "website",
@@ -69,8 +70,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tayyari | Rank Predictor, Mock Tests, AI Doubt Solver",
-    description: "JEE rank prediction, mock tests, AI doubt solving, analytics, and strategy resources in one platform.",
+    title: "Tayyari | JEE Preparation, Mock Tests, Rank Prediction",
+    description: "JEE Main and Advanced preparation with mock tests, rank prediction engine, and AI doubt solving.",
     images: ["/logo.png"]
   },
   robots: {

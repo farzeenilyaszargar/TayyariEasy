@@ -35,8 +35,6 @@ export default function LeaderboardsPage() {
   }, []);
 
   const topThree = useMemo(() => rows.slice(0, 3), [rows]);
-  const rankGap = rows.length > 5 ? Math.max(0, rows[4].points - (rows[5]?.points ?? rows[4].points)) : 0;
-
   return (
     <section className="page leaderboard-page">
       <div className="page-head">
@@ -46,21 +44,6 @@ export default function LeaderboardsPage() {
 
       {loading ? <article className="card">Loading...</article> : null}
       {error ? <article className="card">{error}</article> : null}
-
-      {!loading && rows.length > 0 ? (
-        <article className="card leaderboard-goal shiny-card">
-          <strong>Your next milestone</strong>
-          <p className="muted">
-            Gap to next visible leaderboard slot: {rankGap.toLocaleString()} points. Complete more tests to climb rank.
-          </p>
-          <div className="goal-progress-wrap">
-            <div className="goal-progress">
-              <span style={{ width: `${Math.min(100, 100 - Math.min(99, rankGap / 20))}%` }} />
-            </div>
-            <small>Live progress generated from points.</small>
-          </div>
-        </article>
-      ) : null}
 
       <section className="card podium-wrap shiny-card">
         <div className="section-head">

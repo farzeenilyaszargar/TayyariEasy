@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
-import { AwardIcon, EditIcon, TargetIcon, TrendIcon } from "@/components/ui-icons";
+import { EditIcon, TargetIcon, TrendIcon } from "@/components/ui-icons";
+import { getBadgeImageForName } from "@/lib/badge-assets";
 import { awardBadgeIfMissing, fetchDashboardData, type DashboardPayload, updateOwnProfile } from "@/lib/supabase-db";
 
 const emptyData: DashboardPayload = {
@@ -515,9 +516,7 @@ export function Dashboard() {
               {data.badges.length > 0 ? (
                 data.badges.map((badge) => (
                   <div key={badge.id} className="badge-preview-item" aria-label={badge.badge_name}>
-                    <span className="badge-placeholder">
-                      <AwardIcon size={16} />
-                    </span>
+                    <img src={getBadgeImageForName(badge.badge_name)} alt={badge.badge_name} className="badge-image" loading="lazy" />
                     <div className="badge-tooltip">
                       <strong>{badge.badge_name}</strong>
                       <small>{badge.badge_detail}</small>
