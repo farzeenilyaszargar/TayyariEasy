@@ -2281,6 +2281,10 @@ button.subject-tag {
 .tests-page-v2 .page-head h1 {
   max-width: none;
   font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  display: block;
+  width: 100%;
+  margin: 0;
+  text-align: center;
   white-space: nowrap;
   text-wrap: nowrap;
 }
@@ -2297,20 +2301,22 @@ button.subject-tag {
 
 .leaderboard-page .page-head h1 {
   font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  display: block;
+  width: 100%;
+  margin: 0;
+  text-align: center;
   white-space: nowrap;
   text-wrap: nowrap;
-  width: fit-content;
-  margin-inline: auto;
-  text-align: center;
 }
 
 .resources-page .page-head h1 {
   font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  display: block;
+  width: 100%;
+  margin: 0;
+  text-align: center;
   white-space: nowrap;
   text-wrap: nowrap;
-  width: fit-content;
-  margin-inline: auto;
-  text-align: center;
 }
 
 .tests-layout {
