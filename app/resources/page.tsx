@@ -42,7 +42,7 @@ export default function ResourcesPage() {
   );
 
   return (
-    <section className="page">
+    <section className="page resources-page">
       <div className="page-head">
         <h1>Roadmaps, Strategies, Notes, Books, and PYQs</h1>
       </div>

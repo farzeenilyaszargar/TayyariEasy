@@ -184,7 +184,16 @@ function Hero() {
             <div className="badge-preview-grid">
               {BADGE_PREVIEWS.map((badge) => (
                 <div key={badge.id} className="badge-preview-item" aria-label={badge.name}>
-                  <img src={badge.image} alt={badge.name} className="badge-image" loading="lazy" />
+                  <img
+                    src={encodeURI(badge.image)}
+                    alt={badge.name}
+                    className="badge-image"
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.onerror = null;
+                      event.currentTarget.src = "/badges/curve%20text.png";
+                    }}
+                  />
                   <div className="badge-tooltip">
                     <strong>{badge.name}</strong>
                     <small>{badge.how}</small>
@@ -255,7 +264,7 @@ export default function Page() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeStructuredData) }} />
       {isLoggedIn ? (
         <>
-          <div className="page-head">
+          <div className="page-head dashboard-head">
             <p className="eyebrow">Home Dashboard</p>
             <h1>Your Progress Command Center</h1>
           </div>

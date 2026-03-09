@@ -240,7 +240,7 @@ export async function fetchDashboardData(userId: string): Promise<DashboardPaylo
       "auth"
     ),
     restGet<BadgeRow[]>(
-      `user_badges?select=id,badge_name,badge_detail,earned_at&${baseFilter}&order=earned_at.desc&limit=6`,
+      `user_badges?select=id,badge_name,badge_detail,earned_at&${baseFilter}&order=earned_at.desc&limit=17`,
       "auth"
     ),
     testsPromise,

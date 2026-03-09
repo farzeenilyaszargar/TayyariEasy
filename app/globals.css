@@ -216,6 +216,12 @@ a {
   margin-bottom: 36px;
 }
 
+.page-head h1 {
+  font-size: clamp(1.98rem, 3.6vw, 2.85rem);
+  line-height: 1.12;
+  max-width: 24ch;
+}
+
 .eyebrow {
   margin: 0 0 10px;
   text-transform: uppercase;
@@ -377,12 +383,15 @@ small {
   display: block;
   color: #252a34;
   font-weight: 700;
+  font-size: clamp(1.06rem, 1.9vw, 1.5rem);
+  line-height: 1.2;
+  margin-top: 8px;
 }
 
 .accent-head-1 {
   color: #3f434a;
-  font-size: clamp(1.9rem, 3.6vw, 2.75rem);
-  line-height: 1.14;
+  font-size: clamp(2.15rem, 4.1vw, 3.2rem);
+  line-height: 1.1;
   max-width: 18ch;
 }
 
@@ -2269,7 +2278,26 @@ button.subject-tag {
 }
 
 .tests-page-v2 .page-head h1 {
-  max-width: 24ch;
+  max-width: none;
+  font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  white-space: nowrap;
+  text-wrap: nowrap;
+}
+
+.dashboard-head h1 {
+  font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+}
+
+.leaderboard-page .page-head h1 {
+  font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  white-space: nowrap;
+  text-wrap: nowrap;
+}
+
+.resources-page .page-head h1 {
+  font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  white-space: nowrap;
+  text-wrap: nowrap;
 }
 
 .tests-layout {
@@ -3710,6 +3738,11 @@ html[data-theme="dark"] .test-chip.neutral {
     line-height: 1.14;
   }
 
+  .page-head h1 {
+    font-size: clamp(1.64rem, 6.4vw, 2.05rem);
+    max-width: none;
+  }
+
   h2 {
     font-size: clamp(1.34rem, 5vw, 1.72rem);
   }
@@ -3737,8 +3770,12 @@ html[data-theme="dark"] .test-chip.neutral {
   }
 
   .accent-head-1 {
-    font-size: clamp(1.68rem, 6vw, 2.1rem);
+    font-size: clamp(1.92rem, 6.8vw, 2.4rem);
     max-width: none;
+  }
+
+  .accent-head {
+    font-size: clamp(1rem, 4vw, 1.22rem);
   }
 
   .hero-grid > aside {
@@ -3789,7 +3826,13 @@ html[data-theme="dark"] .test-chip.neutral {
 
   .tests-page-v2 .page-head h1 {
     max-width: none;
-    font-size: clamp(1.42rem, 7vw, 1.82rem);
+    font-size: clamp(1.08rem, 4.4vw, 1.35rem);
+  }
+
+  .dashboard-head h1,
+  .leaderboard-page .page-head h1,
+  .resources-page .page-head h1 {
+    font-size: clamp(1.08rem, 4.4vw, 1.35rem);
   }
 
   .tests-layout-v3 {

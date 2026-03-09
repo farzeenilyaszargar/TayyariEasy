@@ -516,7 +516,16 @@ export function Dashboard() {
               {data.badges.length > 0 ? (
                 data.badges.map((badge) => (
                   <div key={badge.id} className="badge-preview-item" aria-label={badge.badge_name}>
-                    <img src={getBadgeImageForName(badge.badge_name)} alt={badge.badge_name} className="badge-image" loading="lazy" />
+                    <img
+                      src={encodeURI(getBadgeImageForName(badge.badge_name))}
+                      alt={badge.badge_name}
+                      className="badge-image"
+                      loading="lazy"
+                      onError={(event) => {
+                        event.currentTarget.onerror = null;
+                        event.currentTarget.src = "/badges/curve%20text.png";
+                      }}
+                    />
                     <div className="badge-tooltip">
                       <strong>{badge.badge_name}</strong>
                       <small>{badge.badge_detail}</small>
@@ -582,9 +591,6 @@ export function Dashboard() {
                   <small>Accuracy: {hoveredPoint.meta.accuracy.toFixed(1)}% | Score: {hoveredPoint.meta.score}</small>
                 </div>
               ) : null}
-            </div>
-            <div className="graph-hover-panel graph-hover-panel-muted">
-              <small>Trend is computed across test sequence (not calendar days).</small>
             </div>
             <div className="dashboard-metrics-grid">
               <div className="dashboard-metric-box">
