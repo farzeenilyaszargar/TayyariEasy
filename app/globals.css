@@ -2711,16 +2711,18 @@ button.subject-tag {
 
 .roadmap-section {
   border: 1px solid var(--border);
-  border-radius: 14px;
-  background: #fff;
-  padding: 14px;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #ffffff 0%, #f6f8fb 55%, #eef2f7 100%);
+  padding: 16px;
   display: grid;
   gap: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 10px 24px rgba(18, 24, 33, 0.06);
 }
 
 .roadmap-section h3 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.08rem;
+  letter-spacing: -0.01em;
 }
 
 .roadmap-subtopics {
@@ -2734,7 +2736,7 @@ button.subject-tag {
 .roadmap-item {
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: #fff;
+  background: #ffffff;
   padding: 10px 12px;
 }
 
@@ -2752,7 +2754,7 @@ button.subject-tag {
 }
 
 .roadmap-item.done {
-  background: #eef7f1;
+  background: #edf7f2;
   border-color: #c9e7d4;
 }
 
