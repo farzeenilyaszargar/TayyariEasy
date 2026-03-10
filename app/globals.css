@@ -2298,6 +2298,9 @@ button.subject-tag {
 .leaderboard-page .page-head,
 .resources-page .page-head {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .dashboard-head h1 {
