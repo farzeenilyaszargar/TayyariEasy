@@ -109,7 +109,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
         <h1>{article.title}</h1>
         <p className="muted resource-article-subtitle">{article.preview}</p>
         <div className="resource-article-meta">
-          <span>{article.size}</span>
+          {!isRoadmap ? <span>{article.size}</span> : null}
           <span>JEE {article.subject}</span>
           <span>Exam improvement guide</span>
         </div>
