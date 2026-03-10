@@ -2708,6 +2708,44 @@ button.subject-tag {
   gap: 16px;
 }
 
+.roadmap-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.roadmap-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  padding: 10px 12px;
+}
+
+.roadmap-label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+  font-weight: 600;
+  color: #2b3342;
+}
+
+.roadmap-label input {
+  margin-top: 3px;
+}
+
+.roadmap-item.done {
+  background: #eef7f1;
+  border-color: #c9e7d4;
+}
+
+.roadmap-item.done span {
+  text-decoration: line-through;
+  color: #3c4c3f;
+}
+
 .roadmap-card {
   border: 1px solid var(--border);
   border-radius: 14px;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getArticleBySlug, getArticleResources, getLongformSections, slugifyResourceTitle } from "@/lib/data";
+import { RoadmapChecklist } from "@/components/roadmap-checklist";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in";
 
@@ -114,91 +115,80 @@ export default async function ResourceArticlePage({ params }: PageProps) {
         </div>
       </header>
 
-      <section className="card resource-article-body">
-        <h2>Why this helps your JEE rank</h2>
-        <p>
-          <strong>Focused execution</strong> beats random practice. This guide targets accuracy, chapter completion,
-          and consistent mock improvements.
-        </p>
-        <p>
-          <em>Use it like a weekly playbook.</em> Implement one block at a time, track outcomes, and revisit weak areas
-          on a fixed cadence.
-        </p>
+      {isRoadmap ? (
+        <section className="card resource-article-body">
+          <h2>JEE Main Roadmap Checklist</h2>
+          <p className="muted">Check topics as you finish them. Progress is saved automatically.</p>
+          <RoadmapChecklist slug={slug} items={article.checklist ?? []} />
+        </section>
+      ) : (
+        <section className="card resource-article-body">
+          <h2>Why this helps your JEE rank</h2>
+          <p>
+            <strong>Focused execution</strong> beats random practice. This guide targets accuracy, chapter completion,
+            and consistent mock improvements.
+          </p>
+          <p>
+            <em>Use it like a weekly playbook.</em> Implement one block at a time, track outcomes, and revisit weak areas
+            on a fixed cadence.
+          </p>
 
-        {longformSections.map((section) => (
-          <div key={section.heading}>
-            <h2>{section.heading}</h2>
-            {section.paragraphs.map((paragraph, idx) => (
-              <p key={`${section.heading}-${idx}`}>{paragraph}</p>
+          {longformSections.map((section) => (
+            <div key={section.heading}>
+              <h2>{section.heading}</h2>
+              {section.paragraphs.map((paragraph, idx) => (
+                <p key={`${section.heading}-${idx}`}>{paragraph}</p>
+              ))}
+            </div>
+          ))}
+
+          <h2>Execution Checklist</h2>
+          <ul className="resource-article-list">
+            {(article.checklist ?? [
+              "Set weekly chapter targets and lock revision slots in advance.",
+              "Take one timed test block and analyze all mistakes the same day.",
+              "Re-attempt weak question types within 3 days."
+            ]).map((item) => (
+              <li key={item}>
+                <strong>{item.split(":")[0]}</strong>
+                {item.includes(":") ? `: ${item.split(":").slice(1).join(":").trim()}` : ""}
+              </li>
             ))}
-          </div>
-        ))}
+          </ul>
 
-        {isRoadmap ? (
-          <>
-            <h2>Roadmap Checklist</h2>
-            <ol className="roadmap-grid">
-              {(article.checklist ?? []).map((item, idx) => (
-                <li key={item} className="roadmap-card">
-                  <div className="roadmap-step">Step {idx + 1}</div>
-                  <div className="roadmap-content">
-                    <strong>{item}</strong>
-                    <p className="muted">Finish the topic, then solve 20-30 mixed problems before moving ahead.</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </>
-        ) : (
-          <>
-            <h2>Execution Checklist</h2>
-            <ul className="resource-article-list">
-              {(article.checklist ?? [
-                "Set weekly chapter targets and lock revision slots in advance.",
-                "Take one timed test block and analyze all mistakes the same day.",
-                "Re-attempt weak question types within 3 days."
-              ]).map((item) => (
-                <li key={item}>
-                  <strong>{item.split(":")[0]}</strong>
-                  {item.includes(":") ? `: ${item.split(":").slice(1).join(":").trim()}` : ""}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+          <h2>Weekly Plan Template</h2>
+          <ul className="resource-article-list">
+            <li>
+              <strong>Day 1-2</strong>: Concepts + formula consolidation.
+            </li>
+            <li>
+              <strong>Day 3-4</strong>: Mixed problem solving with time limits.
+            </li>
+            <li>
+              <strong>Day 5</strong>: Chapter test + accuracy and speed audit.
+            </li>
+            <li>
+              <strong>Day 6</strong>: Error-log revision and short drills.
+            </li>
+            <li>
+              <strong>Day 7</strong>: Section simulation + next-week planning.
+            </li>
+          </ul>
 
-        <h2>Weekly Plan Template</h2>
-        <ul className="resource-article-list">
-          <li>
-            <strong>Day 1-2</strong>: Concepts + formula consolidation.
-          </li>
-          <li>
-            <strong>Day 3-4</strong>: Mixed problem solving with time limits.
-          </li>
-          <li>
-            <strong>Day 5</strong>: Chapter test + accuracy and speed audit.
-          </li>
-          <li>
-            <strong>Day 6</strong>: Error-log revision and short drills.
-          </li>
-          <li>
-            <strong>Day 7</strong>: Section simulation + next-week planning.
-          </li>
-        </ul>
-
-        <h2>Common mistakes to avoid</h2>
-        <ul className="resource-article-list">
-          <li>
-            <strong>Skipping analysis</strong> and jumping to new chapters too quickly.
-          </li>
-          <li>
-            <strong>Only watching content</strong> without timed practice.
-          </li>
-          <li>
-            <strong>Ignoring low-confidence topics</strong> that repeatedly cost marks.
-          </li>
-        </ul>
-      </section>
+          <h2>Common mistakes to avoid</h2>
+          <ul className="resource-article-list">
+            <li>
+              <strong>Skipping analysis</strong> and jumping to new chapters too quickly.
+            </li>
+            <li>
+              <strong>Only watching content</strong> without timed practice.
+            </li>
+            <li>
+              <strong>Ignoring low-confidence topics</strong> that repeatedly cost marks.
+            </li>
+          </ul>
+        </section>
+      )}
 
       <section className="resource-related">
         <div className="section-head">
