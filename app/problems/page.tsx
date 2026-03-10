@@ -9,9 +9,6 @@ type Message = {
   id: string;
   role: "user" | "assistant";
   text: string;
-  sources?: WebSource[];
-  images?: WebImage[];
-  sourcesLoading?: boolean;
 };
 
 type ChatHistoryMessage = {
@@ -319,10 +316,7 @@ export default function ProblemsPage() {
         .map((item) => ({
           id: item.id || crypto.randomUUID(),
           role: item.role,
-          text: typeof item.text === "string" ? item.text : "",
-          sources: Array.isArray(item.sources) ? item.sources : [],
-          images: Array.isArray(item.images) ? item.images : [],
-          sourcesLoading: false
+          text: typeof item.text === "string" ? item.text : ""
         }))
         .filter((item) => item.text.trim().length > 0)
         .slice(-24);
@@ -344,9 +338,7 @@ export default function ProblemsPage() {
         .map((message) => ({
           id: message.id,
           role: message.role,
-          text: message.text,
-          sources: message.sources || [],
-          images: message.images || []
+          text: message.text
         }))
         .slice(-24);
       window.localStorage.setItem(CHAT_CACHE_KEY, JSON.stringify(persistable));
@@ -364,7 +356,7 @@ export default function ProblemsPage() {
 
     const userMessage: Message = { id: crypto.randomUUID(), role: "user", text: prompt };
     const assistantId = crypto.randomUUID();
-    const needsWeb = shouldFetchWebSources(prompt);
+    const needsWeb = false;
     const history: ChatHistoryMessage[] = messages
       .filter((message) => message.text.trim().length > 0)
       .map((message) => ({
@@ -375,28 +367,12 @@ export default function ProblemsPage() {
     setMessages((prev) => [
       ...prev,
       userMessage,
-      { id: assistantId, role: "assistant", text: "", sources: [], images: [], sourcesLoading: needsWeb }
+      { id: assistantId, role: "assistant", text: "" }
     ]);
     setInput("");
     setLoading(true);
 
-    const sourcesPromise = needsWeb
-      ? fetch("/api/ai/problems/sources", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ prompt })
-        })
-          .then(async (response) => {
-            if (!response.ok) {
-              return { results: [], images: [] } as { results: WebSource[]; images: WebImage[] };
-            }
-            const payload = (await response.json()) as { results?: WebSource[]; images?: WebImage[] };
-            return { results: payload.results || [], images: payload.images || [] };
-          })
-          .catch(() => ({ results: [], images: [] }))
-      : Promise.resolve({ results: [] as WebSource[], images: [] as WebImage[] });
+    const sourcesPromise = Promise.resolve({ results: [] as WebSource[], images: [] as WebImage[] });
 
     try {
       const response = await fetch("/api/ai/problems", {
@@ -452,19 +428,7 @@ export default function ProblemsPage() {
         )
       );
     } finally {
-      const web = await sourcesPromise;
-      setMessages((prev) =>
-        prev.map((message) =>
-          message.id === assistantId
-            ? {
-                ...message,
-                sources: web.results,
-                images: web.images,
-                sourcesLoading: false
-              }
-            : message
-        )
-      );
+      await sourcesPromise;
       setLoading(false);
     }
   };
@@ -567,56 +531,6 @@ export default function ProblemsPage() {
               <div key={message.id} className={`chat-row ${message.role}`}>
                 <div className={`chat-bubble ${message.role}`}>
                   {message.role === "assistant" ? <MarkdownBlock text={message.text} /> : message.text}
-                  {message.role === "assistant" ? (
-                    <div className="chat-web-panel">
-                      {(message.sources?.length || 0) > 0 ? (
-                        <div className="chat-web-block">
-                          <p className="chat-web-title">Web Results</p>
-                          <div className="chat-web-results">
-                            {message.sources?.map((item) => (
-                              <a
-                                key={`${message.id}-${item.url}`}
-                                href={item.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="chat-web-result-card"
-                              >
-                                <strong>{item.title}</strong>
-                                <span>{item.source}</span>
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-                      ) : null}
-                      {(message.images?.length || 0) > 0 ? (
-                        <div className="chat-web-block">
-                          <p className="chat-web-title">Image Results</p>
-                          <div className="chat-image-grid">
-                            {message.images?.map((item) => (
-                              <a
-                                key={`${message.id}-${item.imageUrl}`}
-                                href={item.pageUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="chat-image-card"
-                              >
-                                <img src={item.imageUrl} alt={item.title} loading="lazy" />
-                                <div>
-                                  <strong>{item.title}</strong>
-                                  <span>{item.source}</span>
-                                </div>
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-                      ) : null}
-                      {!message.sourcesLoading &&
-                      (message.sources?.length || 0) === 0 &&
-                      (message.images?.length || 0) === 0 ? (
-                        <p className="muted">No external references found for this query.</p>
-                      ) : null}
-                    </div>
-                  ) : null}
                 </div>
               </div>
             ))}
