@@ -2694,6 +2694,35 @@ button.subject-tag {
   color: #384153;
 }
 
+.roadmap-grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.roadmap-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+  display: grid;
+  gap: 10px;
+}
+
+.roadmap-step {
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.roadmap-content p {
+  margin-top: 6px;
+}
+
 .resource-related {
   margin-top: 28px;
 }
@@ -4048,6 +4077,10 @@ html[data-theme="dark"] .test-chip.neutral {
     margin-top: 2px;
     width: 100%;
     justify-content: flex-end;
+  }
+
+  .roadmap-grid {
+    grid-template-columns: 1fr;
   }
 
   .demo-modal {
