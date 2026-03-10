@@ -2702,14 +2702,15 @@ button.subject-tag {
 }
 
 .roadmap-checklist {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   margin: 0;
   padding: 0;
 }
 
 .roadmap-section {
+  flex: 0 0 calc(50% - 8px);
   border: 1px solid var(--border);
   border-radius: 18px;
   background: linear-gradient(160deg, #ffffff 0%, #f6f8fb 55%, #eef2f7 100%);
@@ -2717,6 +2718,7 @@ button.subject-tag {
   display: grid;
   gap: 10px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 10px 24px rgba(18, 24, 33, 0.06);
+  min-height: 220px;
 }
 
 .roadmap-section h3 {
@@ -2738,6 +2740,7 @@ button.subject-tag {
   border-radius: 12px;
   background: #ffffff;
   padding: 10px 12px;
+  min-height: 44px;
 }
 
 .roadmap-label {
@@ -4126,7 +4129,12 @@ html[data-theme="dark"] .test-chip.neutral {
   }
 
   .roadmap-checklist {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .roadmap-section {
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   .demo-modal {
