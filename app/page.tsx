@@ -129,15 +129,7 @@ function Hero() {
 
         <aside className="hero-video" aria-label="Product walkthrough video">
           <div className="video-wrap">
-            <video
-              controls
-              preload="metadata"
-              poster="/hero-video-poster.jpg"
-              autoPlay
-              loop
-              muted
-              playsInline
-            >
+            <video preload="metadata" poster="/hero-video-poster.jpg" autoPlay loop muted playsInline>
               <source src="/demo-vid.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
