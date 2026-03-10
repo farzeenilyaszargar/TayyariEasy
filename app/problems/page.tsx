@@ -79,35 +79,58 @@ declare global {
 
 function renderInline(text: string): ReactNode[] {
   const nodes: ReactNode[] = [];
-  const regex = /(\*\*[^*]+\*\*|`[^`]+`|(?<!\*)\*[^*\n]+\*(?!\*)|_[^_\n]+_|(?<!\S)\/[^/\n]+\/(?!\S))/g;
+  const inlineMathRegex = /\\\([\s\S]*?\\\)/g;
+  const formatRegex = /(\*\*[^*]+\*\*|`[^`]+`|(?<!\*)\*[^*\n]+\*(?!\*)|_[^_\n]+_|(?<!\S)\/[^/\n]+\/(?!\S))/g;
   let last = 0;
   let match: RegExpExecArray | null;
   let idx = 0;
 
-  while ((match = regex.exec(text)) !== null) {
+  const pushFormatted = (chunk: string) => {
+    let innerLast = 0;
+    let innerMatch: RegExpExecArray | null;
+    while ((innerMatch = formatRegex.exec(chunk)) !== null) {
+      if (innerMatch.index > innerLast) {
+        nodes.push(<Fragment key={`t-${idx++}`}>{chunk.slice(innerLast, innerMatch.index)}</Fragment>);
+      }
+
+      const token = innerMatch[0];
+      if (token.startsWith("**")) {
+        nodes.push(<strong key={`b-${idx++}`}>{token.slice(2, -2)}</strong>);
+      } else if (token.startsWith("`")) {
+        nodes.push(
+          <code key={`c-${idx++}`} className="md-inline-code">
+            {token.slice(1, -1)}
+          </code>
+        );
+      } else if (token.startsWith("*") || token.startsWith("_")) {
+        nodes.push(<em key={`i-${idx++}`}>{token.slice(1, -1)}</em>);
+      } else if (token.startsWith("/")) {
+        nodes.push(<em key={`i2-${idx++}`}>{token.slice(1, -1).trim()}</em>);
+      }
+      innerLast = innerMatch.index + token.length;
+    }
+
+    if (innerLast < chunk.length) {
+      nodes.push(<Fragment key={`t-${idx++}`}>{chunk.slice(innerLast)}</Fragment>);
+    }
+  };
+
+  while ((match = inlineMathRegex.exec(text)) !== null) {
     if (match.index > last) {
-      nodes.push(<Fragment key={`t-${idx++}`}>{text.slice(last, match.index)}</Fragment>);
+      pushFormatted(text.slice(last, match.index));
     }
 
     const token = match[0];
-    if (token.startsWith("**")) {
-      nodes.push(<strong key={`b-${idx++}`}>{token.slice(2, -2)}</strong>);
-    } else if (token.startsWith("`")) {
-      nodes.push(
-        <code key={`c-${idx++}`} className="md-inline-code">
-          {token.slice(1, -1)}
-        </code>
-      );
-    } else if (token.startsWith("*") || token.startsWith("_")) {
-      nodes.push(<em key={`i-${idx++}`}>{token.slice(1, -1)}</em>);
-    } else if (token.startsWith("/")) {
-      nodes.push(<em key={`i2-${idx++}`}>{token.slice(1, -1).trim()}</em>);
-    }
+    nodes.push(
+      <span key={`math-${idx++}`} className="md-math-inline">
+        {token}
+      </span>
+    );
     last = match.index + token.length;
   }
 
   if (last < text.length) {
-    nodes.push(<Fragment key={`t-${idx++}`}>{text.slice(last)}</Fragment>);
+    pushFormatted(text.slice(last));
   }
 
   return nodes;

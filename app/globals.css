@@ -1771,6 +1771,11 @@ button.subject-tag {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+.md-math-inline {
+  display: inline-block;
+  margin: 0 2px;
+}
+
 .login-page {
   display: grid;
   place-items: center;
