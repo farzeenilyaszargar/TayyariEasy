@@ -500,48 +500,12 @@ export const resources: ResourceItem[] = [
     href: "#"
   },
   {
-    title: "Organic Chemistry Rapid Notes",
-    type: "PDF",
-    size: "2.2 MB",
-    subject: "Chemistry",
-    category: "Notes",
-    preview: "Named reactions, mechanisms, and conversion maps in concise memory format.",
-    href: "#"
-  },
-  {
-    title: "Physics Formula Sheet",
-    type: "PDF",
-    size: "1.4 MB",
-    subject: "Physics",
-    category: "Notes",
-    preview: "High-frequency formulas from mechanics, optics, modern physics, and electrostatics.",
-    href: "#"
-  },
-  {
     title: "Best Books by Chapter Priority",
     type: "PDF",
     size: "1.1 MB",
     subject: "Mathematics",
     category: "Books",
     preview: "Recommended books chapter-wise with easy, medium, and hard progression sequence.",
-    href: "#"
-  },
-  {
-    title: "JEE Main PYQ Pack (2019-2025)",
-    type: "PDF",
-    size: "4.8 MB",
-    subject: "Physics",
-    category: "PYQs",
-    preview: "Chapter-sorted PYQs with attempt order recommendations and trend analysis.",
-    href: "#"
-  },
-  {
-    title: "JEE Advanced PYQ Matrix",
-    type: "PDF",
-    size: "3.9 MB",
-    subject: "Chemistry",
-    category: "PYQs",
-    preview: "Question matrix by topic and difficulty with pattern insights from recent years.",
     href: "#"
   },
   {
@@ -591,24 +555,6 @@ export const resources: ResourceItem[] = [
     checklist: ["Round 1: sure-shot questions", "Round 2: medium confidence", "Last 20 mins: review + marked doubts"],
     href: "#"
   },
-  {
-    title: "Inorganic Memory Notes",
-    type: "PDF",
-    size: "1.6 MB",
-    subject: "Chemistry",
-    category: "Notes",
-    preview: "Memory-friendly inorganic chemistry blocks with periodic trend maps.",
-    href: "#"
-  },
-  {
-    title: "Math PYQ Deep Practice Pack",
-    type: "PDF",
-    size: "3.5 MB",
-    subject: "Mathematics",
-    category: "PYQs",
-    preview: "Year-wise plus chapter-wise math PYQs with difficulty labels and hints.",
-    href: "#"
-  }
 ];
 
 export function slugifyResourceTitle(title: string) {

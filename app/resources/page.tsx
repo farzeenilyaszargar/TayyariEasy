@@ -6,7 +6,7 @@ import { resources, slugifyResourceTitle, type SubjectTag } from "@/lib/data";
 import { BookIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon, SearchIcon } from "@/components/ui-icons";
 
 const subjects: SubjectTag[] = ["Physics", "Chemistry", "Mathematics"];
-const categories = ["Roadmaps", "Strategies", "Notes", "Books", "PYQs"] as const;
+const categories = ["Roadmaps", "Strategies", "Books"] as const;
 const sliderCategories = new Set(["Roadmaps", "Strategies"]);
 const cardsPerSlide = 3;
 
@@ -45,7 +45,7 @@ export default function ResourcesPage() {
     <section className="page resources-page">
       <div className="page-head">
         <p className="eyebrow">Resources</p>
-        <h1>Roadmaps, Strategies, Notes, Books, and PYQs</h1>
+        <h1>Roadmaps, Strategies, and Books</h1>
       </div>
 
       <div className="search-row card tests-search-box">
