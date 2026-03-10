@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "jee rank progress",
     "jee preparation leaderboard",
     "mock test ranking",
+    "jee main leaderboard",
+    "jee advanced leaderboard",
+    "jee rank list",
     "tayyari leaderboard"
   ],
   alternates: {
@@ -21,6 +24,11 @@ export const metadata: Metadata = {
     description: "Compare JEE performance, streaks, and test points on the Tayyari leaderboard.",
     url: `${siteUrl}/leaderboards`,
     type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JEE Leaderboard and Rank Progress | Tayyari",
+    description: "Compare JEE performance, streaks, and test points on the Tayyari leaderboard."
   }
 };
 

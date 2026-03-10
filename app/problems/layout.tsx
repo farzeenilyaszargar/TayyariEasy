@@ -11,6 +11,11 @@ export const metadata: Metadata = {
     "ai doubt solving for jee",
     "physics chemistry maths doubts",
     "jee question solving",
+    "jee main doubts",
+    "jee advanced doubts",
+    "jee physics doubts",
+    "jee chemistry doubts",
+    "jee maths doubts",
     "tayyari ai chatbot"
   ],
   alternates: {
@@ -21,6 +26,11 @@ export const metadata: Metadata = {
     description: "Resolve JEE concept and numerical doubts with Tayyari AI for Physics, Chemistry, and Mathematics.",
     url: `${siteUrl}/problems`,
     type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Doubt Solver for JEE | Tayyari",
+    description: "Resolve JEE concept and numerical doubts with Tayyari AI for Physics, Chemistry, and Mathematics."
   }
 };
 

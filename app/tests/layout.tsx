@@ -11,6 +11,11 @@ export const metadata: Metadata = {
     "jee test series",
     "jee main test series",
     "jee advanced mock test",
+    "jee main mock tests",
+    "jee advanced mock tests",
+    "chapter wise tests",
+    "subject wise tests",
+    "full syllabus mock test",
     "physics chemistry maths mock test",
     "tayyari tests"
   ],

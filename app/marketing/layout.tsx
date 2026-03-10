@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "jee preparation platform",
     "jee mock tests app",
     "jee rank prediction engine",
+    "jee main preparation",
+    "jee advanced preparation",
+    "jee preparation app",
     "jee study platform"
   ],
   alternates: {
@@ -21,6 +24,11 @@ export const metadata: Metadata = {
     description: "One focused platform for JEE mock tests, rank prediction, AI analysis, and resources.",
     url: `${siteUrl}/marketing`,
     type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tayyari Platform for JEE Preparation",
+    description: "One focused platform for JEE mock tests, rank prediction, AI analysis, and resources."
   }
 };
 

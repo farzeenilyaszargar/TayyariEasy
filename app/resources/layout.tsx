@@ -12,6 +12,8 @@ export const metadata: Metadata = {
     "jee matrials",
     "jee roadmaps",
     "jee strategy",
+    "jee study plan",
+    "jee book list",
     "jee book guides",
     "tayyari resources"
   ],
@@ -23,6 +25,11 @@ export const metadata: Metadata = {
     description: "Find JEE roadmaps, strategy articles, and book guides for Physics, Chemistry, and Maths.",
     url: `${siteUrl}/resources`,
     type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JEE Roadmaps, Strategies, and Book Guides | Tayyari",
+    description: "Find JEE roadmaps, strategy articles, and book guides for Physics, Chemistry, and Maths."
   }
 };
 
