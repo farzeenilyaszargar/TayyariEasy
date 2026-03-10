@@ -220,7 +220,7 @@ a {
   font-size: clamp(1.98rem, 3.6vw, 2.85rem);
   line-height: 1.12;
   max-width: 24ch;
-  text-align: center;
+  text-align: left;
 }
 
 .eyebrow {
@@ -765,7 +765,7 @@ html[data-theme="dark"] .feature-img-dark {
   display: grid;
   gap: 12px;
   justify-items: center;
-  text-align: center;
+  text-align: left;
 }
 
 .marketing-page .page-head {
@@ -1448,7 +1448,7 @@ button.subject-tag {
   display: grid;
   justify-items: center;
   gap: 10px;
-  text-align: center;
+  text-align: left;
   margin-bottom: 4px;
 }
 
@@ -2289,7 +2289,7 @@ button.subject-tag {
   display: block;
   width: 100%;
   margin: 0;
-  text-align: center;
+  text-align: left;
   white-space: nowrap;
   text-wrap: nowrap;
 }
@@ -2297,10 +2297,7 @@ button.subject-tag {
 .tests-page-v2 .page-head,
 .leaderboard-page .page-head,
 .resources-page .page-head {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: left;
 }
 
 .dashboard-head h1 {
@@ -2312,7 +2309,7 @@ button.subject-tag {
   display: block;
   width: 100%;
   margin: 0;
-  text-align: center;
+  text-align: left;
   white-space: nowrap;
   text-wrap: nowrap;
 }
@@ -2322,7 +2319,7 @@ button.subject-tag {
   display: block;
   width: 100%;
   margin: 0;
-  text-align: center;
+  text-align: left;
   white-space: nowrap;
   text-wrap: nowrap;
 }
