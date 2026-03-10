@@ -38,6 +38,7 @@ export type ResourceItem = {
   category: "Roadmaps" | "Strategies" | "Notes" | "Books" | "PYQs";
   preview: string;
   checklist?: string[];
+  roadmapChecklist?: RoadmapSection[];
   longformSections?: Array<{
     heading: string;
     paragraphs: string[];
@@ -46,6 +47,14 @@ export type ResourceItem = {
 };
 
 export type ArticleResource = ResourceItem & { type: "Article" };
+
+export type RoadmapSection = {
+  title: string;
+  subtopics: Array<{
+    title: string;
+    highWeight?: boolean;
+  }>;
+};
 
 export const topicTests: TestCard[] = [
   {
@@ -167,7 +176,54 @@ export const resources: ResourceItem[] = [
     category: "Roadmaps",
     preview:
       "A week-by-week completion checklist to finish core Mathematics chapters with revision cycles and test slots.",
-    checklist: ["Weeks 1-3: Algebra + Sequence", "Weeks 4-6: Calculus Core", "Weeks 7-9: Coordinate + Revision"],
+    roadmapChecklist: [
+      {
+        title: "Algebra Core",
+        subtopics: [
+          { title: "Quadratic Equations", highWeight: true },
+          { title: "Sequences & Series", highWeight: true },
+          { title: "Complex Numbers", highWeight: true },
+          { title: "Binomial Theorem" },
+          { title: "Permutations & Combinations", highWeight: true },
+          { title: "Probability", highWeight: true }
+        ]
+      },
+      {
+        title: "Calculus Core",
+        subtopics: [
+          { title: "Limits & Continuity", highWeight: true },
+          { title: "Differentiability" },
+          { title: "Application of Derivatives", highWeight: true },
+          { title: "Indefinite & Definite Integrals", highWeight: true },
+          { title: "Differential Equations", highWeight: true }
+        ]
+      },
+      {
+        title: "Coordinate Geometry",
+        subtopics: [
+          { title: "Straight Line", highWeight: true },
+          { title: "Circle", highWeight: true },
+          { title: "Parabola" },
+          { title: "Ellipse" },
+          { title: "Hyperbola" }
+        ]
+      },
+      {
+        title: "Vectors + 3D",
+        subtopics: [
+          { title: "Vector Algebra", highWeight: true },
+          { title: "3D Geometry", highWeight: true }
+        ]
+      },
+      {
+        title: "Matrices & Determinants",
+        subtopics: [
+          { title: "Matrices Basics" },
+          { title: "Determinants", highWeight: true },
+          { title: "Linear Equations", highWeight: true }
+        ]
+      }
+    ],
     href: "#"
   },
   {
@@ -188,7 +244,53 @@ export const resources: ResourceItem[] = [
     subject: "Physics",
     category: "Roadmaps",
     preview: "A chapter-priority roadmap for mechanics, electrodynamics, and modern physics with built-in mock checkpoints.",
-    checklist: ["Month 1: Mechanics core", "Month 2: Waves + Thermo", "Month 3: Electro + Magnetism", "Month 4: Modern + mocks"],
+    roadmapChecklist: [
+      {
+        title: "Mechanics Core",
+        subtopics: [
+          { title: "Kinematics", highWeight: true },
+          { title: "Laws of Motion", highWeight: true },
+          { title: "Work, Energy & Power", highWeight: true },
+          { title: "Rotational Motion", highWeight: true },
+          { title: "Gravitation" }
+        ]
+      },
+      {
+        title: "Waves + Thermo",
+        subtopics: [
+          { title: "SHM", highWeight: true },
+          { title: "Waves" },
+          { title: "Thermal Properties of Matter" },
+          { title: "Thermodynamics", highWeight: true },
+          { title: "Kinetic Theory of Gases" }
+        ]
+      },
+      {
+        title: "Electro + Magnetism",
+        subtopics: [
+          { title: "Electrostatics", highWeight: true },
+          { title: "Current Electricity", highWeight: true },
+          { title: "Magnetism", highWeight: true },
+          { title: "Electromagnetic Induction", highWeight: true },
+          { title: "AC Circuits" }
+        ]
+      },
+      {
+        title: "Optics",
+        subtopics: [
+          { title: "Ray Optics", highWeight: true },
+          { title: "Wave Optics", highWeight: true }
+        ]
+      },
+      {
+        title: "Modern Physics",
+        subtopics: [
+          { title: "Photoelectric Effect", highWeight: true },
+          { title: "Atomic & Nuclear Physics", highWeight: true },
+          { title: "Semiconductors", highWeight: true }
+        ]
+      }
+    ],
     href: "#"
   },
   {
@@ -198,7 +300,40 @@ export const resources: ResourceItem[] = [
     subject: "Chemistry",
     category: "Roadmaps",
     preview: "A progressive roadmap to complete inorganic, organic, and physical chemistry without losing revision continuity.",
-    checklist: ["NCERT line-by-line pass", "Topic-wise PYQ blocks", "Reaction mapping every weekend"],
+    roadmapChecklist: [
+      {
+        title: "Physical Chemistry",
+        subtopics: [
+          { title: "Mole Concept", highWeight: true },
+          { title: "Thermodynamics", highWeight: true },
+          { title: "Chemical Equilibrium", highWeight: true },
+          { title: "Ionic Equilibrium", highWeight: true },
+          { title: "Electrochemistry", highWeight: true },
+          { title: "Chemical Kinetics", highWeight: true }
+        ]
+      },
+      {
+        title: "Organic Chemistry",
+        subtopics: [
+          { title: "GOC + Isomerism", highWeight: true },
+          { title: "Hydrocarbons" },
+          { title: "Haloalkanes & Haloarenes" },
+          { title: "Alcohols, Phenols & Ethers", highWeight: true },
+          { title: "Aldehydes, Ketones & Acids", highWeight: true },
+          { title: "Amines", highWeight: true }
+        ]
+      },
+      {
+        title: "Inorganic Chemistry",
+        subtopics: [
+          { title: "Chemical Bonding", highWeight: true },
+          { title: "Coordination Compounds", highWeight: true },
+          { title: "Periodic Table & Trends" },
+          { title: "p-Block", highWeight: true },
+          { title: "d-Block & f-Block" }
+        ]
+      }
+    ],
     href: "#"
   },
   {
@@ -208,7 +343,33 @@ export const resources: ResourceItem[] = [
     subject: "Mathematics",
     category: "Roadmaps",
     preview: "A focused, low-friction plan to finish high-yield calculus chapters with daily problem targets and recap loops.",
-    checklist: ["Limits + continuity", "Differentiation + AOD", "Integration + differential equations"],
+    roadmapChecklist: [
+      {
+        title: "Limits to AOD",
+        subtopics: [
+          { title: "Limits & Continuity", highWeight: true },
+          { title: "Differentiability" },
+          { title: "Application of Derivatives", highWeight: true },
+          { title: "Tangents & Normals" }
+        ]
+      },
+      {
+        title: "Integration",
+        subtopics: [
+          { title: "Indefinite Integration", highWeight: true },
+          { title: "Definite Integration", highWeight: true },
+          { title: "Area Under Curve", highWeight: true }
+        ]
+      },
+      {
+        title: "Differential Equations",
+        subtopics: [
+          { title: "Order & Degree Basics" },
+          { title: "Solution Methods", highWeight: true },
+          { title: "Applications", highWeight: true }
+        ]
+      }
+    ],
     href: "#"
   },
   {
@@ -258,7 +419,32 @@ export const resources: ResourceItem[] = [
     subject: "Physics",
     category: "Roadmaps",
     preview: "A high-intensity roadmap balancing concept refresh, mixed-question sets, and previous-year papers.",
-    checklist: ["Week 1-2: Concept map rebuild", "Week 3-4: Mixed advanced sets", "Week 5-6: Full advanced simulations"],
+    roadmapChecklist: [
+      {
+        title: "Revision Block 1",
+        subtopics: [
+          { title: "Mechanics Revision", highWeight: true },
+          { title: "Electrostatics + Current", highWeight: true },
+          { title: "Magnetism + EMI", highWeight: true }
+        ]
+      },
+      {
+        title: "Revision Block 2",
+        subtopics: [
+          { title: "Thermo + KTG", highWeight: true },
+          { title: "Waves + SHM" },
+          { title: "Optics", highWeight: true }
+        ]
+      },
+      {
+        title: "Revision Block 3",
+        subtopics: [
+          { title: "Modern Physics", highWeight: true },
+          { title: "Error Log Reattempts", highWeight: true },
+          { title: "Full Mixed Mock Tests", highWeight: true }
+        ]
+      }
+    ],
     href: "#"
   },
   {
@@ -268,7 +454,39 @@ export const resources: ResourceItem[] = [
     subject: "Mathematics",
     category: "Roadmaps",
     preview: "A clean algebra completion sequence covering quadratic, complex numbers, and permutations with milestone tests.",
-    checklist: ["Quadratic + sequence base", "Complex + binomial", "PnC + probability + recap test"],
+    roadmapChecklist: [
+      {
+        title: "Algebra Foundation",
+        subtopics: [
+          { title: "Quadratic Equations", highWeight: true },
+          { title: "Sequences & Series", highWeight: true },
+          { title: "Inequalities" }
+        ]
+      },
+      {
+        title: "Complex + Binomial",
+        subtopics: [
+          { title: "Complex Numbers", highWeight: true },
+          { title: "Binomial Theorem", highWeight: true },
+          { title: "De Moivre Basics" }
+        ]
+      },
+      {
+        title: "Counting + Probability",
+        subtopics: [
+          { title: "Permutations & Combinations", highWeight: true },
+          { title: "Probability", highWeight: true }
+        ]
+      },
+      {
+        title: "Matrices & Determinants",
+        subtopics: [
+          { title: "Matrices Basics" },
+          { title: "Determinants", highWeight: true },
+          { title: "Linear Equations", highWeight: true }
+        ]
+      }
+    ],
     href: "#"
   },
   {
@@ -334,7 +552,32 @@ export const resources: ResourceItem[] = [
     category: "Roadmaps",
     preview:
       "A compact roadmap to complete high-yield Physics revision with chapter sequencing and timed practice milestones.",
-    checklist: ["Mechanics + Modern Physics first", "2-day formula revision loops", "Full test after each sprint"],
+    roadmapChecklist: [
+      {
+        title: "Sprint 1",
+        subtopics: [
+          { title: "Kinematics + NLM", highWeight: true },
+          { title: "Work, Energy & Power", highWeight: true },
+          { title: "Rotational Motion", highWeight: true }
+        ]
+      },
+      {
+        title: "Sprint 2",
+        subtopics: [
+          { title: "Electrostatics", highWeight: true },
+          { title: "Current Electricity", highWeight: true },
+          { title: "Magnetism + EMI", highWeight: true }
+        ]
+      },
+      {
+        title: "Sprint 3",
+        subtopics: [
+          { title: "Ray + Wave Optics", highWeight: true },
+          { title: "Modern Physics", highWeight: true },
+          { title: "Semiconductors", highWeight: true }
+        ]
+      }
+    ],
     href: "#"
   },
   {

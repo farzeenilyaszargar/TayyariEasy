@@ -1,17 +1,26 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { StarIcon } from "@/components/ui-icons";
 
 type RoadmapChecklistProps = {
   slug: string;
-  items: string[];
+  sections: RoadmapSection[];
 };
 
 type ChecklistState = Record<string, boolean>;
 
 const buildKey = (slug: string) => `tayyari:roadmap:${slug}`;
 
-export function RoadmapChecklist({ slug, items }: RoadmapChecklistProps) {
+export type RoadmapSection = {
+  title: string;
+  subtopics: Array<{
+    title: string;
+    highWeight?: boolean;
+  }>;
+};
+
+export function RoadmapChecklist({ slug, sections }: RoadmapChecklistProps) {
   const storageKey = useMemo(() => buildKey(slug), [slug]);
   const [state, setState] = useState<ChecklistState>({});
 
@@ -52,18 +61,31 @@ export function RoadmapChecklist({ slug, items }: RoadmapChecklistProps) {
   };
 
   return (
-    <ul className="roadmap-checklist">
-      {items.map((item) => {
-        const checked = Boolean(state[item]);
-        return (
-          <li key={item} className={`roadmap-item ${checked ? "done" : ""}`}>
-            <label className="roadmap-label">
-              <input type="checkbox" checked={checked} onChange={() => toggle(item)} />
-              <span>{item}</span>
-            </label>
-          </li>
-        );
-      })}
-    </ul>
+    <div className="roadmap-checklist">
+      {sections.map((section) => (
+        <section key={section.title} className="roadmap-section">
+          <h3>{section.title}</h3>
+          <ul className="roadmap-subtopics">
+            {section.subtopics.map((subtopic) => {
+              const key = `${section.title}::${subtopic.title}`;
+              const checked = Boolean(state[key]);
+              return (
+                <li key={key} className={`roadmap-item ${checked ? "done" : ""}`}>
+                  <label className="roadmap-label">
+                    <input type="checkbox" checked={checked} onChange={() => toggle(key)} />
+                    <span>{subtopic.title}</span>
+                    {subtopic.highWeight ? (
+                      <span className="roadmap-star" aria-label="High weightage topic">
+                        <StarIcon size={14} />
+                      </span>
+                    ) : null}
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
+    </div>
   );
 }

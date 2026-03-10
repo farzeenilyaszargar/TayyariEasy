@@ -119,7 +119,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
         <section className="card resource-article-body">
           <h2>JEE Main Roadmap Checklist</h2>
           <p className="muted">Check topics as you finish them. Progress is saved automatically.</p>
-          <RoadmapChecklist slug={slug} items={article.checklist ?? []} />
+          <RoadmapChecklist slug={slug} sections={article.roadmapChecklist ?? []} />
         </section>
       ) : (
         <section className="card resource-article-body">
