@@ -6,21 +6,6 @@ export const metadata: Metadata = {
   title: "JEE Mock Tests & Test Series for JEE Main and Advanced",
   description:
     "Attempt JEE Main and JEE Advanced mock tests on Tayyari with subject-wise, topic-wise, and full syllabus test series.",
-  keywords: [
-    "jee mock tests",
-    "jee mock test online",
-    "jee test series",
-    "jee main test series",
-    "jee advanced mock test",
-    "jee main mock tests",
-    "jee advanced mock tests",
-    "chapter wise tests",
-    "subject wise tests",
-    "full syllabus mock test",
-    "physics chemistry maths mock test",
-    "jee practice tests",
-    "tayyari tests"
-  ],
   alternates: {
     canonical: `${siteUrl}/tests`
   },

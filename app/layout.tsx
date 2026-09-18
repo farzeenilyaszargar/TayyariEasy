@@ -31,17 +31,6 @@ export const metadata: Metadata = {
   },
   description:
     "Practice JEE mock tests for JEE Main and JEE Advanced with subject-wise, topic-wise, and full syllabus test series on Tayyari.",
-  keywords: [
-    "jee mock tests",
-    "jee main mock test",
-    "jee advanced mock test",
-    "jee test series",
-    "chapter wise jee tests",
-    "full syllabus jee mock test",
-    "physics chemistry maths mock test",
-    "tayyari",
-    "tayyari jee"
-  ],
   applicationName: "Tayyari",
   category: "education",
   openGraph: {
