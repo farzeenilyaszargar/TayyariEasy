@@ -455,7 +455,6 @@ function MockExamPageContent() {
         <article className="card nta-result-card nta-leaderboard-screen">
           <div className="nta-rank-hero">
             <div>
-              <p className="eyebrow">Post Test Ranking</p>
               <h2>Leaderboard Snapshot: {session.blueprint.name}</h2>
               <p className="muted">
                 Score: {result.score} / {result.maxScore} | Percentile: {result.percentile}

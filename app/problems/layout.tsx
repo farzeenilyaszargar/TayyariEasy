@@ -3,34 +3,26 @@ import type { Metadata } from "next";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in";
 
 export const metadata: Metadata = {
-  title: "AI Doubt Solver for JEE Physics, Chemistry, and Maths",
+  title: "JEE Practice Tests",
   description:
-    "Ask JEE doubts in Physics, Chemistry, and Mathematics. Tayyari AI doubt solver gives concise concept explanations and problem-solving help.",
+    "Practice JEE questions with focused tests and clear score feedback on Tayyari.",
   keywords: [
-    "jee doubt solver",
-    "ai doubt solving for jee",
-    "physics chemistry maths doubts",
     "jee question solving",
-    "jee main doubts",
-    "jee advanced doubts",
-    "jee physics doubts",
-    "jee chemistry doubts",
-    "jee maths doubts",
-    "tayyari ai chatbot"
+    "jee mock tests"
   ],
   alternates: {
     canonical: `${siteUrl}/problems`
   },
   openGraph: {
-    title: "AI Doubt Solver for JEE | Tayyari",
-    description: "Resolve JEE concept and numerical doubts with Tayyari AI for Physics, Chemistry, and Mathematics.",
+    title: "JEE Practice Tests | Tayyari",
+    description: "Practice JEE questions with focused tests and score feedback.",
     url: `${siteUrl}/problems`,
     type: "website"
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Doubt Solver for JEE | Tayyari",
-    description: "Resolve JEE concept and numerical doubts with Tayyari AI for Physics, Chemistry, and Mathematics."
+    title: "JEE Practice Tests | Tayyari",
+    description: "Practice JEE questions with focused tests and score feedback."
   }
 };
 
@@ -38,11 +30,11 @@ export default function ProblemsLayout({ children }: { children: React.ReactNode
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "Tayyari AI Doubt Solver",
+    name: "Tayyari JEE Practice",
     applicationCategory: "EducationalApplication",
     operatingSystem: "Web",
-    url: `${siteUrl}/problems`,
-    description: "AI doubt solving assistant for JEE Main and Advanced preparation."
+    url: `${siteUrl}/tests`,
+    description: "Focused JEE practice and test preparation."
   };
 
   return (

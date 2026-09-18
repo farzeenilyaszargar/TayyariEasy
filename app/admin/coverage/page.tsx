@@ -2,7 +2,6 @@ export default function AdminCoveragePage() {
   return (
     <section className="page">
       <div className="page-head">
-        <p className="eyebrow">Admin</p>
         <h1>Coverage Heatmap (V1)</h1>
       </div>
       <article className="card">

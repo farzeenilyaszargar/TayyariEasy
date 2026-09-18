@@ -21,7 +21,6 @@ type UserState = {
 type AuthContextType = {
   isLoggedIn: boolean;
   user: UserState;
-  login: () => void;
   logout: () => Promise<void> | void;
   refreshUser: () => Promise<void> | void;
 };
@@ -71,7 +70,6 @@ function resolveAvatarFromSupabaseUser(supabaseUser: SupabaseUser) {
 const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
   user: defaultUser,
-  login: () => undefined,
   logout: () => undefined,
   refreshUser: () => undefined
 });
@@ -155,10 +153,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [hydrateUser]);
 
-  const login = () => {
-    window.location.assign("/login");
-  };
-
   const logout = async () => {
     const session = getStoredSession();
     if (session) {
@@ -174,7 +168,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       isLoggedIn,
       user,
-      login,
       logout,
       refreshUser: hydrateUser
     }),

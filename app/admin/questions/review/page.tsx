@@ -53,7 +53,6 @@ export default function AdminQuestionReviewPage() {
   return (
     <section className="page">
       <div className="page-head">
-        <p className="eyebrow">Admin</p>
         <h1>Question Review Queue</h1>
       </div>
 
@@ -97,9 +96,7 @@ export default function AdminQuestionReviewPage() {
         {!loading && items.length === 0 ? <article className="card">No queue items found.</article> : null}
         {items.map((item) => (
           <article key={item.id} className="card">
-            <p className="eyebrow">
-              {item.question_bank?.subject} • {item.question_bank?.topic}
-            </p>
+            <p className="muted">{item.question_bank?.subject} • {item.question_bank?.topic}</p>
             <h3>{item.question_bank?.stem_markdown?.slice(0, 120) || "Question"}</h3>
             <p className="muted">
               Difficulty: {item.question_bank?.difficulty} | Quality: {item.question_bank?.quality_score} | Priority: {item.priority}

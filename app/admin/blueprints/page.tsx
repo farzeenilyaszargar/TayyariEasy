@@ -37,7 +37,6 @@ export default function AdminBlueprintsPage() {
   return (
     <section className="page">
       <div className="page-head">
-        <p className="eyebrow">Admin</p>
         <h1>Blueprint Coverage</h1>
       </div>
       <article className="card">

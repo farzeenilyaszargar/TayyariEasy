@@ -194,6 +194,24 @@ export function UserIcon(props: IconProps) {
   );
 }
 
+export function SettingsIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" />
+      <circle cx="12" cy="12" r="4" />
+    </BaseIcon>
+  );
+}
+
+export function LogOutIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M14 4h5v16h-5" />
+      <path d="M3 12h11M10 8l4 4-4 4" />
+    </BaseIcon>
+  );
+}
+
 export function MicIcon(props: IconProps) {
   return (
     <BaseIcon {...props}>

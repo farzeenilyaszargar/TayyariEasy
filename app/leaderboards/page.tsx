@@ -38,7 +38,6 @@ export default function LeaderboardsPage() {
   return (
     <section className="page leaderboard-page">
       <div className="page-head">
-        <p className="eyebrow">Leaderboards</p>
         <h1>Compete Through Consistent Performance</h1>
       </div>
 
@@ -47,7 +46,6 @@ export default function LeaderboardsPage() {
 
       <section className="card podium-wrap shiny-card">
         <div className="section-head">
-          <p className="eyebrow">Top Performers</p>
           <h2>Weekly Podium</h2>
         </div>
         {topThree.length === 3 ? (

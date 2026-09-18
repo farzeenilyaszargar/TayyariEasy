@@ -42,8 +42,7 @@ export function SiteFooter() {
         <div className="footer-links">
           <h4>Platform</h4>
           <Link href="/tests">Tests</Link>
-          <Link href="/problems">Doubts</Link>
-          <Link href="/resources">Resources</Link>
+          <Link href="/home">Dashboard</Link>
           <Link href="/leaderboards">Leaderboards</Link>
         </div>
         <div className="footer-links">

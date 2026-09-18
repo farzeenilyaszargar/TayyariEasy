@@ -2,7 +2,6 @@ export default function AdminIngestionPage() {
   return (
     <section className="page">
       <div className="page-head">
-        <p className="eyebrow">Admin</p>
         <h1>Ingestion Operations</h1>
       </div>
       <article className="card">

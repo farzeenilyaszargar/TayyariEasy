@@ -44,7 +44,6 @@ export default function ResourcesPage() {
   return (
     <section className="page resources-page">
       <div className="page-head">
-        <p className="eyebrow">Resources</p>
         <h1>Roadmaps, Strategies, and Books</h1>
       </div>
 

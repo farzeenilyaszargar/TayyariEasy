@@ -1,12 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, StarIcon } from "@/components/ui-icons";
-import { useAuth } from "@/components/auth-provider";
 import { fetchTestsCatalog, type TestBlueprintRow } from "@/lib/supabase-db";
-
-const GUEST_FREE_TEST_KEY = "tayyari-guest-free-test-used-v1";
 
 type TagTone = "physics" | "chemistry" | "mathematics" | "neutral";
 
@@ -72,11 +68,9 @@ function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlue
 }
 
 export default function TestsPage() {
-  const router = useRouter();
-  const { isLoggedIn } = useAuth();
   const [query, setQuery] = useState("");
   const [catalog, setCatalog] = useState<TestBlueprintRow[]>([]);
-  const [loadingCatalog, setLoadingCatalog] = useState(true);
+  const [, setLoadingCatalog] = useState(true);
   const [catalogError, setCatalogError] = useState("");
   const [launchingId, setLaunchingId] = useState("");
   const [subjectStart, setSubjectStart] = useState(0);
@@ -131,21 +125,9 @@ export default function TestsPage() {
   );
 
   const startTest = async (blueprintId: string) => {
-    if (!isLoggedIn) {
-      const freeTestUsed = window.localStorage.getItem(GUEST_FREE_TEST_KEY) === "1";
-      if (freeTestUsed) {
-        setCatalogError("Free guest test already used. Please sign in to continue with unlimited tests.");
-        router.push("/login");
-        return;
-      }
-    }
-
     setLaunchingId(blueprintId);
     setCatalogError("");
     try {
-      if (!isLoggedIn) {
-        window.localStorage.setItem(GUEST_FREE_TEST_KEY, "1");
-      }
       window.location.assign(`/tests/mock?blueprint=${encodeURIComponent(blueprintId)}`);
     } catch (error) {
       setCatalogError(error instanceof Error ? error.message : "Failed to launch test.");
@@ -157,25 +139,20 @@ export default function TestsPage() {
   return (
     <section className="page tests-page-v2">
       <div className="page-head">
-        <p className="eyebrow">Tests</p>
-        <h1>Subject-wise, Topic-wise, and All India Mock Tests</h1>
+        <h1>JEE Test Series</h1>
+        <p className="muted tests-lead">Choose the right level of practice, attempt with focus, and use every test to sharpen your next revision.</p>
       </div>
 
-      <div className="search-row card tests-search-box">
-        <div className="search-input-wrap">
-          <SearchIcon size={17} />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search tests by topic, subject, or mock name" />
-        </div>
-      </div>
-
-      {loadingCatalog ? <article className="card">Loading test catalog...</article> : null}
-      {catalogError ? <article className="card">{catalogError}</article> : null}
+      <label className="search-input-wrap tests-search" htmlFor="test-search">
+        <SearchIcon size={17} />
+        <input id="test-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by subject, topic, or test name" />
+      </label>
 
       <div className="tests-layout-v3">
         <div className="tests-top-row">
           <section className="card test-section-card tests-half-panel">
             <div className="section-head tests-section-head-row">
-              <h2>Subject-wise Tests</h2>
+              <h2>Subject tests</h2>
               <div className="resource-slider-controls">
                 <button
                   type="button"
@@ -207,7 +184,7 @@ export default function TestsPage() {
 
           <aside className="card test-section-card tests-half-panel">
             <div className="section-head tests-section-head-row">
-              <h2>Full Syllabus All India Tests</h2>
+              <h2>Full syllabus tests</h2>
               <div className="resource-slider-controls">
                 <button
                   type="button"
@@ -240,7 +217,7 @@ export default function TestsPage() {
 
         <section className="card test-section-card tests-bottom-full">
           <div className="section-head">
-            <h2>Topic-wise Test Series</h2>
+            <h2>Topic tests</h2>
           </div>
           <div className="tests-card-grid tests-card-grid-topic">
             {topicTests.map((test) => (

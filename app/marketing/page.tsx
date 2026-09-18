@@ -77,7 +77,6 @@ export default function MarketingPage() {
   return (
     <section className="page marketing-page">
       <div className="page-head">
-        <p className="eyebrow">Platform Overview</p>
         <h1>One Focused Workspace for JEE Preparation</h1>
         <p className="hero-copy">
           Built to convert daily effort into measurable performance, with a modern prep experience students actually
@@ -133,7 +132,6 @@ export default function MarketingPage() {
 
       <section className="reviews-section">
         <div className="section-head">
-          <p className="eyebrow">Student Reviews</p>
           <h2>Trusted by Serious Aspirants</h2>
         </div>
         <ReviewSlider reviews={reviews} />

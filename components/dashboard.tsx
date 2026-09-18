@@ -444,7 +444,6 @@ export function Dashboard() {
           <div>
             <div className="profile-head-row">
               <div>
-                <p className="eyebrow">Welcome Back</p>
                 <h3>{data.profile?.full_name || user.name}</h3>
               </div>
               <button
@@ -496,7 +495,6 @@ export function Dashboard() {
       <div className="dashboard-columns">
         <div className="dashboard-col">
           <section className="card stat-card stat-rank stat-serious">
-            <p className="eyebrow">AIR Forecast Range</p>
             <h2>{rankDisplay}</h2>
             <p className="muted">
               {forecast
@@ -620,7 +618,6 @@ export function Dashboard() {
 
         <div className="dashboard-col">
           <section className="card stat-card stat-score stat-serious">
-            <p className="eyebrow">Score Forecast Range</p>
             <h2>{scoreDisplay}</h2>
             {forecast ? (
               <div className="forecast-stats-row">

@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Sora, Fraunces, Outfit } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
-import { AuthProvider } from "@/components/auth-provider";
-import { SiteFooter } from "@/components/site-footer";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in";
 
@@ -32,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s | Tayyari"
   },
   description:
-    "Tayyari is a JEE preparation platform for JEE Main and Advanced with mock tests, rank prediction engine, AI doubt solving, and chapter-wise resources.",
+    "Tayyari is a focused JEE preparation platform with mock tests, rank prediction, score analytics, and chapter-wise resources.",
   keywords: [
     "jee preparation",
     "jee preparation platform",
@@ -47,21 +45,21 @@ export const metadata: Metadata = {
     "tayyari",
     "tayyari jee",
     "jee test series",
-    "ai doubt solver for jee"
+    "jee score analytics"
   ],
   applicationName: "Tayyari",
   category: "education",
   openGraph: {
     title: "Tayyari | JEE Preparation with Mock Tests and Rank Prediction",
     description:
-      "Prepare for JEE Main and Advanced with high-quality mock tests, rank prediction engine, analytics, and AI doubt solving.",
+      "Prepare for JEE Main and Advanced with high-quality mock tests, rank prediction, and focused analytics.",
     url: "/",
     siteName: "Tayyari",
     locale: "en_IN",
     type: "website",
     images: [
       {
-        url: "/logo.png",
+        url: "/tayyari-logo.png",
         width: 1200,
         height: 630,
         alt: "Tayyari"
@@ -71,8 +69,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Tayyari | JEE Preparation, Mock Tests, Rank Prediction",
-    description: "JEE Main and Advanced preparation with mock tests, rank prediction engine, and AI doubt solving.",
-    images: ["/logo.png"]
+    description: "JEE Main and Advanced preparation with mock tests, rank prediction, and focused analytics.",
+    images: ["/tayyari-logo.png"]
   },
   robots: {
     index: true,
@@ -86,9 +84,9 @@ export const metadata: Metadata = {
     }
   },
   icons: {
-    icon: [{ url: "/logo.ico" }],
-    shortcut: [{ url: "/logo.ico" }],
-    apple: [{ url: "/logo.png" }]
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    shortcut: [{ url: "/favicon.png", type: "image/png" }],
+    apple: [{ url: "/tayyari-logo.png" }]
   },
   manifest: "/site.webmanifest"
 };
@@ -115,22 +113,19 @@ export default function RootLayout({
     "@type": "Organization",
     name: "Tayyari",
     url: siteUrl,
-    logo: `${siteUrl}/logo.png`
+    logo: `${siteUrl}/tayyari-logo.png`
   };
 
   return (
-    <html lang="en">
+    <html lang="en" data-theme="light">
       <body className={`${sora.variable} ${fraunces.variable} ${outfit.variable}`}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData) }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationStructuredData) }}
         />
-        <AuthProvider>
-          <Navbar />
-          <main className="container">{children}</main>
-          <SiteFooter />
-        </AuthProvider>
+        <Navbar />
+        <main className="container">{children}</main>
       </body>
     </html>
   );
