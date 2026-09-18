@@ -2842,6 +2842,53 @@ button.subject-tag {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.tests-seo-content {
+  max-width: 860px;
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid #e5e7ea;
+}
+
+.tests-seo-content h2 {
+  font-size: clamp(1.6rem, 2.5vw, 2.15rem);
+  letter-spacing: -0.04em;
+}
+
+.tests-seo-content > p {
+  max-width: 78ch;
+  margin-top: 14px;
+  color: #606872;
+  line-height: 1.72;
+}
+
+.tests-faq-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.tests-faq-grid details {
+  border-top: 1px solid #e5e7ea;
+  padding: 16px 0;
+}
+
+.tests-faq-grid details:last-child {
+  border-bottom: 1px solid #e5e7ea;
+}
+
+.tests-faq-grid summary {
+  color: #242930;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.tests-faq-grid details p {
+  max-width: 75ch;
+  margin-top: 10px;
+  color: #69727c;
+  font-size: 0.9rem;
+}
+
 .tests-card-grid-full {
   grid-template-columns: 1fr;
 }

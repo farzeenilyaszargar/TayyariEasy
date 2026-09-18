@@ -26,33 +26,28 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Tayyari | JEE Preparation, Mock Tests, Rank Prediction",
+    default: "JEE Mock Tests for JEE Main & Advanced | Tayyari",
     template: "%s | Tayyari"
   },
   description:
-    "Tayyari is a focused JEE preparation platform with mock tests, rank prediction, score analytics, and chapter-wise resources.",
+    "Practice JEE mock tests for JEE Main and JEE Advanced with subject-wise, topic-wise, and full syllabus test series on Tayyari.",
   keywords: [
-    "jee preparation",
-    "jee preparation platform",
     "jee mock tests",
     "jee main mock test",
-    "jee advanced preparation",
-    "jee rank prediction",
-    "jee rank predictor",
-    "jee study materials",
-    "jee materials",
-    "jee matrials",
-    "tayyari",
-    "tayyari jee",
+    "jee advanced mock test",
     "jee test series",
-    "jee score analytics"
+    "chapter wise jee tests",
+    "full syllabus jee mock test",
+    "physics chemistry maths mock test",
+    "tayyari",
+    "tayyari jee"
   ],
   applicationName: "Tayyari",
   category: "education",
   openGraph: {
-    title: "Tayyari | JEE Preparation with Mock Tests and Rank Prediction",
+    title: "JEE Mock Tests for JEE Main & Advanced | Tayyari",
     description:
-      "Prepare for JEE Main and Advanced with high-quality mock tests, rank prediction, and focused analytics.",
+      "Practice JEE Main and JEE Advanced with focused mock tests, test series, and score analytics.",
     url: "/",
     siteName: "Tayyari",
     locale: "en_IN",
@@ -68,8 +63,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tayyari | JEE Preparation, Mock Tests, Rank Prediction",
-    description: "JEE Main and Advanced preparation with mock tests, rank prediction, and focused analytics.",
+    title: "JEE Mock Tests for JEE Main & Advanced | Tayyari",
+    description: "JEE Main and JEE Advanced mock tests, test series, and score analytics.",
     images: ["/tayyari-logo.png"]
   },
   robots: {

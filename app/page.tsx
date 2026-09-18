@@ -6,8 +6,8 @@ export default function Page() {
       <div className="landing-layout">
         <div className="landing-copy">
           <div className="trust-badge"><span>+3,642</span> Students Using Tayyari</div>
-          <h1>Do you prep, or do you just study?</h1>
-          <p>Build a sharper preparation routine with focused practice, honest progress, and a clear next step.</p>
+          <h1>JEE mock tests that make your preparation clearer.</h1>
+          <p>Practice for JEE Main and JEE Advanced with focused tests, honest score feedback, and a clear next step.</p>
           <Link href="/tests" className="btn btn-solid main-app-button">
             Main app
           </Link>

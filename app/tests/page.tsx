@@ -227,6 +227,32 @@ export default function TestsPage() {
           </div>
         </section>
       </div>
+
+      <section className="tests-seo-content" aria-labelledby="tests-guide-heading">
+        <h2 id="tests-guide-heading">JEE mock tests for focused preparation</h2>
+        <p>
+          Tayyari brings JEE Main and JEE Advanced mock tests into one structured test series. Start with a subject test,
+          narrow your practice to a topic, or attempt a full syllabus paper when you are ready for exam-level pressure.
+        </p>
+        <p>
+          Every test is designed to make your next revision decision clearer. Use subject-wise tests to find weak areas,
+          topic tests to close specific gaps, and full syllabus mock tests to practise time management and exam strategy.
+        </p>
+        <div className="tests-faq-grid">
+          <details>
+            <summary>What types of JEE mock tests are available?</summary>
+            <p>You can practise with subject-wise, topic-wise, and full syllabus tests for JEE Main and JEE Advanced preparation.</p>
+          </details>
+          <details>
+            <summary>Are these JEE mock tests useful for JEE Main?</summary>
+            <p>Yes. Use focused subject and topic tests for revision, then move to full syllabus mocks for timed exam practice.</p>
+          </details>
+          <details>
+            <summary>How should I use a JEE test series?</summary>
+            <p>Attempt consistently, review the result, record your mistakes, and choose the next test based on the weakest area.</p>
+          </details>
+        </div>
+      </section>
     </section>
   );
 }
