@@ -6351,28 +6351,6 @@ html[data-theme="dark"] .test-chip.neutral {
   color: #ffffff;
 }
 
-.exam-mode-nta .nta-download-label {
-  margin-left: auto;
-  color: #ffffff;
-  font-size: 0.72rem;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.exam-mode-nta .nta-download-btn {
-  flex: 0 0 auto;
-  min-width: 170px;
-  border: 0;
-  border-radius: 0;
-  padding: 11px 18px;
-  background: #397db5;
-  color: #ffffff;
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
 .exam-mode-nta .nta-lang-wrap {
   flex: 0 0 164px;
   margin-left: 8px;
@@ -6565,10 +6543,6 @@ html[data-theme="dark"] .test-chip.neutral {
 
   .exam-mode-nta .nta-subject-row {
     flex-wrap: wrap;
-  }
-
-  .exam-mode-nta .nta-download-label {
-    margin-left: 0;
   }
 
   .exam-mode-nta .nta-lang-wrap {

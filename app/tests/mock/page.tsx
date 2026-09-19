@@ -680,8 +680,6 @@ function MockExamPageContent() {
                   {normalizeSubject(item.subject).toUpperCase()}
                 </button>
               ))}
-              <span className="nta-download-label">DOWNLOAD PAPER IN:</span>
-              <button type="button" className="nta-download-btn">↓ DOWNLOAD</button>
             </>
           ) : null}
           <div className="nta-lang-wrap">
