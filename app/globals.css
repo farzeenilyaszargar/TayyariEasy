@@ -6567,3 +6567,9 @@ html[data-theme="dark"] .test-chip.neutral {
     width: 100%;
   }
 }
+
+/* NTA mode uses the same Arial system throughout, including question content. */
+.exam-mode-nta,
+.exam-mode-nta * {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
