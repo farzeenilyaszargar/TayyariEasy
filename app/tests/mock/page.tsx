@@ -631,10 +631,12 @@ function MockExamPageContent() {
           <div className="nta-brand">
             <div className="exam-brand-lockup">
               <Image src="/tayyari-logo.png" alt="Tayyari" width={42} height={42} priority />
-              <div>
-                <strong>{uiMode === "nta" ? "JEE Main" : "Tayyari"}</strong>
-                <small>{uiMode === "nta" ? "Computer based test" : "Focused practice"}</small>
-              </div>
+              {uiMode === "sleek" ? (
+                <div>
+                  <strong>Tayyari</strong>
+                  <small>Focused practice</small>
+                </div>
+              ) : null}
             </div>
           </div>
           <div className="nta-candidate">
