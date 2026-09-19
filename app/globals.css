@@ -6589,10 +6589,25 @@ html[data-theme="dark"] .test-chip.neutral {
 
 .exam-mode-nta .nta-qbtn.not_answered {
   clip-path: polygon(0 0, 82% 0, 100% 100%, 0 100%);
-  border: 1px solid #e84a17;
+  border: 0;
   border-radius: 0;
   background: #e84a17;
   color: #ffffff;
+}
+
+.exam-mode-nta .nta-qbtn {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+}
+
+.exam-mode-nta .nta-qbtn:focus,
+.exam-mode-nta .nta-qbtn:focus-visible,
+.exam-mode-nta .nta-qbtn.active {
+  outline: none;
+  box-shadow: none;
 }
 
 @media (max-width: 520px) {
