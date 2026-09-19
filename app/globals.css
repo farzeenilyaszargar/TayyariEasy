@@ -4944,3 +4944,153 @@ html[data-theme="dark"] .test-chip.neutral {
     width: 96vw;
   }
 }
+
+/* Keep the sleek exam view contained at every viewport width. */
+.exam-mode-sleek {
+  overflow-x: hidden;
+}
+
+.exam-mode-sleek .nta-shell,
+.exam-mode-sleek .nta-brand,
+.exam-mode-sleek .nta-candidate,
+.exam-mode-sleek .nta-main,
+.exam-mode-sleek .nta-question-card,
+.exam-mode-sleek .nta-sidebar,
+.exam-mode-sleek .nta-question-body {
+  min-width: 0;
+}
+
+.exam-mode-sleek .nta-shell {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.exam-mode-sleek .nta-topbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 360px) auto;
+  align-items: center;
+}
+
+.exam-mode-sleek .nta-candidate {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
+}
+
+.exam-mode-sleek .nta-candidate p {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exam-mode-sleek .nta-main {
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+}
+
+.exam-mode-sleek .nta-question-head {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.exam-mode-sleek .nta-question-head .muted {
+  min-width: 0;
+  margin-left: auto;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.exam-mode-sleek .nta-question-body {
+  overflow: hidden;
+}
+
+.exam-mode-sleek .nta-question-body p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.exam-mode-sleek .nta-actions-top {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.exam-mode-sleek .nta-actions-top .btn {
+  width: 100%;
+  min-width: 0;
+  white-space: normal;
+}
+
+.exam-mode-sleek .nta-actions-bottom {
+  flex-wrap: wrap;
+}
+
+.exam-mode-sleek .nta-actions-bottom .btn {
+  min-width: 0;
+}
+
+@media (max-width: 960px) {
+  .exam-mode-sleek .nta-topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .exam-mode-sleek .nta-candidate {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .exam-mode-sleek .nta-main {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-mode-sleek .nta-sidebar {
+    order: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .exam-mode-sleek .nta-shell {
+    width: 100%;
+    padding: 10px 0 20px;
+  }
+
+  .exam-mode-sleek .nta-topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .exam-mode-sleek .nta-brand strong {
+    font-size: 1.05rem;
+  }
+
+  .exam-mode-sleek .nta-brand small {
+    font-size: 0.78rem;
+  }
+
+  .exam-mode-sleek .nta-candidate {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .exam-mode-sleek .nta-candidate p {
+    border-left: 0;
+    padding-left: 0;
+    white-space: normal;
+  }
+
+  .exam-mode-sleek .nta-question-head .muted {
+    width: 100%;
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .exam-mode-sleek .nta-actions-top {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-mode-sleek .nta-actions-bottom .nta-submit-btn {
+    width: 100%;
+    margin-left: 0;
+  }
+}
