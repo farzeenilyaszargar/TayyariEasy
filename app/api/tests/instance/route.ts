@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchOptionsForQuestions } from "@/lib/test-engine";
 import { supabaseRest } from "@/lib/supabase-server";
+import { getLocalTestInstance, LOCAL_TEST_ID } from "@/lib/local-test";
 
 export async function GET(request: NextRequest) {
   try {
     const testInstanceId = new URL(request.url).searchParams.get("testInstanceId")?.trim();
     if (!testInstanceId) {
       return NextResponse.json({ error: "testInstanceId is required." }, { status: 400 });
+    }
+
+    if (testInstanceId === LOCAL_TEST_ID) {
+      return NextResponse.json(getLocalTestInstance());
     }
 
     const instanceRows = await supabaseRest<Array<{ id: string; blueprint_id: string }>>(

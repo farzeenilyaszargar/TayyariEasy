@@ -6,6 +6,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { TrophyIcon, TrendIcon } from "@/components/ui-icons";
 import { useAuth } from "@/components/auth-provider";
 import { fetchTestInstanceById, launchBlueprintTest, submitBlueprintTest, type TestInstanceRow } from "@/lib/supabase-db";
+import { LOCAL_TEST_ID } from "@/lib/local-test";
 
 type ExamSession = TestInstanceRow & { launchedAt: number };
 
@@ -384,11 +385,24 @@ function MockExamPageContent() {
         }
       }
 
-      const res = await submitBlueprintTest({
-        testInstanceId: session.testInstanceId,
-        answers: payload,
-        timeTakenSeconds: session.blueprint.durationMinutes * 60 - remainingSec
-      });
+      const res = session.testInstanceId === LOCAL_TEST_ID
+        ? {
+            score: 0,
+            maxScore: session.questions.length * 4,
+            earnedPoints: 0,
+            percentile: 0,
+            correctCount: 0,
+            attemptedCount: Object.keys(payload).length,
+            totalQuestions: session.questions.length,
+            savedToCloud: false,
+            topicBreakdown: [{ topic: "Unclassified", attempted: Object.keys(payload).length, correct: 0, accuracy: 0 }],
+            difficultyBreakdown: [{ difficulty: "medium", attempted: Object.keys(payload).length, correct: 0, accuracy: 0 }]
+          }
+        : await submitBlueprintTest({
+            testInstanceId: session.testInstanceId,
+            answers: payload,
+            timeTakenSeconds: session.blueprint.durationMinutes * 60 - remainingSec
+          });
 
       const currentAttempt: LocalAttempt = {
         id: makeAttemptId(),

@@ -7,6 +7,7 @@ import {
   pickQuestionsForBlueprint,
   type TestBlueprintRow
 } from "@/lib/test-engine";
+import { getLocalTestInstance, LOCAL_TEST_ID } from "@/lib/local-test";
 import { supabaseRest } from "@/lib/supabase-server";
 
 type LaunchBody = {
@@ -15,14 +16,18 @@ type LaunchBody = {
 
 export async function POST(request: NextRequest) {
   try {
-    await ensureDefaultBlueprints();
-
     const body = (await request.json()) as LaunchBody;
     const blueprintId = body.blueprintId?.trim();
 
     if (!blueprintId) {
       return NextResponse.json({ error: "blueprintId is required." }, { status: 400 });
     }
+
+    if (blueprintId === LOCAL_TEST_ID) {
+      return NextResponse.json(getLocalTestInstance());
+    }
+
+    await ensureDefaultBlueprints();
 
     const rows = await supabaseRest<Array<Omit<TestBlueprintRow, "distribution"> & { distribution: unknown }>>(
       `test_blueprints?select=id,name,scope,subject,topic,question_count,distribution,duration_minutes,negative_marking,is_active&id=eq.${blueprintId}&is_active=eq.true&limit=1`,
