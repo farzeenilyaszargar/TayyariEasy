@@ -73,6 +73,7 @@ export default function LeaderboardsPage() {
       </section>
       </aside>
 
+      <main className="leaderboard-main-column">
       <section className="card podium-wrap shiny-card">
         <div className="section-head">
           <div>
@@ -173,6 +174,7 @@ export default function LeaderboardsPage() {
           })}
         </div>
       </article>
+      </main>
     </section>
   );
 }

@@ -7863,6 +7863,25 @@ html[data-theme="dark"] .test-chip.neutral {
 }
 
 @media (min-width: 961px) {
+  .leaderboard-page > .leaderboard-main-column {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+    min-width: 0;
+    display: grid;
+    gap: 26px;
+  }
+
+  .leaderboard-main-column .podium-wrap,
+  .leaderboard-main-column .leaderboard-table-heading,
+  .leaderboard-main-column .leaderboard-table-wrap {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+@media (min-width: 961px) {
   .leaderboard-page > .leaderboard-missions {
     grid-column: 2;
     grid-row: 3;
