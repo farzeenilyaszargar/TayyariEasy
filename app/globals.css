@@ -1337,9 +1337,18 @@ a {
     flex-direction: column;
   }
 
-  .leaderboard-page .leaderboard-mission-grid {
+.leaderboard-page .leaderboard-mission-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Final reference orientation: symmetric trapezoid rotated 180°. */
+.exam-mode-nta .nta-chip.not-answered,
+.exam-mode-nta .nta-chip.answered,
+.exam-mode-nta .nta-qbtn.not-answered,
+.exam-mode-nta .nta-qbtn.answered,
+.exam-mode-nta .nta-qbtn.not_answered {
+  clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%);
 }
 
 @media (min-width: 961px) {
