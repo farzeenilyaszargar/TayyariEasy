@@ -6568,6 +6568,26 @@ html[data-theme="dark"] .test-chip.neutral {
   }
 }
 
+.exam-mode-nta .nta-status-legend {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 16px;
+  row-gap: 10px;
+}
+
+.exam-mode-nta .nta-status-row:last-child {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 520px) {
+  .exam-mode-nta .nta-status-legend {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-mode-nta .nta-status-row:last-child {
+    grid-column: auto;
+  }
+}
+
 /* NTA mode uses the same Arial system throughout, including question content. */
 .exam-mode-nta,
 .exam-mode-nta * {
