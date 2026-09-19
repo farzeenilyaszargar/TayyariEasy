@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Page() {
@@ -12,7 +13,15 @@ export default function Page() {
             Main app
           </Link>
         </div>
-        <div className="hero-demo-placeholder" aria-label="Demo video placeholder" />
+        <div className="hero-test-preview">
+          <Image
+            src="/jee-test-preview.png"
+            alt="Tayyari JEE mock test interface preview"
+            width={2592}
+            height={1494}
+            priority
+          />
+        </div>
       </div>
     </section>
   );
