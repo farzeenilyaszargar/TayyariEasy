@@ -595,19 +595,24 @@ function MockExamPageContent() {
             <strong>TAYYARI MOCK TEST</strong>
             <small>{uiMode === "nta" ? "NTA-style exam interface" : "Focused practice, designed for clarity"}</small>
           </div>
-          <div className="exam-mode-toggle" role="group" aria-label="Test interface style">
-            <span className="exam-mode-label">Interface</span>
-            <button type="button" className={`test-mode-btn ${uiMode === "sleek" ? "active" : ""}`} onClick={() => changeUiMode("sleek")}>
-              Sleek
-            </button>
-            <button type="button" className={`test-mode-btn ${uiMode === "nta" ? "active" : ""}`} onClick={() => changeUiMode("nta")}>
-              NTA style
-            </button>
-          </div>
           <div className="nta-candidate">
             <p>Candidate: <strong>{user.name || "Aspirant"}</strong></p>
             <p>Test: <strong>{session.blueprint.name}</strong></p>
             <p>Remaining Time: <strong>{formatTime(remainingSec)}</strong></p>
+          </div>
+          <div className="exam-mode-control">
+            <span className="exam-mode-caption">{uiMode === "nta" ? "NTA" : "Sleek"}</span>
+            <button
+              type="button"
+              className={`test-mode-switch ${uiMode === "nta" ? "is-nta" : ""}`}
+              role="switch"
+              aria-checked={uiMode === "nta"}
+              aria-label="Toggle NTA-style interface"
+              title="Toggle NTA-style interface"
+              onClick={() => changeUiMode(uiMode === "nta" ? "sleek" : "nta")}
+            >
+              <span className="test-mode-switch-knob" />
+            </button>
           </div>
         </header>
 
