@@ -20,7 +20,6 @@ export default function LeaderboardsPage() {
   return (
     <section className="page leaderboard-page">
       <div className="page-head">
-        <p className="result-eyebrow">Weekly leaderboard</p>
         <h1>See how consistent preparation adds up.</h1>
         <p className="muted">Build your streak, improve your score, and move up the Tayyari rankings.</p>
       </div>
