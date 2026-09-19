@@ -1310,6 +1310,21 @@ a {
   }
 }
 
+.exam-mode-nta .nta-chip.not-answered,
+.exam-mode-nta .nta-qbtn.not-answered,
+.exam-mode-nta .nta-qbtn.not_answered {
+  background: #FC2F00;
+  border-color: #FC2F00;
+}
+
+.exam-mode-nta .nta-chip.answered,
+.exam-mode-nta .nta-qbtn.answered,
+.exam-mode-nta .nta-btn-save,
+.exam-mode-nta .nta-submit-btn {
+  background: #00B600;
+  border-color: #00B600;
+}
+
 @media (min-width: 961px) {
   .leaderboard-page > .leaderboard-missions {
     grid-column: 2;
