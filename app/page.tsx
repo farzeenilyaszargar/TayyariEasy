@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ChevronRightIcon } from "@/components/ui-icons";
 
 export default function Page() {
   return (
@@ -9,8 +10,9 @@ export default function Page() {
           <div className="trust-badge"><span>+3,642</span> Students Using Tayyari</div>
           <h1>JEE mock tests that make your preparation clearer.</h1>
           <p>Practice for JEE Main and JEE Advanced with focused tests, honest score feedback, and a clear next step.</p>
-          <Link href="/tests" className="btn btn-solid main-app-button">
-            Main app
+          <Link href="/tests" className="btn btn-solid main-app-button hero-cta">
+            Give a mock test now
+            <ChevronRightIcon size={18} className="hero-cta-arrow" />
           </Link>
         </div>
         <div className="hero-test-preview">

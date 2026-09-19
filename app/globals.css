@@ -309,6 +309,15 @@ a {
   justify-content: center;
 }
 
+.hero-cta-arrow {
+  transition: transform 180ms ease;
+}
+
+.hero-cta:hover .hero-cta-arrow,
+.hero-cta:focus-visible .hero-cta-arrow {
+  transform: translateX(4px);
+}
+
 .hero-demo-placeholder {
   width: 100%;
   aspect-ratio: 4 / 3;
