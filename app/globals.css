@@ -1310,6 +1310,98 @@ a {
   }
 }
 
+@media (min-width: 961px) {
+  .leaderboard-page > .leaderboard-missions {
+    grid-column: 2;
+    grid-row: 4 / span 2;
+    width: 100%;
+    margin: 0;
+    position: sticky;
+    top: 78px;
+  }
+
+  .leaderboard-page > .leaderboard-badges,
+  .leaderboard-page > .podium-wrap,
+  .leaderboard-page > .leaderboard-table-heading,
+  .leaderboard-page > .leaderboard-table-wrap {
+    grid-column: 1;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .leaderboard-page .leaderboard-missions .leaderboard-subhead {
+    max-width: none;
+    margin: 0 0 14px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .leaderboard-page .leaderboard-mission-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 961px) {
+  .leaderboard-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    column-gap: 24px;
+    align-items: start;
+  }
+
+  .leaderboard-page > .page-head,
+  .leaderboard-page > .leaderboard-demo-note,
+  .leaderboard-page > .leaderboard-climb-card {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .leaderboard-page > .leaderboard-missions {
+    grid-column: 2;
+    grid-row: 4 / span 2;
+    width: 100%;
+    margin: 0;
+    position: sticky;
+    top: 78px;
+  }
+
+  .leaderboard-page > .leaderboard-badges,
+  .leaderboard-page > .podium-wrap,
+  .leaderboard-page > .leaderboard-table-heading,
+  .leaderboard-page > .leaderboard-table-wrap {
+    grid-column: 1;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .leaderboard-page > .leaderboard-badges {
+    grid-row: 4;
+  }
+
+  .leaderboard-page > .podium-wrap {
+    grid-row: 5;
+  }
+
+  .leaderboard-page > .leaderboard-table-heading {
+    grid-row: 6;
+  }
+
+  .leaderboard-page > .leaderboard-table-wrap {
+    grid-row: 7;
+  }
+
+  .leaderboard-page .leaderboard-mission-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .leaderboard-page .leaderboard-subhead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 /* Leaderboard preview styling */
 .leaderboard-page .page-head {
   display: grid;
