@@ -1641,6 +1641,119 @@ a {
   }
 }
 
+/* Test series layout: one clear starting point, followed by optional practice layers. */
+.tests-page-v2 .page-head {
+  margin-bottom: 22px;
+}
+
+.tests-page-v2 .tests-lead {
+  max-width: 700px;
+}
+
+.tests-page-v2 .tests-search {
+  width: min(100%, 560px);
+  margin-bottom: 16px;
+}
+
+.tests-availability-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.tests-availability-strip span {
+  padding: 9px 13px;
+  border: 1px solid #e3e7eb;
+  border-radius: 999px;
+  background: #fff;
+  color: #6b7580;
+  font-size: 0.78rem;
+}
+
+.tests-availability-strip strong {
+  margin-right: 4px;
+  color: #171a1f;
+  font-size: 0.9rem;
+}
+
+.tests-primary-section,
+.tests-secondary-section {
+  margin-top: 18px;
+  padding: 22px;
+  border: 1px solid #e0e4e8;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.tests-primary-section {
+  background: #f7f8fa;
+}
+
+.tests-section-intro {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.tests-section-intro h2 {
+  margin: 3px 0 0;
+  color: #171a1f;
+  font-size: 1.24rem;
+}
+
+.tests-section-intro p {
+  max-width: 420px;
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.tests-section-kicker {
+  color: #397db5;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.tests-card-grid-primary {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.tests-secondary-section .tests-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 860px) {
+  .tests-secondary-section .tests-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .tests-primary-section,
+  .tests-secondary-section {
+    padding: 16px;
+  }
+
+  .tests-section-intro {
+    display: grid;
+    align-items: start;
+  }
+
+  .tests-section-intro p {
+    text-align: left;
+  }
+
+  .tests-secondary-section .tests-card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* Final reference orientation: symmetric trapezoid rotated 180°. */
 .exam-mode-nta .nta-chip.not-answered,
 .exam-mode-nta .nta-chip.answered,
