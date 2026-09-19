@@ -70,11 +70,7 @@ export function Navbar() {
               ) : null}
             </div>
           </div>
-        ) : (
-          <Link href="/tests" className="btn btn-solid main-app-button">
-            Main app
-          </Link>
-        )}
+        ) : null}
       </div>
     </header>
   );
