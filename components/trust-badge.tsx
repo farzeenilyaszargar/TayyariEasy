@@ -24,7 +24,7 @@ export function TrustBadge() {
 
   return (
     <div className="trust-badge">
-      <span>+{studentCount.toLocaleString("en-IN")}</span> Students Using Tayyari
+      <span className="trust-badge-count" key={studentCount}>+{studentCount.toLocaleString("en-IN")}</span> Students Using Tayyari
     </div>
   );
 }
