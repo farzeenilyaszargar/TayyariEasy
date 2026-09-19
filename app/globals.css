@@ -7803,22 +7803,33 @@ html[data-theme="dark"] .test-chip.neutral {
 
 @media (min-width: 961px) {
   .leaderboard-page > .leaderboard-missions {
-    grid-row: 3 / span 2;
+    grid-column: 2;
+    grid-row: 3;
+    margin: 0;
   }
 
   .leaderboard-page > .leaderboard-badges {
-    grid-row: 3;
+    grid-column: 2;
+    grid-row: 4;
+    margin: 0;
   }
 
   .leaderboard-page > .podium-wrap {
-    grid-row: 4;
+    grid-column: 1;
+    grid-row: 3;
   }
 
   .leaderboard-page > .leaderboard-table-heading {
-    grid-row: 5;
+    grid-column: 1;
+    grid-row: 4;
   }
 
   .leaderboard-page > .leaderboard-table-wrap {
-    grid-row: 6;
+    grid-column: 1;
+    grid-row: 5;
+  }
+
+  .leaderboard-page .leaderboard-badges .leaderboard-badge-grid {
+    grid-template-columns: 1fr;
   }
 }
