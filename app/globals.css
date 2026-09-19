@@ -5094,3 +5094,395 @@ html[data-theme="dark"] .test-chip.neutral {
     margin-left: 0;
   }
 }
+
+/* NTA-style exam paper: dense, institutional and optimized for scanning. */
+.exam-mode-nta {
+  background: #ffffff;
+  color: #333333;
+}
+
+.exam-mode-nta .nta-shell {
+  width: min(1480px, 100%);
+  background: #ffffff;
+  border-left: 1px solid #c8c8c8;
+  border-right: 1px solid #c8c8c8;
+}
+
+.exam-mode-nta .nta-topbar {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(460px, 1.7fr) auto;
+  align-items: center;
+  gap: 24px;
+  min-height: 142px;
+  padding: 48px 28px 18px;
+  border-bottom: 1px solid #d7d7d7;
+  background: #ffffff;
+}
+
+.exam-mode-nta .nta-topbar::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 36px;
+  background: #2d6595;
+  content: "";
+}
+
+.exam-mode-nta .nta-topbar::after {
+  position: absolute;
+  top: 0;
+  right: 28px;
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  color: #ffffff;
+  content: "▣  Home";
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.exam-mode-nta .nta-brand {
+  align-self: stretch;
+  align-content: center;
+  padding-right: 22px;
+  border-right: 4px solid #555555;
+}
+
+.exam-mode-nta .nta-brand strong {
+  color: #173f72;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(1.25rem, 2vw, 2rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.exam-mode-nta .nta-brand small {
+  color: #2a7f32;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.exam-mode-nta .nta-candidate {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px 18px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.exam-mode-nta .nta-candidate p {
+  min-width: 0;
+  color: #555555;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.exam-mode-nta .nta-candidate strong {
+  color: #f28b1d;
+  font-size: 1rem;
+}
+
+.exam-mode-nta .exam-mode-control {
+  z-index: 1;
+  align-self: start;
+  margin-top: -2px;
+}
+
+.exam-mode-nta .exam-mode-caption {
+  color: #2d6595;
+}
+
+.exam-mode-nta .nta-subject-row {
+  gap: 0;
+  padding: 0 28px;
+  border-bottom: 1px solid #cfcfcf;
+  background: #f3f3f3;
+}
+
+.exam-mode-nta .nta-subject-pill {
+  border: 0;
+  border-right: 1px solid #d0d0d0;
+  border-radius: 0;
+  background: transparent;
+  color: #404040;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9rem;
+}
+
+.exam-mode-nta .nta-subject-pill.active {
+  background: #2d6595;
+  color: #ffffff;
+}
+
+.exam-mode-nta .nta-lang-wrap {
+  padding: 8px 0 8px 18px;
+}
+
+.exam-mode-nta .nta-lang-wrap select {
+  min-width: 150px;
+  border: 1px solid #c7c7c7;
+  border-radius: 0;
+  color: #444444;
+  background: #ffffff;
+}
+
+.exam-mode-nta .nta-main {
+  gap: 0;
+  padding: 0;
+  background: #ffffff;
+}
+
+.exam-mode-nta .nta-question-card {
+  gap: 0;
+  border: 0;
+  border-right: 1px solid #d0d0d0;
+  border-radius: 0;
+  padding: 0 28px 18px;
+  box-shadow: none;
+}
+
+.exam-mode-nta .nta-question-head {
+  align-items: center;
+  min-height: 64px;
+  padding: 16px 0 12px;
+  border-bottom: 1px solid #333333;
+}
+
+.exam-mode-nta .nta-question-head h3 {
+  color: #333333;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.18rem;
+}
+
+.exam-mode-nta .nta-question-head .muted {
+  color: #5f5f5f;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.82rem;
+}
+
+.exam-mode-nta .nta-question-body {
+  min-height: 460px;
+  padding: 26px 10px 30px;
+  background: #ffffff;
+}
+
+.exam-mode-nta .nta-question-body p {
+  max-width: none;
+  color: #333333;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+.exam-mode-nta .nta-question-diagram {
+  border: 0;
+  border-radius: 0;
+}
+
+.exam-mode-nta .nta-option {
+  border: 0;
+  border-radius: 0;
+  background: #ffffff;
+  color: #444444;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.exam-mode-nta .nta-option:hover,
+.exam-mode-nta .nta-option.active {
+  border: 0;
+  background: #f0f5fb;
+  box-shadow: inset 4px 0 0 #2d6595;
+}
+
+.exam-mode-nta .nta-actions-top,
+.exam-mode-nta .nta-actions-bottom {
+  gap: 8px;
+  padding: 14px 10px;
+  border-top: 1px solid #d4d4d4;
+  background: #f4f4f4;
+}
+
+.exam-mode-nta .nta-actions-top .btn,
+.exam-mode-nta .nta-actions-bottom .btn {
+  border-radius: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.exam-mode-nta .nta-actions-top .btn {
+  white-space: normal;
+}
+
+.exam-mode-nta .nta-btn-save,
+.exam-mode-nta .nta-submit-btn {
+  background: #55b65b;
+  border-color: #55b65b;
+}
+
+.exam-mode-nta .nta-btn-mark {
+  background: #f2ad42;
+  border-color: #f2ad42;
+}
+
+.exam-mode-nta .nta-btn-nextmark {
+  background: #397db5;
+  border-color: #397db5;
+}
+
+.exam-mode-nta .nta-sidebar {
+  align-content: start;
+  min-height: 100%;
+  border: 0;
+  border-radius: 0;
+  padding: 18px 18px 24px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.exam-mode-nta .nta-status-legend {
+  gap: 10px;
+  padding: 20px 18px;
+  border: 3px dotted #666666;
+}
+
+.exam-mode-nta .nta-status-row {
+  grid-template-columns: 48px 1fr;
+  color: #555555;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9rem;
+}
+
+.exam-mode-nta .nta-chip {
+  width: 42px;
+  height: 34px;
+  border: 1px solid #aaaaaa;
+  border-radius: 4px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.exam-mode-nta .nta-chip.not-answered {
+  background: #e84a17;
+  color: #ffffff;
+}
+
+.exam-mode-nta .nta-chip.answered {
+  background: #19a900;
+  color: #ffffff;
+}
+
+.exam-mode-nta .nta-chip.marked,
+.exam-mode-nta .nta-chip.answered-marked {
+  border-radius: 50%;
+  background: #5d22b6;
+  color: #ffffff;
+}
+
+.exam-mode-nta .nta-question-palette {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 5px;
+  padding-top: 18px;
+}
+
+.exam-mode-nta .nta-qbtn {
+  border: 1px solid #b2b2b2;
+  border-radius: 4px;
+  padding: 8px 0;
+  background: #eeeeee;
+  color: #444444;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.exam-mode-nta .nta-qbtn.not-answered {
+  border-color: #e84a17;
+  background: #e84a17;
+  color: #ffffff;
+}
+
+.exam-mode-nta .nta-qbtn.answered {
+  border-color: #19a900;
+  background: #19a900;
+  color: #ffffff;
+}
+
+.exam-mode-nta .nta-qbtn.marked,
+.exam-mode-nta .nta-qbtn.answered_marked {
+  border-color: #5d22b6;
+  background: #5d22b6;
+  color: #ffffff;
+}
+
+.exam-mode-nta .nta-qbtn.active {
+  box-shadow: inset 0 0 0 2px #111111;
+}
+
+@media (max-width: 960px) {
+  .exam-mode-nta .nta-topbar {
+    grid-template-columns: 1fr auto;
+    min-height: 0;
+  }
+
+  .exam-mode-nta .nta-brand {
+    border-right: 0;
+  }
+
+  .exam-mode-nta .nta-candidate {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .exam-mode-nta .nta-question-card {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .exam-mode-nta .nta-topbar {
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    padding: 44px 14px 14px;
+  }
+
+  .exam-mode-nta .nta-topbar::after {
+    right: 14px;
+  }
+
+  .exam-mode-nta .nta-candidate {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-mode-nta .nta-candidate p {
+    white-space: normal;
+  }
+
+  .exam-mode-nta .nta-subject-row {
+    padding: 0 12px;
+  }
+
+  .exam-mode-nta .nta-lang-wrap {
+    width: 100%;
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .exam-mode-nta .nta-lang-wrap select {
+    flex: 1;
+  }
+
+  .exam-mode-nta .nta-question-card {
+    padding: 0 14px 14px;
+  }
+
+  .exam-mode-nta .nta-sidebar {
+    padding: 14px;
+  }
+}
