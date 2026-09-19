@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { HomeIcon, LogOutIcon, SettingsIcon, UserIcon } from "@/components/ui-icons";
+import { ChevronDownIcon, HomeIcon, LogOutIcon, SettingsIcon, UserIcon } from "@/components/ui-icons";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -55,7 +55,7 @@ export function Navbar() {
                   aria-haspopup="menu"
                   aria-expanded={resourcesOpen}
                 >
-                  Resources <span aria-hidden="true">⌄</span>
+                  Resources <ChevronDownIcon size={14} className={resourcesOpen ? "resource-nav-chevron is-open" : "resource-nav-chevron"} aria-hidden="true" />
                 </button>
                 {resourcesOpen ? (
                   <div className="resource-nav-dropdown" role="menu" aria-label="Resources">

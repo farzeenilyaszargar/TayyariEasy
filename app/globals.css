@@ -7942,12 +7942,20 @@ html[data-theme="dark"] .test-chip.neutral {
 }
 
 .resource-nav-trigger {
+  appearance: none;
+  background: transparent;
+  border: 0;
   font: inherit;
   cursor: pointer;
 }
 
-.resource-nav-trigger span {
-  font-size: 0.9em;
+.resource-nav-chevron {
+  flex: 0 0 auto;
+  transition: transform 160ms ease;
+}
+
+.resource-nav-chevron.is-open {
+  transform: rotate(180deg);
 }
 
 .resource-nav-dropdown {
