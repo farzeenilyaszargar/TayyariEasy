@@ -58,7 +58,7 @@ export default function LeaderboardsPage() {
       <section className="leaderboard-badges">
         <div className="section-head leaderboard-subhead">
           <div>
-            <span className="leaderboard-kicker">Collect them all</span>
+            <span className="leaderboard-kicker">Level up</span>
             <h2>Badges & milestones</h2>
           </div>
           <span className="muted">4 of 12 unlocked</span>
