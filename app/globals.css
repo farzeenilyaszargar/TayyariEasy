@@ -790,6 +790,122 @@ a {
   }
 }
 
+/* Leaderboard preview styling */
+.leaderboard-page .page-head {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.leaderboard-page .page-head h1 {
+  max-width: 720px;
+  white-space: normal;
+  text-wrap: balance;
+}
+
+.leaderboard-page .page-head p:last-child {
+  margin: 0;
+}
+
+.leaderboard-demo-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-bottom: 18px;
+  padding: 9px 12px;
+  border: 1px solid #dce3eb;
+  border-radius: 999px;
+  color: #687383;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.leaderboard-demo-note .result-status-dot {
+  flex: 0 0 auto;
+}
+
+.leaderboard-page .podium-wrap,
+.leaderboard-page .leaderboard-table-wrap {
+  border: 1px solid #e1e6ed;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(30, 42, 58, 0.05);
+}
+
+.leaderboard-page .podium-wrap {
+  padding: 22px;
+}
+
+.leaderboard-page .podium-wrap .section-head {
+  margin-bottom: 20px;
+}
+
+.leaderboard-page .podium-wrap .section-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.leaderboard-page .podium-avatar {
+  box-shadow: 0 0 0 4px #ffffff, 0 8px 18px rgba(30, 42, 58, 0.12);
+}
+
+.leaderboard-page .podium-bar {
+  border-radius: 12px 12px 6px 6px;
+}
+
+.leaderboard-page .podium-col.first .podium-bar {
+  background: #fff4d9;
+  border-color: #e8cf9a;
+  color: #7c5a12;
+}
+
+.leaderboard-page .podium-col.second .podium-bar {
+  background: #f1f4f8;
+  border-color: #cfd6df;
+  color: #4e5868;
+}
+
+.leaderboard-page .podium-col.third .podium-bar {
+  background: #f7eee8;
+  border-color: #e7c8b8;
+  color: #774733;
+}
+
+.leaderboard-page .leaderboard-table-wrap {
+  padding: 8px;
+}
+
+.leaderboard-page .leaderboard-table th {
+  background: #f7f9fb;
+  color: #737d8b;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.leaderboard-page .leaderboard-table td {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.leaderboard-page .leader-row.rank-1 td,
+.leaderboard-page .leader-row.rank-2 td,
+.leaderboard-page .leader-row.rank-3 td {
+  background: #fbfcfe;
+}
+
+@media (max-width: 720px) {
+  .leaderboard-demo-note {
+    width: auto;
+    border-radius: 12px;
+  }
+
+  .leaderboard-page .podium-wrap {
+    padding: 16px;
+  }
+}
+
 @media (max-width: 720px) {
   .dashboard-page-header {
     align-items: stretch;

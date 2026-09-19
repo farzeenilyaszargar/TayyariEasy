@@ -1,48 +1,33 @@
-"use client";
+import { useMemo } from "react";
+import type { LeaderboardRow } from "@/lib/supabase-db";
 
-import { useEffect, useMemo, useState } from "react";
-import { fetchPublicLeaderboard, type LeaderboardRow } from "@/lib/supabase-db";
+const DEMO_LEADERBOARD_ROWS: LeaderboardRow[] = [
+  { user_id: "demo-1", full_name: "Aarav Mehta", avatar_url: "/avatars/1.svg", points: 1860, current_streak: 18, tests_completed: 24 },
+  { user_id: "demo-2", full_name: "Ananya Sharma", avatar_url: "/avatars/2.svg", points: 1745, current_streak: 15, tests_completed: 21 },
+  { user_id: "demo-3", full_name: "Vihaan Kapoor", avatar_url: "/avatars/3.svg", points: 1680, current_streak: 13, tests_completed: 20 },
+  { user_id: "demo-4", full_name: "Ishita Rao", avatar_url: "/avatars/1.svg", points: 1540, current_streak: 11, tests_completed: 18 },
+  { user_id: "demo-5", full_name: "Kabir Singh", avatar_url: "/avatars/2.svg", points: 1475, current_streak: 9, tests_completed: 17 },
+  { user_id: "demo-6", full_name: "Myra Nair", avatar_url: "/avatars/3.svg", points: 1390, current_streak: 8, tests_completed: 16 },
+  { user_id: "demo-7", full_name: "Aditya Verma", avatar_url: "/avatars/1.svg", points: 1285, current_streak: 7, tests_completed: 14 },
+  { user_id: "demo-8", full_name: "Sara Khan", avatar_url: "/avatars/2.svg", points: 1170, current_streak: 6, tests_completed: 13 },
+  { user_id: "demo-9", full_name: "Reyansh Joshi", avatar_url: "/avatars/3.svg", points: 1065, current_streak: 5, tests_completed: 11 },
+  { user_id: "demo-10", full_name: "Diya Patel", avatar_url: "/avatars/1.svg", points: 980, current_streak: 4, tests_completed: 10 }
+];
 
 export default function LeaderboardsPage() {
-  const [rows, setRows] = useState<LeaderboardRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    let alive = true;
-    const run = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const result = await fetchPublicLeaderboard();
-        if (alive) {
-          setRows(result);
-        }
-      } catch (err) {
-        if (alive) {
-          setError(err instanceof Error ? err.message : "Failed to load leaderboard.");
-        }
-      } finally {
-        if (alive) {
-          setLoading(false);
-        }
-      }
-    };
-    void run();
-    return () => {
-      alive = false;
-    };
-  }, []);
-
+  const rows = DEMO_LEADERBOARD_ROWS;
   const topThree = useMemo(() => rows.slice(0, 3), [rows]);
   return (
     <section className="page leaderboard-page">
       <div className="page-head">
-        <h1>Compete Through Consistent Performance</h1>
+        <p className="result-eyebrow">Weekly leaderboard</p>
+        <h1>See how consistent preparation adds up.</h1>
+        <p className="muted">Build your streak, improve your score, and move up the Tayyari rankings.</p>
       </div>
 
-      {loading ? <article className="card">Loading...</article> : null}
-      {error ? <article className="card">{error}</article> : null}
+      <div className="leaderboard-demo-note">
+        <span className="result-status-dot" /> Demo rankings for the current preview. Live rankings will appear after leaderboard data is connected.
+      </div>
 
       <section className="card podium-wrap shiny-card">
         <div className="section-head">
