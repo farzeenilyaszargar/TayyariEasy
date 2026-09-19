@@ -6610,6 +6610,15 @@ html[data-theme="dark"] .test-chip.neutral {
   box-shadow: none;
 }
 
+/* Symmetric trapezoid matching the supplied reference. */
+.exam-mode-nta .nta-chip.not-answered,
+.exam-mode-nta .nta-chip.answered,
+.exam-mode-nta .nta-qbtn.not-answered,
+.exam-mode-nta .nta-qbtn.answered,
+.exam-mode-nta .nta-qbtn.not_answered {
+  clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
+}
+
 @media (max-width: 520px) {
   .exam-mode-nta .nta-status-legend {
     grid-template-columns: 1fr;
