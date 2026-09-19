@@ -36,6 +36,9 @@ export function Navbar() {
         {isMainApp ? (
           <div className="nav-right">
             <nav className="nav-links" aria-label="Main app links">
+              <Link href="/tests" className={`nav-link ${pathname.startsWith("/tests") ? "active" : ""}`}>
+                Tests
+              </Link>
               <Link href="/leaderboards" className={`nav-link ${pathname === "/leaderboards" ? "active" : ""}`}>
                 Leaderboards
               </Link>
