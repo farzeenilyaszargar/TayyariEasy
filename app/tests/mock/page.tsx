@@ -40,6 +40,7 @@ type LocalLeaderboardRow = LocalAttempt & {
 };
 
 type QuestionStatus = "not_visited" | "not_answered" | "answered" | "marked" | "answered_marked";
+type TestUiMode = "sleek" | "nta";
 
 const LOCAL_ATTEMPTS_KEY = "tayyari-local-test-attempts-v1";
 const ACTIVE_TEST_KEY = "tayyari-active-test";
@@ -129,9 +130,22 @@ function MockExamPageContent() {
   const [leaderboardRows, setLeaderboardRows] = useState<LocalLeaderboardRow[]>([]);
   const [targetRank, setTargetRank] = useState<number | null>(null);
   const [animatedRank, setAnimatedRank] = useState<number | null>(null);
+  const [uiMode, setUiMode] = useState<TestUiMode>("sleek");
 
   const queryInstanceId = searchParams.get("instance")?.trim() || "";
   const queryBlueprintId = searchParams.get("blueprint")?.trim() || "";
+
+  useEffect(() => {
+    const savedMode = window.localStorage.getItem("tayyari-test-ui-mode");
+    if (savedMode === "nta" || savedMode === "sleek") {
+      setUiMode(savedMode);
+    }
+  }, []);
+
+  const changeUiMode = (mode: TestUiMode) => {
+    setUiMode(mode);
+    window.localStorage.setItem("tayyari-test-ui-mode", mode);
+  };
 
   useEffect(() => {
     const hydrate = async () => {
@@ -574,12 +588,21 @@ function MockExamPageContent() {
   }
 
   return (
-    <section className="nta-page">
+    <section className={`nta-page exam-mode-${uiMode}`}>
       <div className="nta-shell">
         <header className="nta-topbar">
           <div className="nta-brand">
             <strong>TAYYARI MOCK TEST</strong>
-            <small>Exam-like interface for realistic practice</small>
+            <small>{uiMode === "nta" ? "NTA-style exam interface" : "Focused practice, designed for clarity"}</small>
+          </div>
+          <div className="exam-mode-toggle" role="group" aria-label="Test interface style">
+            <span className="exam-mode-label">Interface</span>
+            <button type="button" className={`test-mode-btn ${uiMode === "sleek" ? "active" : ""}`} onClick={() => changeUiMode("sleek")}>
+              Sleek
+            </button>
+            <button type="button" className={`test-mode-btn ${uiMode === "nta" ? "active" : ""}`} onClick={() => changeUiMode("nta")}>
+              NTA style
+            </button>
           </div>
           <div className="nta-candidate">
             <p>Candidate: <strong>{user.name || "Aspirant"}</strong></p>
@@ -630,20 +653,20 @@ function MockExamPageContent() {
               ) : null}
               {current.questionType === "mcq_single" ? (
                 <div className="nta-options">
-                  {current.options.map((option) => {
-                    const selected = (answers[current.id] || "").toUpperCase() === option.key;
-                    return (
-                      <button
-                        type="button"
-                        key={option.key}
-                        className={`nta-option ${selected ? "active" : ""}`}
-                        onClick={() => setAnswers((prev) => ({ ...prev, [current.id]: option.key }))}
-                      >
-                        <span>{option.key}</span>
-                        <span>{option.text}</span>
-                      </button>
-                    );
-                  })}
+                  {current.options.length > 0 ? current.options.map((option) => {
+                      const selected = (answers[current.id] || "").toUpperCase() === option.key;
+                      return (
+                        <button
+                          type="button"
+                          key={option.key}
+                          className={`nta-option ${selected ? "active" : ""}`}
+                          onClick={() => setAnswers((prev) => ({ ...prev, [current.id]: option.key }))}
+                        >
+                          <span>{option.key}</span>
+                          <span>{option.text}</span>
+                        </button>
+                      );
+                    }) : <div className="nta-options-empty">Options are being normalized for this question.</div>}
                 </div>
               ) : (
                 <div className="nta-integer-wrap">
