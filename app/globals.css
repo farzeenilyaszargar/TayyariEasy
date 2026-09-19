@@ -6213,3 +6213,47 @@ html[data-theme="dark"] .test-chip.neutral {
     padding: 18px 14px;
   }
 }
+
+/* Candidate details are presented as an aligned label/value table. */
+.nta-page .nta-candidate {
+  grid-template-columns: 1fr;
+  gap: 5px;
+}
+
+.nta-page .nta-candidate p {
+  display: grid;
+  grid-template-columns: max-content 14px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  white-space: normal;
+}
+
+.candidate-label {
+  color: #657080;
+  font-weight: 600;
+}
+
+.candidate-colon {
+  color: #657080;
+  text-align: center;
+}
+
+.nta-page .nta-candidate strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exam-mode-sleek .nta-candidate strong {
+  color: #171c24;
+}
+
+@media (max-width: 600px) {
+  .nta-page .nta-candidate p {
+    grid-template-columns: 112px 14px minmax(0, 1fr);
+  }
+}

@@ -638,9 +638,9 @@ function MockExamPageContent() {
             </div>
           </div>
           <div className="nta-candidate">
-            <p>Candidate: <strong>{user.name || "Aspirant"}</strong></p>
-            <p>Test: <strong>{session.blueprint.name}</strong></p>
-            <p>Remaining Time: <strong>{formatTime(remainingSec)}</strong></p>
+            <p><span className="candidate-label">Candidate Name</span><span className="candidate-colon">:</span><strong>{user.name || "Aspirant"}</strong></p>
+            <p><span className="candidate-label">Subject Name</span><span className="candidate-colon">:</span><strong>{session.blueprint.name}</strong></p>
+            <p><span className="candidate-label">Remaining Time</span><span className="candidate-colon">:</span><strong>{formatTime(remainingSec)}</strong></p>
           </div>
           <div className="exam-mode-control">
             <span className="exam-mode-caption">{uiMode === "nta" ? "NTA" : "Sleek"}</span>
