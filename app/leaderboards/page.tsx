@@ -29,9 +29,57 @@ export default function LeaderboardsPage() {
         <span className="result-status-dot" /> Demo rankings for the current preview. Live rankings will appear after leaderboard data is connected.
       </div>
 
+      <section className="leaderboard-climb-card">
+        <div className="leaderboard-climb-copy">
+          <span className="leaderboard-kicker">Your weekly climb</span>
+          <h2>Keep the streak alive.</h2>
+          <p>Complete two more tests to unlock the Focus Finisher reward.</p>
+          <div className="leaderboard-xp-track" aria-label="72 percent progress to next reward">
+            <span style={{ width: "72%" }} />
+          </div>
+          <small>720 / 1,000 XP to next reward</small>
+        </div>
+        <div className="leaderboard-climb-stats">
+          <div><span>Current rank</span><strong>#12</strong></div>
+          <div><span>Weekly XP</span><strong>720</strong></div>
+          <div><span>Best streak</span><strong>7 days</strong></div>
+        </div>
+      </section>
+
+      <section className="leaderboard-missions">
+        <div className="section-head leaderboard-subhead">
+          <div>
+            <span className="leaderboard-kicker">Level up</span>
+            <h2>Active missions</h2>
+          </div>
+          <span className="muted">Earn XP and climb faster</span>
+        </div>
+        <div className="leaderboard-mission-grid">
+          <article className="leaderboard-mission-card mission-blue">
+            <span className="mission-icon">⚡</span>
+            <div><strong>Daily sprint</strong><p>Finish one mock test</p></div>
+            <b>+120 XP</b>
+          </article>
+          <article className="leaderboard-mission-card mission-green">
+            <span className="mission-icon">◎</span>
+            <div><strong>Subject master</strong><p>Attempt all 3 subjects</p></div>
+            <b>+180 XP</b>
+          </article>
+          <article className="leaderboard-mission-card mission-gold">
+            <span className="mission-icon">🔥</span>
+            <div><strong>Keep the fire</strong><p>Maintain a 7-day streak</p></div>
+            <b>+250 XP</b>
+          </article>
+        </div>
+      </section>
+
       <section className="card podium-wrap shiny-card">
         <div className="section-head">
-          <h2>Weekly Podium</h2>
+          <div>
+            <span className="leaderboard-kicker">Top performers</span>
+            <h2>Weekly podium</h2>
+          </div>
+          <span className="leaderboard-reset">Resets in 4d 12h</span>
         </div>
         {topThree.length === 3 ? (
           <div className="podium">
@@ -58,6 +106,14 @@ export default function LeaderboardsPage() {
           <p className="muted">Need at least 3 users to render podium.</p>
         )}
       </section>
+
+      <div className="leaderboard-table-heading">
+        <div>
+          <span className="leaderboard-kicker">The full climb</span>
+          <h2>All-time contenders</h2>
+        </div>
+        <span className="muted">10 demo students</span>
+      </div>
 
       <article className="card leaderboard-table-wrap">
         <div className="table-wrap">
