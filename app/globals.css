@@ -5095,6 +5095,157 @@ html[data-theme="dark"] .test-chip.neutral {
   }
 }
 
+/* The exam workspace uses the viewport as its frame; only the question area scrolls. */
+.nta-page {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.nta-page .nta-shell {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.nta-page .nta-main {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.nta-page .nta-question-card {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  overflow: hidden;
+}
+
+.nta-page .nta-question-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.nta-page .nta-sidebar {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.exam-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.exam-brand-lockup img {
+  display: block;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.exam-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin-bottom: 10px;
+  color: #687383;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.exam-back-link:hover {
+  color: #171c24;
+}
+
+.exam-back-link span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.exam-mode-sleek .nta-brand {
+  gap: 0;
+}
+
+.exam-mode-sleek .exam-brand-lockup strong {
+  display: block;
+  color: #171c24;
+  font-family: var(--font-display), "Avenir Next", sans-serif;
+  font-size: 1.3rem;
+}
+
+.exam-mode-sleek .exam-brand-lockup small {
+  display: block;
+  color: #737c89;
+  font-size: 0.78rem;
+}
+
+.exam-mode-nta .nta-brand {
+  gap: 0;
+}
+
+.exam-mode-nta .exam-back-link {
+  color: #4d6e8a;
+}
+
+.exam-mode-nta .exam-brand-lockup strong {
+  display: block;
+  color: #173f72;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(1.25rem, 2vw, 2rem);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.exam-mode-nta .exam-brand-lockup small {
+  display: block;
+  color: #2a7f32;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.exam-mode-nta .nta-brand > .exam-brand-lockup {
+  align-items: center;
+}
+
+@media (max-width: 960px) {
+  .nta-page .nta-main {
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .nta-page {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .nta-page .nta-shell {
+    height: auto;
+    min-height: 100dvh;
+    display: block;
+  }
+
+  .nta-page .nta-main {
+    overflow: visible;
+  }
+
+  .nta-page .nta-question-card,
+  .nta-page .nta-question-body,
+  .nta-page .nta-sidebar {
+    overflow: visible;
+  }
+
+  .exam-brand-lockup img {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 /* NTA-style exam paper: dense, institutional and optimized for scanning. */
 .exam-mode-nta {
   background: #ffffff;

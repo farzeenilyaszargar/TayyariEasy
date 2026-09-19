@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { TrophyIcon, TrendIcon } from "@/components/ui-icons";
@@ -592,8 +593,16 @@ function MockExamPageContent() {
       <div className="nta-shell">
         <header className="nta-topbar">
           <div className="nta-brand">
-            <strong>TAYYARI MOCK TEST</strong>
-            <small>{uiMode === "nta" ? "NTA-style exam interface" : "Focused practice, designed for clarity"}</small>
+            <Link className="exam-back-link" href="/tests">
+              <span aria-hidden="true">←</span> Back to tests
+            </Link>
+            <div className="exam-brand-lockup">
+              <Image src="/tayyari-logo.png" alt="Tayyari" width={42} height={42} priority />
+              <div>
+                <strong>{uiMode === "nta" ? "JEE Main" : "Tayyari"}</strong>
+                <small>{uiMode === "nta" ? "Computer based test" : "Focused practice"}</small>
+              </div>
+            </div>
           </div>
           <div className="nta-candidate">
             <p>Candidate: <strong>{user.name || "Aspirant"}</strong></p>
