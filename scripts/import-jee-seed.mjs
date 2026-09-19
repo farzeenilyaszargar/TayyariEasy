@@ -122,13 +122,24 @@ for (const question of dataset.questions) {
   if (questionId) {
     skipped += 1;
   } else {
-    const created = await request("question_bank", {
-      method: "POST",
-      prefer: "return=representation",
-      body: [payload]
-    });
-    questionId = created[0]?.id;
-    imported += 1;
+    try {
+      const created = await request("question_bank", {
+        method: "POST",
+        prefer: "return=representation",
+        body: [payload]
+      });
+      questionId = created[0]?.id;
+      imported += 1;
+    } catch (error) {
+      // Another run may have inserted the row between the lookup and POST.
+      // Resolve the winner and continue rather than failing the whole import.
+      if (!String(error).includes("409")) throw error;
+      const existingAfterInsert = await request("question_bank", {
+        query: `?select=id&dedupe_fingerprint=eq.${dedupeFingerprint}&limit=1`
+      });
+      questionId = existingAfterInsert?.[0]?.id;
+      skipped += questionId ? 1 : 0;
+    }
   }
 
   if (!questionId) continue;
