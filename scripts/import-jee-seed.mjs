@@ -4,6 +4,7 @@ import path from "node:path";
 import process from "node:process";
 
 const root = process.cwd();
+process.loadEnvFile?.(path.join(root, ".env.local"));
 const datasetPath = path.join(root, "data", "jee-question-seed-90.json");
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
