@@ -103,7 +103,7 @@ a {
 
 .nav-links {
   display: flex;
-  gap: 8px;
+  gap: 2px;
   flex-wrap: wrap;
 }
 
@@ -111,18 +111,22 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 8px 13px;
-  border-radius: 999px;
-  border: 1px solid transparent;
+  padding: 6px 7px;
+  border: 0;
   color: #30353f;
   font-size: 0.93rem;
   font-weight: 600;
+  text-decoration: none;
+  transition: color 140ms ease;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  color: #181c24;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .nav-link.active {
-  border-color: var(--border);
-  background: #f7f8fa;
   color: #181c24;
 }
 
