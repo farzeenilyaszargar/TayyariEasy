@@ -82,8 +82,8 @@ a {
 }
 
 .brand-logo {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
 }
 
@@ -4511,8 +4511,8 @@ html[data-theme="dark"] .test-chip.neutral {
   }
 
   .brand-logo {
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
   }
 
   h1 {
