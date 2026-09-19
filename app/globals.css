@@ -1325,6 +1325,148 @@ a {
   border-color: #00B600;
 }
 
+/* Keep leaderboards consistent with the site's light visual system. */
+.leaderboard-page {
+  background: #ffffff !important;
+  color: #171c24 !important;
+}
+
+.leaderboard-page .page-head h1,
+.leaderboard-page .leaderboard-climb-copy h2,
+.leaderboard-page .leaderboard-subhead h2,
+.leaderboard-page .leaderboard-table-heading h2,
+.leaderboard-page .podium-wrap h2 {
+  color: #171c24 !important;
+}
+
+.leaderboard-page .page-head p:last-child,
+.leaderboard-page .muted,
+.leaderboard-page .leaderboard-climb-copy p,
+.leaderboard-page .leaderboard-climb-copy small,
+.leaderboard-page .leaderboard-reset {
+  color: #6d7785 !important;
+}
+
+.leaderboard-page .leaderboard-demo-note,
+.leaderboard-page .leaderboard-climb-card,
+.leaderboard-page .leaderboard-mission-card,
+.leaderboard-page .leaderboard-badge-card {
+  border-color: #e1e6ed;
+  background: #ffffff !important;
+}
+
+.leaderboard-page .leaderboard-climb-card {
+  background: #f5f8fc !important;
+}
+
+.leaderboard-page .leaderboard-climb-stats div {
+  border-color: #e1e6ed;
+  background: #ffffff;
+}
+
+.leaderboard-page .leaderboard-climb-stats span {
+  color: #737d8b;
+}
+
+.leaderboard-page .leaderboard-climb-stats strong {
+  color: #171c24;
+}
+
+.leaderboard-page .leaderboard-mission-card p,
+.leaderboard-page .leaderboard-mission-card b,
+.leaderboard-page .leaderboard-badge-card small {
+  color: #6d7785;
+}
+
+.leaderboard-page .leaderboard-badge-card strong {
+  color: #252c36;
+}
+
+.leaderboard-page .mission-icon,
+.leaderboard-page .leaderboard-badge-card > span {
+  background: #f0f3f7;
+}
+
+.leaderboard-page .leaderboard-xp-track {
+  background: #e2e8f0;
+}
+
+.leaderboard-page .leaderboard-xp-track span {
+  background: #397db5;
+}
+
+.leaderboard-page .podium-wrap,
+.leaderboard-page .leaderboard-table-wrap {
+  border-color: #e1e6ed;
+  background: #ffffff !important;
+  box-shadow: 0 10px 28px rgba(30, 42, 58, 0.05);
+}
+
+.leaderboard-page .podium-col {
+  color: #171c24;
+}
+
+.leaderboard-page .podium-col small {
+  color: #6d7785;
+}
+
+.leaderboard-page .podium-avatar {
+  border-color: #d6dbe2;
+  box-shadow: 0 0 0 4px #ffffff, 0 8px 18px rgba(30, 42, 58, 0.12);
+}
+
+.leaderboard-page .podium-bar {
+  color: #2f3440;
+  border-color: #d8dde4;
+  background: #eceff4;
+}
+
+.leaderboard-page .podium-col.first .podium-bar {
+  background: #f6c953;
+  border-color: #edc167;
+  color: #7c5a12;
+}
+
+.leaderboard-page .podium-col.second .podium-bar {
+  background: #d0dbf7;
+  border-color: #c4cee8;
+  color: #4e5868;
+}
+
+.leaderboard-page .podium-col.third .podium-bar {
+  background: #f2c7ad;
+  border-color: #e0b79f;
+  color: #774733;
+}
+
+.leaderboard-page .leaderboard-table th {
+  background: #f7f9fb;
+  color: #737d8b;
+}
+
+.leaderboard-page .leaderboard-table td {
+  border-color: #e5e9ef;
+  color: #252c36;
+}
+
+.leaderboard-page .leaderboard-table .leader-row:hover td {
+  background: #f7f8fa;
+}
+
+.leaderboard-page .leader-row.rank-1 td,
+.leaderboard-page .leader-row.rank-2 td,
+.leaderboard-page .leader-row.rank-3 td {
+  background: #fbfcfe;
+}
+
+.leaderboard-page .streak-chip,
+.leaderboard-page .reward-pill,
+.leaderboard-page .rank-badge {
+  border-color: #d8dfe8;
+  background: #f7f9fb;
+  color: #4c5868;
+}
+
 @media (min-width: 961px) {
   .leaderboard-page > .leaderboard-missions {
     grid-column: 2;
