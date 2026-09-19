@@ -132,6 +132,7 @@ function MockExamPageContent() {
   const [targetRank, setTargetRank] = useState<number | null>(null);
   const [animatedRank, setAnimatedRank] = useState<number | null>(null);
   const [uiMode, setUiMode] = useState<TestUiMode>("sleek");
+  const [quitOpen, setQuitOpen] = useState(false);
 
   const queryInstanceId = searchParams.get("instance")?.trim() || "";
   const queryBlueprintId = searchParams.get("blueprint")?.trim() || "";
@@ -455,6 +456,12 @@ function MockExamPageContent() {
     }
   };
 
+  const quitTest = () => {
+    window.sessionStorage.removeItem(ACTIVE_TEST_KEY);
+    window.localStorage.removeItem(ACTIVE_TEST_FALLBACK_KEY);
+    router.push("/");
+  };
+
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -622,9 +629,6 @@ function MockExamPageContent() {
       <div className="nta-shell">
         <header className="nta-topbar">
           <div className="nta-brand">
-            <Link className="exam-back-link" href="/tests">
-              <span aria-hidden="true">←</span> Back to tests
-            </Link>
             <div className="exam-brand-lockup">
               <Image src="/tayyari-logo.png" alt="Tayyari" width={42} height={42} priority />
               <div>
@@ -739,9 +743,14 @@ function MockExamPageContent() {
               <button className="btn btn-outline" onClick={goNext} disabled={currentIdx >= session.questions.length - 1}>
                 Next &gt;&gt;
               </button>
-              <button className="btn btn-solid nta-submit-btn" onClick={() => void onSubmit()} disabled={submitting}>
-                {submitting ? "Submitting..." : "Submit"}
-              </button>
+              <div className="nta-submit-actions">
+                <button className="btn nta-quit-btn" onClick={() => setQuitOpen(true)} disabled={submitting}>
+                  Quit
+                </button>
+                <button className="btn btn-solid nta-submit-btn" onClick={() => void onSubmit()} disabled={submitting}>
+                  {submitting ? "Submitting..." : "Submit"}
+                </button>
+              </div>
             </div>
             {submitError ? <p className="muted">{submitError}</p> : null}
           </article>
@@ -787,6 +796,19 @@ function MockExamPageContent() {
           </aside>
         </div>
       </div>
+      {quitOpen ? (
+        <div className="quit-modal-backdrop" role="presentation" onClick={() => setQuitOpen(false)}>
+          <div className="quit-modal" role="dialog" aria-modal="true" aria-labelledby="quit-title" onClick={(event) => event.stopPropagation()}>
+            <span className="quit-modal-icon">!</span>
+            <h2 id="quit-title">Quit this test?</h2>
+            <p>Your answers and progress will be lost if you leave now.</p>
+            <div className="quit-modal-actions">
+              <button className="btn btn-outline" onClick={() => setQuitOpen(false)}>Keep working</button>
+              <button className="btn nta-quit-btn" onClick={quitTest}>Quit test</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

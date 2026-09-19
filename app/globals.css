@@ -591,6 +591,115 @@ a {
   }
 }
 
+/* Exam exit controls */
+.nta-submit-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.nta-quit-btn {
+  border-color: #c9372c;
+  background: #c9372c;
+  color: #ffffff;
+}
+
+.nta-quit-btn:hover {
+  border-color: #a92c23;
+  background: #a92c23;
+}
+
+.quit-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(16, 20, 27, 0.46);
+}
+
+.quit-modal {
+  width: min(420px, 100%);
+  padding: 28px;
+  border: 1px solid #e0e4ea;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(16, 20, 27, 0.2);
+}
+
+.quit-modal-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  background: #fff0ee;
+  color: #c9372c;
+  font-weight: 800;
+}
+
+.quit-modal h2 {
+  margin-bottom: 8px;
+  color: #171c24;
+  font-size: 1.3rem;
+}
+
+.quit-modal p {
+  margin-bottom: 22px;
+  color: #687383;
+  line-height: 1.55;
+}
+
+.quit-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.exam-mode-nta .nta-topbar::before,
+.exam-mode-nta .nta-topbar::after {
+  display: none;
+}
+
+.exam-mode-nta .nta-topbar {
+  min-height: 104px;
+  padding: 18px 28px;
+}
+
+.exam-mode-nta .nta-brand {
+  padding-right: 22px;
+}
+
+.exam-mode-nta .nta-submit-actions .nta-quit-btn {
+  border-radius: 0;
+  background: #c9372c;
+  border-color: #c9372c;
+}
+
+@media (max-width: 720px) {
+  .nta-submit-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .nta-submit-actions .btn {
+    flex: 1;
+  }
+
+  .quit-modal {
+    padding: 22px;
+  }
+
+  .quit-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Clean resource library layout */
 .resources-page .page-head {
   display: grid;
@@ -6084,5 +6193,23 @@ html[data-theme="dark"] .test-chip.neutral {
 
   .exam-mode-nta .nta-sidebar {
     padding: 14px;
+  }
+}
+
+/* Final NTA header override: keep the test focused, without the decorative Home strip. */
+.exam-mode-nta .nta-topbar::before,
+.exam-mode-nta .nta-topbar::after {
+  display: none;
+}
+
+.exam-mode-nta .nta-topbar {
+  min-height: 104px;
+  padding: 18px 28px;
+}
+
+@media (max-width: 600px) {
+  .exam-mode-nta .nta-topbar {
+    min-height: 0;
+    padding: 18px 14px;
   }
 }
