@@ -350,9 +350,10 @@ export async function pickQuestionsForBlueprint(blueprint: TestBlueprintRow, see
 
   let [easyPool, mediumPool, hardPool] = await buildPools(["is_published=eq.true"]);
 
+  // Never put OCR, draft, or merely un-rejected records into a student test.
+  // A question must be published or explicitly approved before it can be served.
   if (easyPool.length + mediumPool.length + hardPool.length === 0) {
-    // Fallback for practice mode when reviewed/published inventory is empty.
-    [easyPool, mediumPool, hardPool] = await buildPools(["review_status=neq.rejected"]);
+    [easyPool, mediumPool, hardPool] = await buildPools(["review_status=eq.approved"]);
   }
 
   const selected: QuestionRow[] = [];

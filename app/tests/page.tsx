@@ -37,6 +37,7 @@ function buildCardTags(blueprint: TestBlueprintRow): Array<{ label: string; tone
 function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlueprintRow; onLaunch: (id: string) => void; launching: boolean }) {
   const tags = buildCardTags(blueprint);
   const maxAchievablePoints = blueprint.question_count * 4;
+  const ready = blueprint.availableQuestions >= blueprint.question_count;
 
   return (
     <article className="test-card test-card-attractive test-card-polished">
@@ -59,8 +60,8 @@ function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlue
         </span>
       </div>
       <div className="test-cta-row">
-        <button className="btn btn-solid" onClick={() => onLaunch(blueprint.id)} disabled={launching}>
-          {launching ? "Launching..." : "Attempt"}
+        <button className="btn btn-solid" onClick={() => onLaunch(blueprint.id)} disabled={launching || !ready}>
+          {launching ? "Launching..." : ready ? "Attempt" : "Being prepared"}
         </button>
       </div>
     </article>

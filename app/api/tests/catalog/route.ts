@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
         );
         if (items.length === 0) {
           items = await supabaseRest<Array<{ id: string }>>(
-            `question_bank?select=id&review_status=neq.rejected&${scopeFilters.join("&")}`,
+            `question_bank?select=id&review_status=eq.approved&${scopeFilters.join("&")}`,
             "GET"
           );
         }
