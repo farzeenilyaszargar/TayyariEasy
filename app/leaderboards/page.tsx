@@ -73,6 +73,22 @@ export default function LeaderboardsPage() {
         </div>
       </section>
 
+      <section className="leaderboard-badges">
+        <div className="section-head leaderboard-subhead">
+          <div>
+            <span className="leaderboard-kicker">Collect them all</span>
+            <h2>Badges & milestones</h2>
+          </div>
+          <span className="muted">4 of 12 unlocked</span>
+        </div>
+        <div className="leaderboard-badge-grid">
+          <article className="leaderboard-badge-card badge-earned"><span>⚡</span><div><strong>Quick starter</strong><small>First test completed</small></div></article>
+          <article className="leaderboard-badge-card badge-earned"><span>🔥</span><div><strong>Seven day fire</strong><small>7-day streak reached</small></div></article>
+          <article className="leaderboard-badge-card badge-locked"><span>✦</span><div><strong>Subject master</strong><small>Complete all subjects</small></div></article>
+          <article className="leaderboard-badge-card badge-locked"><span>♛</span><div><strong>Top ten</strong><small>Reach the top 10</small></div></article>
+        </div>
+      </section>
+
       <section className="card podium-wrap shiny-card">
         <div className="section-head">
           <div>
@@ -142,7 +158,7 @@ export default function LeaderboardsPage() {
                       <span className="streak-chip">{entry.current_streak}d</span>
                     </td>
                     <td>
-                      <span className="reward-pill">{rank <= 3 ? "Legend Chest" : rank <= 8 ? "XP Boost" : "Coin Pack"}</span>
+                        <span className="reward-pill">{rank <= 3 ? "🏆 Legend Badge" : rank <= 8 ? "⚡ XP Boost" : "✦ Coin Pack"}</span>
                     </td>
                     <td>{entry.tests_completed}</td>
                   </tr>
@@ -165,7 +181,7 @@ export default function LeaderboardsPage() {
                   <span className="streak-chip">{entry.current_streak}d streak</span>
                 </div>
                 <div className="leaderboard-mobile-meta">
-                  <span className="reward-pill">{rank <= 3 ? "Legend Chest" : rank <= 8 ? "XP Boost" : "Coin Pack"}</span>
+                  <span className="reward-pill">{rank <= 3 ? "🏆 Legend Badge" : rank <= 8 ? "⚡ XP Boost" : "✦ Coin Pack"}</span>
                   <span>Tests: {entry.tests_completed}</span>
                 </div>
               </article>

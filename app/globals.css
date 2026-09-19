@@ -1029,6 +1029,287 @@ a {
   }
 }
 
+/* Reference-inspired competition leaderboard */
+.leaderboard-page {
+  max-width: none;
+  min-height: calc(100dvh - 58px);
+  padding: 58px max(24px, calc((100vw - 1160px) / 2)) 90px;
+  background: #0d172b;
+  color: #f4f7ff;
+}
+
+.leaderboard-page .page-head {
+  max-width: 1160px;
+  margin-inline: auto;
+}
+
+.leaderboard-page .page-head h1,
+.leaderboard-page .leaderboard-climb-copy h2,
+.leaderboard-page .leaderboard-subhead h2,
+.leaderboard-page .leaderboard-table-heading h2,
+.leaderboard-page .podium-wrap h2 {
+  color: #f4f7ff;
+}
+
+.leaderboard-page .page-head p:last-child,
+.leaderboard-page .muted {
+  color: #9eacc2;
+}
+
+.leaderboard-page .result-eyebrow,
+.leaderboard-page .leaderboard-kicker {
+  color: #8da6ff;
+}
+
+.leaderboard-page .leaderboard-demo-note {
+  max-width: 1160px;
+  margin: 0 auto 22px;
+  border-color: #33425d;
+  background: #15233d;
+  color: #9eacc2;
+}
+
+.leaderboard-page .leaderboard-climb-card {
+  max-width: 1160px;
+  margin-inline: auto;
+  border-color: #33425d;
+  background: #15233d;
+}
+
+.leaderboard-page .leaderboard-climb-copy p,
+.leaderboard-page .leaderboard-climb-copy small {
+  color: #9eacc2;
+}
+
+.leaderboard-page .leaderboard-xp-track {
+  background: #263a61;
+}
+
+.leaderboard-page .leaderboard-xp-track span {
+  background: #7d8fff;
+}
+
+.leaderboard-page .leaderboard-climb-stats div {
+  border-color: #33425d;
+  background: #1b2a45;
+}
+
+.leaderboard-page .leaderboard-climb-stats span {
+  color: #9eacc2;
+}
+
+.leaderboard-page .leaderboard-climb-stats strong {
+  color: #f4f7ff;
+}
+
+.leaderboard-page .leaderboard-subhead,
+.leaderboard-page .leaderboard-missions,
+.leaderboard-page .leaderboard-badges,
+.leaderboard-page .leaderboard-table-heading {
+  max-width: 1160px;
+  margin-inline: auto;
+}
+
+.leaderboard-page .leaderboard-mission-card {
+  border-color: #33425d;
+  background: #15233d;
+}
+
+.leaderboard-page .leaderboard-mission-card p,
+.leaderboard-page .leaderboard-mission-card b {
+  color: #9eacc2;
+}
+
+.leaderboard-page .mission-icon {
+  background: #263a61;
+}
+
+.leaderboard-page .leaderboard-badges {
+  margin-bottom: 30px;
+}
+
+.leaderboard-badge-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.leaderboard-badge-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 78px;
+  padding: 14px;
+  border: 1px solid #33425d;
+  border-radius: 14px;
+  background: #15233d;
+}
+
+.leaderboard-badge-card > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #263a61;
+  color: #f5d477;
+  font-size: 1.25rem;
+}
+
+.leaderboard-badge-card div {
+  display: grid;
+  gap: 4px;
+}
+
+.leaderboard-badge-card strong {
+  color: #f4f7ff;
+  font-size: 0.86rem;
+}
+
+.leaderboard-badge-card small {
+  color: #91a0b7;
+  font-size: 0.72rem;
+}
+
+.leaderboard-badge-card.badge-locked {
+  opacity: 0.62;
+}
+
+.leaderboard-badge-card.badge-earned > span {
+  background: #384a8c;
+}
+
+.leaderboard-page .podium-wrap {
+  max-width: 1160px;
+  margin-inline: auto;
+  border-color: #33425d;
+  background: #0f1b31;
+  box-shadow: none;
+}
+
+.leaderboard-page .podium {
+  min-height: 350px;
+  align-items: end;
+}
+
+.leaderboard-page .podium-col {
+  color: #f4f7ff;
+}
+
+.leaderboard-page .podium-col small {
+  color: #aebbd1;
+}
+
+.leaderboard-page .podium-avatar {
+  border-color: #52638b;
+  box-shadow: 0 0 0 4px #0f1b31, 0 8px 18px rgba(0, 0, 0, 0.28);
+}
+
+.leaderboard-page .podium-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  padding-top: 18px;
+  border-color: #687bff;
+  border-radius: 18px 18px 8px 8px;
+  background: #5566dc;
+  color: #ffffff;
+  font-size: 2.6rem;
+}
+
+.leaderboard-page .podium-col.first .podium-bar {
+  height: 170px;
+  background: #8491ff;
+  border-color: #aab3ff;
+  color: #ffffff;
+}
+
+.leaderboard-page .podium-col.second .podium-bar {
+  height: 132px;
+  background: #6476ec;
+  border-color: #8392ff;
+  color: #ffffff;
+}
+
+.leaderboard-page .podium-col.third .podium-bar {
+  height: 108px;
+  background: #4c5dc4;
+  border-color: #7180e8;
+  color: #ffffff;
+}
+
+.leaderboard-page .leaderboard-reset {
+  color: #9eacc2;
+}
+
+.leaderboard-page .leaderboard-table-heading {
+  margin-top: 34px;
+}
+
+.leaderboard-page .leaderboard-table-wrap {
+  max-width: 1160px;
+  margin-inline: auto;
+  border-color: #33425d;
+  background: #0f1b31;
+  box-shadow: none;
+}
+
+.leaderboard-page .leaderboard-table th {
+  background: #1a2943;
+  color: #9eacc2;
+}
+
+.leaderboard-page .leaderboard-table td {
+  border-color: #2a3b59;
+  color: #f4f7ff;
+}
+
+.leaderboard-page .leaderboard-table .leader-row:hover td {
+  background: #1d2e4c;
+}
+
+.leaderboard-page .leader-row.rank-1 td,
+.leaderboard-page .leader-row.rank-2 td,
+.leaderboard-page .leader-row.rank-3 td {
+  background: #162642;
+}
+
+.leaderboard-page .streak-chip,
+.leaderboard-page .reward-pill,
+.leaderboard-page .rank-badge {
+  border-color: #405276;
+  background: #1f3150;
+  color: #c9d3e6;
+}
+
+.leaderboard-page .leaderboard-mobile-item {
+  border-color: #33425d;
+  background: #15233d;
+  color: #f4f7ff;
+}
+
+@media (max-width: 960px) {
+  .leaderboard-badge-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .leaderboard-page {
+    padding-inline: 14px;
+  }
+
+  .leaderboard-badge-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .leaderboard-page .podium {
+    min-height: 260px;
+  }
+}
+
 /* Leaderboard preview styling */
 .leaderboard-page .page-head {
   display: grid;
@@ -6821,4 +7102,145 @@ html[data-theme="dark"] .test-chip.neutral {
 .exam-mode-nta,
 .exam-mode-nta * {
   font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* Final dark leaderboard surface */
+.leaderboard-page {
+  max-width: none;
+  min-height: calc(100dvh - 58px);
+  padding: 58px max(24px, calc((100vw - 1160px) / 2)) 90px;
+  background: #0d172b !important;
+  color: #f4f7ff;
+}
+
+.leaderboard-page .page-head,
+.leaderboard-page .leaderboard-demo-note,
+.leaderboard-page .leaderboard-climb-card,
+.leaderboard-page .leaderboard-subhead,
+.leaderboard-page .leaderboard-missions,
+.leaderboard-page .leaderboard-badges,
+.leaderboard-page .leaderboard-table-heading,
+.leaderboard-page .podium-wrap,
+.leaderboard-page .leaderboard-table-wrap {
+  max-width: 1160px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.leaderboard-page .page-head h1,
+.leaderboard-page .leaderboard-climb-copy h2,
+.leaderboard-page .leaderboard-subhead h2,
+.leaderboard-page .leaderboard-table-heading h2,
+.leaderboard-page .podium-wrap h2 {
+  color: #f4f7ff !important;
+}
+
+.leaderboard-page .page-head p:last-child,
+.leaderboard-page .muted,
+.leaderboard-page .leaderboard-climb-copy p,
+.leaderboard-page .leaderboard-climb-copy small,
+.leaderboard-page .leaderboard-reset {
+  color: #9eacc2 !important;
+}
+
+.leaderboard-page .leaderboard-demo-note,
+.leaderboard-page .leaderboard-climb-card,
+.leaderboard-page .leaderboard-mission-card,
+.leaderboard-page .leaderboard-badge-card {
+  border-color: #33425d;
+  background: #15233d !important;
+}
+
+.leaderboard-page .leaderboard-climb-stats div {
+  border-color: #33425d;
+  background: #1b2a45;
+}
+
+.leaderboard-page .leaderboard-xp-track {
+  background: #263a61;
+}
+
+.leaderboard-page .leaderboard-xp-track span {
+  background: #7d8fff;
+}
+
+.leaderboard-page .podium-wrap,
+.leaderboard-page .leaderboard-table-wrap {
+  border-color: #33425d;
+  background: #0f1b31 !important;
+  box-shadow: none;
+}
+
+.leaderboard-page .podium {
+  min-height: 350px;
+}
+
+.leaderboard-page .podium-col {
+  color: #f4f7ff;
+}
+
+.leaderboard-page .podium-col small {
+  color: #aebbd1;
+}
+
+.leaderboard-page .podium-bar {
+  border-color: #687bff;
+  background: #5566dc;
+  color: #ffffff;
+}
+
+.leaderboard-page .podium-col.first .podium-bar {
+  height: 170px;
+  background: #8491ff;
+  border-color: #aab3ff;
+}
+
+.leaderboard-page .podium-col.second .podium-bar {
+  height: 132px;
+  background: #6476ec;
+  border-color: #8392ff;
+}
+
+.leaderboard-page .podium-col.third .podium-bar {
+  height: 108px;
+  background: #4c5dc4;
+  border-color: #7180e8;
+}
+
+.leaderboard-page .leaderboard-table th {
+  background: #1a2943;
+  color: #9eacc2;
+}
+
+.leaderboard-page .leaderboard-table td {
+  border-color: #2a3b59;
+  color: #f4f7ff;
+}
+
+.leaderboard-page .leaderboard-table .leader-row:hover td {
+  background: #1d2e4c;
+}
+
+.leaderboard-page .leader-row.rank-1 td,
+.leaderboard-page .leader-row.rank-2 td,
+.leaderboard-page .leader-row.rank-3 td {
+  background: #162642;
+}
+
+.leaderboard-page .streak-chip,
+.leaderboard-page .reward-pill,
+.leaderboard-page .rank-badge {
+  border-color: #405276;
+  background: #1f3150;
+  color: #c9d3e6;
+}
+
+@media (max-width: 520px) {
+  .leaderboard-page {
+    padding: 36px 14px 64px;
+  }
+
+  .leaderboard-page .podium {
+    min-height: 260px;
+  }
 }
