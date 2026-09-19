@@ -6587,6 +6587,14 @@ html[data-theme="dark"] .test-chip.neutral {
   border-radius: 0;
 }
 
+.exam-mode-nta .nta-qbtn.not_answered {
+  clip-path: polygon(0 0, 82% 0, 100% 100%, 0 100%);
+  border: 1px solid #e84a17;
+  border-radius: 0;
+  background: #e84a17;
+  color: #ffffff;
+}
+
 @media (max-width: 520px) {
   .exam-mode-nta .nta-status-legend {
     grid-template-columns: 1fr;
