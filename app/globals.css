@@ -1387,6 +1387,148 @@ a {
   background: #f0f3f7;
 }
 
+/* Dashboard-aligned leaderboard polish */
+.leaderboard-page {
+  max-width: 1160px;
+  min-height: 0;
+  padding: 46px 0 80px;
+  background: #ffffff !important;
+  color: #171a1f !important;
+}
+
+.leaderboard-page .page-head {
+  max-width: none;
+  margin-bottom: 30px;
+}
+
+.leaderboard-page .page-head h1,
+.leaderboard-page .leaderboard-climb-copy h2,
+.leaderboard-page .leaderboard-subhead h2,
+.leaderboard-page .leaderboard-table-heading h2,
+.leaderboard-page .podium-wrap h2 {
+  color: #171a1f !important;
+}
+
+.leaderboard-page .page-head p:last-child,
+.leaderboard-page .muted,
+.leaderboard-page .leaderboard-climb-copy p,
+.leaderboard-page .leaderboard-climb-copy small,
+.leaderboard-page .leaderboard-reset {
+  color: #737b84 !important;
+}
+
+.leaderboard-page .leaderboard-demo-note {
+  max-width: none;
+  margin: 0 0 18px;
+  border-color: #e0e3e7;
+  border-radius: 10px;
+  background: #f7f8fa !important;
+  color: #737b84;
+}
+
+.leaderboard-page .leaderboard-climb-card {
+  max-width: none;
+  margin: 0 0 22px;
+  padding: 22px;
+  border-color: #e0e3e7;
+  border-radius: 12px;
+  background: #f7f8fa !important;
+}
+
+.leaderboard-page .leaderboard-climb-stats div,
+.leaderboard-page .leaderboard-mission-card,
+.leaderboard-page .leaderboard-badge-card {
+  border-color: #e0e3e7;
+  border-radius: 12px;
+  background: #ffffff !important;
+}
+
+.leaderboard-page .leaderboard-climb-stats div {
+  padding: 14px;
+}
+
+.leaderboard-page .leaderboard-climb-stats span,
+.leaderboard-page .leaderboard-mission-card p,
+.leaderboard-page .leaderboard-mission-card b,
+.leaderboard-page .leaderboard-badge-card small {
+  color: #737b84;
+}
+
+.leaderboard-page .leaderboard-climb-stats strong,
+.leaderboard-page .leaderboard-badge-card strong {
+  color: #171a1f;
+}
+
+.leaderboard-page .leaderboard-xp-track {
+  background: #e7ebef;
+}
+
+.leaderboard-page .leaderboard-xp-track span {
+  background: #4b7cad;
+}
+
+.leaderboard-page .leaderboard-missions,
+.leaderboard-page .leaderboard-badges,
+.leaderboard-page .leaderboard-table-heading {
+  max-width: none;
+}
+
+.leaderboard-page .podium-wrap,
+.leaderboard-page .leaderboard-table-wrap {
+  max-width: none;
+  border-color: #e0e3e7;
+  border-radius: 12px;
+  background: #ffffff !important;
+  box-shadow: none;
+}
+
+.leaderboard-page .podium-wrap {
+  padding: 22px;
+}
+
+.leaderboard-page .podium {
+  min-height: 300px;
+}
+
+.leaderboard-page .podium-bar {
+  border-radius: 12px 12px 6px 6px;
+  font-size: 2.35rem;
+}
+
+.leaderboard-page .leaderboard-table th {
+  background: #f7f8fa;
+  color: #737b84;
+}
+
+.leaderboard-page .leaderboard-table td {
+  border-color: #e7e9ec;
+  color: #252a31;
+}
+
+.leaderboard-page .leaderboard-table .leader-row:hover td {
+  background: #f7f8fa;
+}
+
+.leaderboard-page .leaderboard-mobile-item {
+  border-color: #e0e3e7;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #252a31;
+}
+
+@media (max-width: 960px) {
+  .leaderboard-page {
+    width: min(1160px, 95vw);
+  }
+}
+
+@media (max-width: 720px) {
+  .leaderboard-page {
+    padding-top: 34px;
+    padding-bottom: 60px;
+  }
+}
+
 .leaderboard-page .leaderboard-xp-track {
   background: #e2e8f0;
 }
@@ -7500,5 +7642,161 @@ html[data-theme="dark"] .test-chip.neutral {
 
   .leaderboard-page .podium {
     min-height: 260px;
+  }
+}
+
+/* Final leaderboard theme: match the dashboard's light cards and spacing. */
+.leaderboard-page {
+  max-width: 1160px;
+  min-height: 0;
+  padding: 46px 0 80px;
+  background: #ffffff !important;
+  color: #171a1f !important;
+}
+
+.leaderboard-page .page-head {
+  max-width: none;
+  margin: 0 0 30px;
+}
+
+.leaderboard-page .page-head h1,
+.leaderboard-page .leaderboard-climb-copy h2,
+.leaderboard-page .leaderboard-subhead h2,
+.leaderboard-page .leaderboard-table-heading h2,
+.leaderboard-page .podium-wrap h2 {
+  color: #171a1f !important;
+}
+
+.leaderboard-page .page-head p:last-child,
+.leaderboard-page .muted,
+.leaderboard-page .leaderboard-climb-copy p,
+.leaderboard-page .leaderboard-climb-copy small,
+.leaderboard-page .leaderboard-reset {
+  color: #737b84 !important;
+}
+
+.leaderboard-page .leaderboard-demo-note,
+.leaderboard-page .leaderboard-climb-card,
+.leaderboard-page .leaderboard-mission-card,
+.leaderboard-page .leaderboard-badge-card {
+  border-color: #e0e3e7 !important;
+  background: #ffffff !important;
+}
+
+.leaderboard-page .leaderboard-climb-card {
+  background: #f7f8fa !important;
+}
+
+.leaderboard-page .leaderboard-climb-stats div {
+  border-color: #e0e3e7;
+  background: #ffffff;
+}
+
+.leaderboard-page .leaderboard-climb-stats span,
+.leaderboard-page .leaderboard-mission-card p,
+.leaderboard-page .leaderboard-mission-card b,
+.leaderboard-page .leaderboard-badge-card small {
+  color: #737b84 !important;
+}
+
+.leaderboard-page .leaderboard-climb-stats strong,
+.leaderboard-page .leaderboard-badge-card strong {
+  color: #171a1f !important;
+}
+
+.leaderboard-page .leaderboard-xp-track {
+  background: #e7ebef !important;
+}
+
+.leaderboard-page .leaderboard-xp-track span {
+  background: #4b7cad !important;
+}
+
+.leaderboard-page .podium-wrap,
+.leaderboard-page .leaderboard-table-wrap {
+  max-width: none;
+  border-color: #e0e3e7 !important;
+  border-radius: 12px;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.leaderboard-page .podium {
+  min-height: 300px;
+}
+
+.leaderboard-page .podium-col {
+  color: #171a1f !important;
+}
+
+.leaderboard-page .podium-col small {
+  color: #737b84 !important;
+}
+
+.leaderboard-page .podium-bar {
+  border-color: #d8dde4 !important;
+  border-radius: 12px 12px 6px 6px;
+  color: #2f3440 !important;
+  background: #eceff4 !important;
+}
+
+.leaderboard-page .podium-col.first .podium-bar {
+  height: 130px;
+  background: #f6c953 !important;
+  border-color: #edc167 !important;
+  color: #7c5a12 !important;
+}
+
+.leaderboard-page .podium-col.second .podium-bar {
+  height: 102px;
+  background: #d0dbf7 !important;
+  border-color: #c4cee8 !important;
+  color: #4e5868 !important;
+}
+
+.leaderboard-page .podium-col.third .podium-bar {
+  height: 84px;
+  background: #f2c7ad !important;
+  border-color: #e0b79f !important;
+  color: #774733 !important;
+}
+
+.leaderboard-page .leaderboard-table th {
+  background: #f7f8fa !important;
+  color: #737b84 !important;
+}
+
+.leaderboard-page .leaderboard-table td {
+  border-color: #e7e9ec !important;
+  color: #252a31 !important;
+}
+
+.leaderboard-page .leaderboard-table .leader-row:hover td {
+  background: #f7f8fa !important;
+}
+
+.leaderboard-page .leader-row.rank-1 td,
+.leaderboard-page .leader-row.rank-2 td,
+.leaderboard-page .leader-row.rank-3 td {
+  background: #fbfcfe !important;
+}
+
+.leaderboard-page .streak-chip,
+.leaderboard-page .reward-pill,
+.leaderboard-page .rank-badge {
+  border-color: #d8dfe8 !important;
+  background: #f7f9fb !important;
+  color: #4c5868 !important;
+}
+
+@media (max-width: 960px) {
+  .leaderboard-page {
+    width: min(1160px, 95vw);
+  }
+}
+
+@media (max-width: 720px) {
+  .leaderboard-page {
+    padding: 34px 0 60px;
   }
 }
