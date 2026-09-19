@@ -3,20 +3,14 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { resources, slugifyResourceTitle, type SubjectTag } from "@/lib/data";
-import { BookIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon, SearchIcon } from "@/components/ui-icons";
+import { BookIcon, DownloadIcon, SearchIcon } from "@/components/ui-icons";
 
 const subjects: SubjectTag[] = ["Physics", "Chemistry", "Mathematics"];
 const categories = ["Roadmaps", "Strategies", "Books"] as const;
-const sliderCategories = new Set(["Roadmaps", "Strategies"]);
-const cardsPerSlide = 3;
 
 export default function ResourcesPage() {
   const [query, setQuery] = useState("");
   const [subject, setSubject] = useState<SubjectTag | "All">("All");
-  const [sliderStartByCategory, setSliderStartByCategory] = useState<Record<string, number>>({
-    Roadmaps: 0,
-    Strategies: 0
-  });
 
   const filteredResources = useMemo(
     () =>
@@ -44,10 +38,12 @@ export default function ResourcesPage() {
   return (
     <section className="page resources-page">
       <div className="page-head">
-        <h1>Roadmaps, Strategies, and Books</h1>
+        <p className="result-eyebrow">Preparation library</p>
+        <h1>Resources that keep your preparation moving.</h1>
+        <p className="muted">Short roadmaps, practical strategies, and curated books for focused JEE revision.</p>
       </div>
 
-      <div className="search-row card tests-search-box">
+      <div className="resources-toolbar">
         <div className="search-input-wrap">
           <SearchIcon size={17} />
           <input
@@ -78,52 +74,11 @@ export default function ResourcesPage() {
         <section key={section.category} className="resource-section">
           <div className="section-head resource-section-head">
             <h2>{section.category}</h2>
-            {sliderCategories.has(section.category) ? (
-              <div className="resource-slider-controls">
-                <button
-                  type="button"
-                  className="resource-slider-btn"
-                  aria-label={`Previous ${section.category}`}
-                  disabled={(sliderStartByCategory[section.category] ?? 0) <= 0}
-                  onClick={() =>
-                    setSliderStartByCategory((current) => ({
-                      ...current,
-                      [section.category]: Math.max((current[section.category] ?? 0) - 1, 0)
-                    }))
-                  }
-                >
-                  <ChevronLeftIcon size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="resource-slider-btn"
-                  aria-label={`Next ${section.category}`}
-                  disabled={(sliderStartByCategory[section.category] ?? 0) >= Math.max(section.items.length - cardsPerSlide, 0)}
-                  onClick={() =>
-                    setSliderStartByCategory((current) => ({
-                      ...current,
-                      [section.category]: Math.min(
-                        (current[section.category] ?? 0) + 1,
-                        Math.max(section.items.length - cardsPerSlide, 0)
-                      )
-                    }))
-                  }
-                >
-                  <ChevronRightIcon size={16} />
-                </button>
-              </div>
-            ) : null}
+            <span className="resource-count">{section.items.length} resources</span>
           </div>
 
-          <div className={sliderCategories.has(section.category) ? "resource-slider-grid" : "grid-2"}>
-            {(sliderCategories.has(section.category)
-              ? section.items.slice(
-                  Math.min(sliderStartByCategory[section.category] ?? 0, Math.max(section.items.length - cardsPerSlide, 0)),
-                  Math.min(sliderStartByCategory[section.category] ?? 0, Math.max(section.items.length - cardsPerSlide, 0)) +
-                    cardsPerSlide
-                )
-              : section.items
-            ).map((resource) =>
+          <div className="resource-grid">
+            {section.items.map((resource) =>
               resource.type === "Article" ? (
                 <Link
                   key={resource.title}
