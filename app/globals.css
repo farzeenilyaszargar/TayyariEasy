@@ -6257,3 +6257,339 @@ html[data-theme="dark"] .test-chip.neutral {
     grid-template-columns: 112px 14px minmax(0, 1fr);
   }
 }
+
+/* Rebuilt NTA paper layout */
+.exam-mode-nta .nta-topbar {
+  grid-template-columns: minmax(300px, 1fr) minmax(500px, 1.35fr) auto;
+  min-height: 106px;
+  padding: 12px 34px;
+  gap: 26px;
+}
+
+.exam-mode-nta .nta-brand {
+  align-self: center;
+  padding: 0;
+  border: 0;
+}
+
+.exam-mode-nta .nta-official-logo {
+  display: block;
+  width: min(390px, 100%);
+  height: auto;
+  object-fit: contain;
+}
+
+.exam-mode-nta .nta-candidate {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.exam-mode-nta .nta-candidate-avatar {
+  flex: 0 0 auto;
+  width: 70px;
+  height: 65px;
+  padding: 3px;
+  border: 2px solid #777777;
+  object-fit: contain;
+}
+
+.exam-mode-nta .nta-candidate-details {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.exam-mode-nta .nta-candidate p {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.87rem;
+}
+
+.exam-mode-nta .nta-candidate strong {
+  color: #f28b1d;
+  font-size: 0.94rem;
+}
+
+.exam-mode-nta .nta-subject-row {
+  min-height: 72px;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+  padding: 10px 34px;
+  border: 0;
+  background: #f7941d;
+}
+
+.exam-mode-nta .nta-exam-label {
+  flex: 0 0 auto;
+  padding-right: 8px;
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+}
+
+.exam-mode-nta .nta-subject-pill {
+  flex: 0 0 auto;
+  min-width: 104px;
+  border: 0;
+  border-radius: 0;
+  padding: 11px 16px;
+  background: #397db5;
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.82rem;
+}
+
+.exam-mode-nta .nta-subject-pill.active,
+.exam-mode-nta .nta-subject-pill:hover {
+  background: #245f93;
+  color: #ffffff;
+}
+
+.exam-mode-nta .nta-download-label {
+  margin-left: auto;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.exam-mode-nta .nta-download-btn {
+  flex: 0 0 auto;
+  min-width: 170px;
+  border: 0;
+  border-radius: 0;
+  padding: 11px 18px;
+  background: #397db5;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.exam-mode-nta .nta-lang-wrap {
+  flex: 0 0 164px;
+  margin-left: 8px;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  align-items: stretch;
+}
+
+.exam-mode-nta .nta-lang-wrap label {
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.exam-mode-nta .nta-lang-wrap select {
+  min-width: 0;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
+.exam-mode-nta .nta-main {
+  grid-template-columns: minmax(0, 1fr) 390px;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.exam-mode-nta .nta-question-card {
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  min-height: 0;
+  padding: 0 36px 10px;
+  border: 0;
+  border-right: 1px solid #d3d3d3;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.exam-mode-nta .nta-question-head {
+  min-height: 74px;
+  padding: 18px 0 12px;
+  border-bottom: 1px solid #333333;
+}
+
+.exam-mode-nta .nta-question-body {
+  min-height: 0;
+  padding: 24px 14px 18px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.exam-mode-nta .nta-question-body p {
+  max-width: 760px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  line-height: 1.55;
+}
+
+.exam-mode-nta .nta-options {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.exam-mode-nta .nta-option {
+  display: grid;
+  grid-template-columns: 18px 28px minmax(0, 1fr);
+  align-items: start;
+  gap: 5px;
+  min-width: 0;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 0;
+  background: #ffffff;
+  color: #333333;
+  font-family: Georgia, "Times New Roman", serif;
+  cursor: pointer;
+}
+
+.exam-mode-nta .nta-option input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: #2e75ad;
+}
+
+.exam-mode-nta .nta-option:hover,
+.exam-mode-nta .nta-option.active {
+  background: #f5f8fb;
+  box-shadow: none;
+}
+
+.exam-mode-nta .nta-actions-top,
+.exam-mode-nta .nta-actions-bottom {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  background: #f4f4f4;
+}
+
+.exam-mode-nta .nta-actions-top {
+  grid-template-columns: repeat(4, minmax(0, auto));
+}
+
+.exam-mode-nta .nta-actions-bottom {
+  min-height: 54px;
+}
+
+.exam-mode-nta .nta-sidebar {
+  min-height: 0;
+  padding: 18px 18px 22px;
+  overflow-y: auto;
+  border: 0;
+  border-radius: 0;
+}
+
+.exam-mode-nta .nta-status-legend {
+  gap: 8px;
+  padding: 12px 10px 14px;
+  border: 0;
+  border-bottom: 1px solid #d7d7d7;
+}
+
+.exam-mode-nta .nta-status-row {
+  grid-template-columns: 44px 1fr;
+  gap: 8px;
+}
+
+.exam-mode-nta .nta-chip,
+.exam-mode-nta .nta-qbtn {
+  clip-path: none;
+}
+
+.exam-mode-nta .nta-chip.not-answered,
+.exam-mode-nta .nta-chip.answered,
+.exam-mode-nta .nta-qbtn.not-answered,
+.exam-mode-nta .nta-qbtn.answered {
+  clip-path: polygon(0 0, 82% 0, 100% 18%, 100% 82%, 82% 100%, 0 100%);
+  border-radius: 0;
+}
+
+.exam-mode-nta .nta-chip.marked,
+.exam-mode-nta .nta-chip.answered-marked,
+.exam-mode-nta .nta-qbtn.marked,
+.exam-mode-nta .nta-qbtn.answered_marked {
+  border-radius: 50%;
+}
+
+.exam-mode-nta .nta-question-palette {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 5px;
+  padding-top: 16px;
+}
+
+.exam-mode-nta .nta-qbtn {
+  min-width: 0;
+  padding: 7px 0;
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 1100px) {
+  .exam-mode-nta .nta-topbar {
+    grid-template-columns: minmax(240px, 1fr) minmax(420px, 1.5fr) auto;
+    gap: 14px;
+    padding-inline: 20px;
+  }
+
+  .exam-mode-nta .nta-subject-row {
+    padding-inline: 20px;
+  }
+
+  .exam-mode-nta .nta-main {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+}
+
+@media (max-width: 900px) {
+  .exam-mode-nta .nta-topbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .exam-mode-nta .nta-candidate {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: start;
+  }
+
+  .exam-mode-nta .nta-subject-row {
+    flex-wrap: wrap;
+  }
+
+  .exam-mode-nta .nta-download-label {
+    margin-left: 0;
+  }
+
+  .exam-mode-nta .nta-lang-wrap {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .exam-mode-nta .nta-main {
+    overflow: visible;
+  }
+
+  .exam-mode-nta .nta-question-card {
+    border-right: 0;
+  }
+
+  .exam-mode-nta .nta-options {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-mode-nta .nta-candidate {
+    width: 100%;
+  }
+}

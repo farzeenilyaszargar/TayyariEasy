@@ -306,9 +306,8 @@ function MockExamPageContent() {
       return [] as Array<{ subject: string; count: number }>;
     }
     const bucket = new Map<string, number>();
-    for (const q of session.questions) {
-      const currentCount = bucket.get(q.subject) || 0;
-      bucket.set(q.subject, currentCount + 1);
+    for (const question of session.questions) {
+      bucket.set(question.subject, (bucket.get(question.subject) || 0) + 1);
     }
     return Array.from(bucket.entries()).map(([subject, count]) => ({ subject, count }));
   }, [session]);
@@ -629,20 +628,25 @@ function MockExamPageContent() {
       <div className="nta-shell">
         <header className="nta-topbar">
           <div className="nta-brand">
-            <div className="exam-brand-lockup">
-              <Image src="/tayyari-logo.png" alt="Tayyari" width={42} height={42} priority />
-              {uiMode === "sleek" ? (
+            {uiMode === "nta" ? (
+              <Image className="nta-official-logo" src="/nta-logo.png" alt="National Testing Agency" width={389} height={95} priority />
+            ) : (
+              <div className="exam-brand-lockup">
+                <Image src="/tayyari-logo.png" alt="Tayyari" width={42} height={42} priority />
                 <div>
                   <strong>Tayyari</strong>
                   <small>Focused practice</small>
                 </div>
-              ) : null}
-            </div>
+              </div>
+            )}
           </div>
           <div className="nta-candidate">
-            <p><span className="candidate-label">Candidate Name</span><span className="candidate-colon">:</span><strong>{user.name || "Aspirant"}</strong></p>
-            <p><span className="candidate-label">Subject Name</span><span className="candidate-colon">:</span><strong>{session.blueprint.name}</strong></p>
-            <p><span className="candidate-label">Remaining Time</span><span className="candidate-colon">:</span><strong>{formatTime(remainingSec)}</strong></p>
+            {uiMode === "nta" ? <Image className="nta-candidate-avatar" src="/nta-candidate.png" alt="Candidate" width={70} height={65} /> : null}
+            <div className="nta-candidate-details">
+              <p><span className="candidate-label">Candidate Name</span><span className="candidate-colon">:</span><strong>{user.name || "Aspirant"}</strong></p>
+              <p><span className="candidate-label">Subject Name</span><span className="candidate-colon">:</span><strong>{session.blueprint.name}</strong></p>
+              <p><span className="candidate-label">Remaining Time</span><span className="candidate-colon">:</span><strong>{formatTime(remainingSec)}</strong></p>
+            </div>
           </div>
           <div className="exam-mode-control">
             <span className="exam-mode-caption">{uiMode === "nta" ? "NTA" : "Sleek"}</span>
@@ -661,24 +665,30 @@ function MockExamPageContent() {
         </header>
 
         <div className="nta-subject-row">
-          {questionsBySubject.map((item) => (
-            <button
-              key={item.subject}
-              className={`nta-subject-pill ${current?.subject === item.subject ? "active" : ""}`}
-              onClick={() => {
-                const first = session.questions.findIndex((q) => q.subject === item.subject);
-                if (first >= 0) {
-                  moveTo(first);
-                }
-              }}
-            >
-              {normalizeSubject(item.subject)} ({item.count})
-            </button>
-          ))}
+          {uiMode === "nta" ? (
+            <>
+              <strong className="nta-exam-label">JEE MAIN</strong>
+              {questionsBySubject.map((item) => (
+                <button
+                  key={item.subject}
+                  className={`nta-subject-pill ${current?.subject === item.subject ? "active" : ""}`}
+                  onClick={() => {
+                    const first = session.questions.findIndex((question) => question.subject === item.subject);
+                    if (first >= 0) moveTo(first);
+                  }}
+                >
+                  {normalizeSubject(item.subject).toUpperCase()}
+                </button>
+              ))}
+              <span className="nta-download-label">DOWNLOAD PAPER IN:</span>
+              <button type="button" className="nta-download-btn">↓ DOWNLOAD</button>
+            </>
+          ) : null}
           <div className="nta-lang-wrap">
-            <label htmlFor="nta-lang">Language</label>
+            <label htmlFor="nta-lang">{uiMode === "nta" ? "Paper Language:" : "Language"}</label>
             <select id="nta-lang" value={lang} onChange={(event) => setLang(event.target.value)}>
               <option>English</option>
+              <option>Hindi</option>
             </select>
           </div>
         </div>
@@ -702,20 +712,27 @@ function MockExamPageContent() {
               ) : null}
               {current.questionType === "mcq_single" ? (
                 <div className="nta-options">
-                  {current.options.length > 0 ? current.options.map((option) => {
-                      const selected = (answers[current.id] || "").toUpperCase() === option.key;
-                      return (
-                        <button
-                          type="button"
-                          key={option.key}
-                          className={`nta-option ${selected ? "active" : ""}`}
-                          onClick={() => setAnswers((prev) => ({ ...prev, [current.id]: option.key }))}
-                        >
-                          <span>{option.key}</span>
-                          <span>{option.text}</span>
-                        </button>
-                      );
-                    }) : <div className="nta-options-empty">Options are being normalized for this question.</div>}
+                  {(current.options.length > 0 ? current.options : [
+                    { key: "A", text: "Option 1" },
+                    { key: "B", text: "Option 2" },
+                    { key: "C", text: "Option 3" },
+                    { key: "D", text: "Option 4" }
+                  ]).map((option, optionIndex) => {
+                    const selected = (answers[current.id] || "").toUpperCase() === option.key;
+                    return (
+                      <label className={`nta-option ${selected ? "active" : ""}`} key={option.key}>
+                        <input
+                          type="radio"
+                          name={`question-${current.id}`}
+                          value={option.key}
+                          checked={selected}
+                          onChange={() => setAnswers((prev) => ({ ...prev, [current.id]: option.key }))}
+                        />
+                        <span>{optionIndex + 1})</span>
+                        <span>{option.text}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="nta-integer-wrap">
