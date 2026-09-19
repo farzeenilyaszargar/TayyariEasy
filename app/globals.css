@@ -6578,6 +6578,15 @@ html[data-theme="dark"] .test-chip.neutral {
   grid-column: 1 / -1;
 }
 
+/* Reference-style status marker: one straight side and one angled side. */
+.exam-mode-nta .nta-chip.not-answered,
+.exam-mode-nta .nta-chip.answered,
+.exam-mode-nta .nta-qbtn.not-answered,
+.exam-mode-nta .nta-qbtn.answered {
+  clip-path: polygon(0 0, 82% 0, 100% 100%, 0 100%);
+  border-radius: 0;
+}
+
 @media (max-width: 520px) {
   .exam-mode-nta .nta-status-legend {
     grid-template-columns: 1fr;
