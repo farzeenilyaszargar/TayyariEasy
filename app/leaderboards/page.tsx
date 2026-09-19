@@ -28,23 +28,6 @@ export default function LeaderboardsPage() {
         <span className="result-status-dot" /> Demo rankings for the current preview. Live rankings will appear after leaderboard data is connected.
       </div>
 
-      <section className="leaderboard-climb-card">
-        <div className="leaderboard-climb-copy">
-          <span className="leaderboard-kicker">Your weekly climb</span>
-          <h2>Keep the streak alive.</h2>
-          <p>Complete two more tests to unlock the Focus Finisher reward.</p>
-          <div className="leaderboard-xp-track" aria-label="72 percent progress to next reward">
-            <span style={{ width: "72%" }} />
-          </div>
-          <small>720 / 1,000 XP to next reward</small>
-        </div>
-        <div className="leaderboard-climb-stats">
-          <div><span>Current rank</span><strong>#12</strong></div>
-          <div><span>Weekly XP</span><strong>720</strong></div>
-          <div><span>Best streak</span><strong>7 days</strong></div>
-        </div>
-      </section>
-
       <section className="leaderboard-missions">
         <div className="section-head leaderboard-subhead">
           <div>

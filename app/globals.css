@@ -7800,3 +7800,25 @@ html[data-theme="dark"] .test-chip.neutral {
     padding: 34px 0 60px;
   }
 }
+
+@media (min-width: 961px) {
+  .leaderboard-page > .leaderboard-missions {
+    grid-row: 3 / span 2;
+  }
+
+  .leaderboard-page > .leaderboard-badges {
+    grid-row: 3;
+  }
+
+  .leaderboard-page > .podium-wrap {
+    grid-row: 4;
+  }
+
+  .leaderboard-page > .leaderboard-table-heading {
+    grid-row: 5;
+  }
+
+  .leaderboard-page > .leaderboard-table-wrap {
+    grid-row: 6;
+  }
+}
