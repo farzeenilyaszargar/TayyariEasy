@@ -479,34 +479,63 @@ function MockExamPageContent() {
   }
 
   if (result) {
+    const scorePercent = result.maxScore > 0
+      ? Math.max(0, Math.min(100, Math.round((result.score / result.maxScore) * 100)))
+      : 0;
+
     return (
       <section className="page nta-result-page">
-        <article className="card nta-result-card nta-leaderboard-screen">
-          <div className="nta-rank-hero">
+        <article className="card nta-result-card result-screen">
+          <div className="result-screen-header">
             <div>
-              <h2>Leaderboard Snapshot: {session.blueprint.name}</h2>
-              <p className="muted">
-                Score: {result.score} / {result.maxScore} | Percentile: {result.percentile}
-              </p>
-              <p className="muted">
-                Correct: {result.correctCount} | Attempted: {result.attemptedCount} / {result.totalQuestions}
-              </p>
-          <p className="muted">
-            JEE Main Scoring: +4 correct, -1 wrong, 0 unattempted
-          </p>
-          <p className="muted">
-            Points Earned (same as score): {result.earnedPoints}
-          </p>
-              <p className="muted">
-                {result.savedToCloud ? "Saved to your profile and attempt history." : "Saved locally on this device. Sign in to sync all future test attempts."}
-              </p>
+              <Link className="exam-back-link" href="/tests">
+                <span aria-hidden="true">←</span> Back to tests
+              </Link>
+              <p className="result-eyebrow">Mock test complete</p>
+              <h1>{session.blueprint.name}</h1>
+              <p className="muted">Here is a clear snapshot of how this attempt went.</p>
             </div>
-            <div className="nta-rank-tile">
-              <span className="nta-rank-icon"><TrophyIcon size={22} /></span>
-              <p>Your Rank</p>
-              <strong className="nta-rank-value">#{animatedRank ?? targetRank ?? 1}</strong>
-              <small>for this test (local ranking)</small>
+            <div className="result-save-status">
+              <span className="result-status-dot" />
+              {result.savedToCloud ? "Saved to your profile" : "Saved on this device"}
             </div>
+          </div>
+
+          <div className="result-overview">
+            <div className="result-score-panel">
+              <span className="result-panel-label">Your score</span>
+              <div className="result-score-line">
+                <strong>{result.score}</strong>
+                <span>/ {result.maxScore}</span>
+              </div>
+              <div className="result-progress" aria-label={`Score ${scorePercent}%`}>
+                <span style={{ width: `${scorePercent}%` }} />
+              </div>
+              <p className="muted">{scorePercent}% of the available marks</p>
+            </div>
+
+            <div className="result-stat-grid">
+              <div className="result-stat-card">
+                <span>Correct</span>
+                <strong>{result.correctCount}</strong>
+              </div>
+              <div className="result-stat-card">
+                <span>Attempted</span>
+                <strong>{result.attemptedCount}<small>/{result.totalQuestions}</small></strong>
+              </div>
+              <div className="result-stat-card">
+                <span>Percentile</span>
+                <strong>{result.percentile}</strong>
+              </div>
+              <div className="result-stat-card result-rank-stat">
+                <span><TrophyIcon size={14} /> Your rank</span>
+                <strong>#{animatedRank ?? targetRank ?? 1}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div className="result-note">
+            <strong>JEE Main scoring:</strong> +4 for a correct answer, −1 for an incorrect answer, and 0 for an unattempted question.
           </div>
 
           <article className="card nta-inline-leaderboard">
@@ -541,7 +570,7 @@ function MockExamPageContent() {
           </article>
 
           <div className="grid-2">
-            <article className="card">
+            <article className="card result-breakdown-card">
               <h4>Topic Accuracy</h4>
               <ul className="list-clean">
                 {result.topicBreakdown.map((item) => (
@@ -552,7 +581,7 @@ function MockExamPageContent() {
                 ))}
               </ul>
             </article>
-            <article className="card">
+            <article className="card result-breakdown-card">
               <h4>Difficulty Accuracy</h4>
               <ul className="list-clean">
                 {result.difficultyBreakdown.map((item) => (
@@ -566,7 +595,7 @@ function MockExamPageContent() {
           </div>
 
           <div className="cta-row">
-            <button className="btn btn-solid" onClick={() => router.push("/tests")}>Back to Tests</button>
+            <button className="btn btn-solid" onClick={() => router.push("/tests")}>Take another test</button>
             <button className="btn btn-outline" onClick={() => router.push("/leaderboards")}>Open Leaderboards</button>
           </div>
         </article>
