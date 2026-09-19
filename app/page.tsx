@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { TrustBadge } from "@/components/trust-badge";
 import { ChevronRightIcon } from "@/components/ui-icons";
 
 export default function Page() {
@@ -7,7 +8,7 @@ export default function Page() {
     <section className="landing-page">
       <div className="landing-layout">
         <div className="landing-copy">
-          <div className="trust-badge"><span>+3,642</span> Students Using Tayyari</div>
+          <TrustBadge />
           <h1>Practice smarter. Walk into JEE ready.</h1>
           <p>Practice for JEE Main and JEE Advanced with focused tests, honest score feedback, and a clear next step.</p>
           <Link href="/tests" className="btn btn-solid main-app-button hero-cta">
