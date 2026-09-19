@@ -7802,6 +7802,67 @@ html[data-theme="dark"] .test-chip.neutral {
 }
 
 @media (min-width: 961px) {
+  .leaderboard-page > .leaderboard-sidebar {
+    grid-column: 2;
+    grid-row: 3 / span 2;
+    width: 100%;
+    margin: 0;
+    display: grid;
+    align-content: start;
+    gap: 26px;
+    position: sticky;
+    top: 78px;
+  }
+
+  .leaderboard-sidebar .leaderboard-missions,
+  .leaderboard-sidebar .leaderboard-badges {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .leaderboard-sidebar .leaderboard-subhead {
+    max-width: none;
+    margin: 0 0 14px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .leaderboard-sidebar .leaderboard-mission-grid,
+  .leaderboard-sidebar .leaderboard-badge-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .leaderboard-page > .podium-wrap,
+  .leaderboard-page > .leaderboard-table-heading,
+  .leaderboard-page > .leaderboard-table-wrap {
+    grid-column: 1;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .leaderboard-page > .podium-wrap {
+    grid-row: 3;
+  }
+
+  .leaderboard-page > .leaderboard-table-heading {
+    grid-row: 4;
+  }
+
+  .leaderboard-page > .leaderboard-table-wrap {
+    grid-row: 5;
+  }
+}
+
+@media (max-width: 960px) {
+  .leaderboard-page > .leaderboard-sidebar {
+    display: grid;
+    gap: 26px;
+  }
+}
+
+@media (min-width: 961px) {
   .leaderboard-page > .leaderboard-missions {
     grid-column: 2;
     grid-row: 3;

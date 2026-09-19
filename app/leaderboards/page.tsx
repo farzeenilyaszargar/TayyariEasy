@@ -28,6 +28,7 @@ export default function LeaderboardsPage() {
         <span className="result-status-dot" /> Demo rankings for the current preview. Live rankings will appear after leaderboard data is connected.
       </div>
 
+      <aside className="leaderboard-sidebar">
       <section className="leaderboard-missions">
         <div className="section-head leaderboard-subhead">
           <div>
@@ -70,6 +71,7 @@ export default function LeaderboardsPage() {
           <article className="leaderboard-badge-card badge-locked"><span>♛</span><div><strong>Top ten</strong><small>Reach the top 10</small></div></article>
         </div>
       </section>
+      </aside>
 
       <section className="card podium-wrap shiny-card">
         <div className="section-head">
