@@ -1,4 +1,5 @@
 import dataset from "@/data/jee-question-seed-90.json";
+import { sortQuestionsBySubject } from "@/lib/test-order";
 
 export const LOCAL_TEST_ID = "local-jee-main-seed-90";
 
@@ -16,6 +17,8 @@ export const LOCAL_TEST_BLUEPRINT = {
   availableQuestions: dataset.questions.length
 };
 
+const orderedQuestions = sortQuestionsBySubject(dataset.questions);
+
 export function getLocalTestInstance() {
   return {
     testInstanceId: LOCAL_TEST_ID,
@@ -28,7 +31,7 @@ export function getLocalTestInstance() {
       durationMinutes: LOCAL_TEST_BLUEPRINT.duration_minutes,
       negativeMarking: LOCAL_TEST_BLUEPRINT.negative_marking
     },
-    questions: dataset.questions.map((question, index) => ({
+    questions: orderedQuestions.map((question, index) => ({
       id: question.id,
       position: index + 1,
       questionType: question.section === "B" ? ("integer" as const) : ("mcq_single" as const),

@@ -9,6 +9,7 @@ import {
 } from "@/lib/test-engine";
 import { getLocalTestInstance, LOCAL_TEST_ID } from "@/lib/local-test";
 import { supabaseRest } from "@/lib/supabase-server";
+import { sortQuestionsBySubject } from "@/lib/test-order";
 
 type LaunchBody = {
   blueprintId?: string;
@@ -121,13 +122,13 @@ export async function POST(request: NextRequest) {
           );
         }
         const qMap = new Map(questions.map((q) => [q.id, q]));
-        picked = links.map((link) => qMap.get(link.question_id)).filter(Boolean) as typeof picked;
+        picked = sortQuestionsBySubject(links.map((link) => qMap.get(link.question_id)).filter(Boolean) as typeof picked);
       }
     }
 
     if (picked.length === 0) {
       const seed = randomUUID();
-      picked = await pickQuestionsForBlueprint(blueprint, seed);
+      picked = sortQuestionsBySubject(await pickQuestionsForBlueprint(blueprint, seed));
 
       if (picked.length === 0) {
         return NextResponse.json({ error: "No eligible questions available for this blueprint yet." }, { status: 400 });

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchOptionsForQuestions } from "@/lib/test-engine";
 import { supabaseRest } from "@/lib/supabase-server";
 import { getLocalTestInstance, LOCAL_TEST_ID } from "@/lib/local-test";
+import { sortQuestionsBySubject } from "@/lib/test-order";
 
 export async function GET(request: NextRequest) {
   try {
@@ -108,7 +109,7 @@ export async function GET(request: NextRequest) {
     }
 
     const qMap = new Map(questions.map((q) => [q.id, q]));
-    const orderedQuestions = links.map((link) => qMap.get(link.question_id)).filter(Boolean) as typeof questions;
+    const orderedQuestions = sortQuestionsBySubject(links.map((link) => qMap.get(link.question_id)).filter(Boolean) as typeof questions);
 
     const options = await fetchOptionsForQuestions(orderedQuestions.map((q) => q.id));
     const optionsByQuestion = new Map<string, typeof options>();
