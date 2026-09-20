@@ -8270,7 +8270,7 @@ html[data-theme="dark"] .test-chip.neutral {
   }
 }
 
-/* Tayyari typography: one friendly UI voice with an editorial display layer. */
+/* Tayyari typography: sharp academic UI with a high-contrast editorial display layer. */
 html { font-size: 16px; }
 
 body,
@@ -8292,9 +8292,8 @@ h3,
 h4,
 h5 {
   font-family: var(--font-serif), Georgia, serif;
-  font-variation-settings: "SOFT" 40, "WONK" 0;
-  font-weight: 600;
-  letter-spacing: -0.045em;
+  font-weight: 400;
+  letter-spacing: -0.035em;
 }
 
 h1 {
@@ -8315,9 +8314,8 @@ h2 {
 
 .landing-copy h1,
 .pricing-head h1 {
-  font-variation-settings: "SOFT" 55, "WONK" 1;
-  font-weight: 550;
-  letter-spacing: -0.06em;
+  font-weight: 400;
+  letter-spacing: -0.045em;
 }
 
 .landing-copy p:not(.eyebrow),
@@ -8333,16 +8331,16 @@ h2 {
 .pricing-head > span,
 .tests-section-kicker {
   font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
-  font-weight: 750;
-  letter-spacing: 0.075em;
+  font-weight: 700;
+  letter-spacing: 0.095em;
 }
 
 .btn,
 .nav-link,
 .nav-signin {
   font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.018em;
+  font-weight: 650;
+  letter-spacing: -0.025em;
 }
 
 /* The NTA mock deliberately retains the familiar Arial assessment interface. */
