@@ -19,7 +19,8 @@ type QuestionMeta = {
 export async function POST(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser(request);
-    const isGuestAttempt = !user?.id;
+    if (!user?.id) return NextResponse.json({ error: "Sign in to submit a full mock test." }, { status: 401 });
+    const isGuestAttempt = false;
 
     const body = (await request.json()) as SubmitBody;
     const testInstanceId = body.testInstanceId?.trim();

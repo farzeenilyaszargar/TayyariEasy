@@ -22,13 +22,25 @@ create table if not exists public.payment_events (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.test_usage (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  week_start date not null,
+  blueprint_id text not null,
+  started_at timestamptz not null default now(),
+  unique (user_id, week_start)
+);
+
 alter table public.user_subscriptions enable row level security;
 alter table public.payment_events enable row level security;
+alter table public.test_usage enable row level security;
 
 drop policy if exists "user_subscriptions_select_own" on public.user_subscriptions;
 create policy "user_subscriptions_select_own" on public.user_subscriptions for select using (auth.uid() = user_id);
 drop policy if exists "payment_events_select_own" on public.payment_events;
 create policy "payment_events_select_own" on public.payment_events for select using (auth.uid() = user_id);
+drop policy if exists "test_usage_select_own" on public.test_usage;
+create policy "test_usage_select_own" on public.test_usage for select using (auth.uid() = user_id);
 
 -- Existing accounts start on Free. New accounts are created by this trigger.
 insert into public.user_subscriptions (user_id, plan, status)

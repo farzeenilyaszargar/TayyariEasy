@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getBillingStatus } from "@/lib/billing";
 import { getAuthenticatedUser } from "@/lib/server-auth";
 
-const PRO_PRICE_PAISE = 29900;
+const PRO_PRICE_PAISE = 19900;
 
 export async function POST(request: NextRequest) {
   const user = await getAuthenticatedUser(request);

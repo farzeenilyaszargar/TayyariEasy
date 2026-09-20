@@ -1,101 +1,41 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FlaskIcon, TargetIcon, TrendIcon, TrophyIcon } from "@/components/ui-icons";
+import { useAuth } from "@/components/auth-provider";
+import { fetchDashboardData, type TestAttemptRow } from "@/lib/supabase-db";
+import { getStoredSession } from "@/lib/supabase-auth";
 
-const metrics = [
-  { label: "Tests completed", value: "0", note: "Start your first test", icon: FlaskIcon },
-  { label: "Average score", value: "—", note: "No score recorded", icon: TrendIcon },
-  { label: "Accuracy", value: "—", note: "Build your baseline", icon: TargetIcon },
-  { label: "Current streak", value: "0 days", note: "Consistency starts today", icon: TrophyIcon }
-];
-
-const actions = [
-  { title: "Take a full-length test", detail: "See where your preparation stands", href: "/tests" },
-  { title: "Practice by subject", detail: "Build confidence one subject at a time", href: "/tests" },
-  { title: "Review your progress", detail: "Your trends will appear after a test", href: "/tests" }
-];
+type Billing = { plan: "free" | "pro"; freeTestsUsed: number; freeTestsRemaining: number };
 
 export default function DashboardPage() {
-  return (
-    <section className="page dashboard-page">
-      <header className="dashboard-page-header">
-        <div>
-          <h1>Your dashboard</h1>
-          <p className="muted">A clear view of your preparation, progress, and next move.</p>
-        </div>
-        <Link href="/tests" className="btn btn-solid">Take a test</Link>
-      </header>
+  const { user } = useAuth();
+  const [billing, setBilling] = useState<Billing | null>(null);
+  const [attempts, setAttempts] = useState<TestAttemptRow[]>([]);
+  const [error, setError] = useState("");
 
-      <section className="dashboard-summary-grid" aria-label="Preparation summary">
-        {metrics.map((metric) => {
-          const Icon = metric.icon;
-          return (
-            <article className="dashboard-summary-card" key={metric.label}>
-              <div className="dashboard-summary-icon"><Icon size={18} /></div>
-              <span>{metric.label}</span>
-              <strong>{metric.value}</strong>
-              <small>{metric.note}</small>
-            </article>
-          );
-        })}
-      </section>
+  useEffect(() => {
+    if (!user.id) return;
+    let active = true;
+    const token = getStoredSession()?.accessToken;
+    Promise.all([
+      fetch("/api/billing/status", { headers: token ? { Authorization: `Bearer ${token}` } : {}, cache: "no-store" }).then(async (response) => {
+        if (!response.ok) throw new Error("Your plan status is unavailable right now.");
+        return response.json() as Promise<Billing>;
+      }),
+      fetchDashboardData(user.id)
+    ]).then(([plan, data]) => {
+      if (!active) return;
+      setBilling(plan);
+      setAttempts(data.tests);
+    }).catch((reason) => { if (active) setError(reason instanceof Error ? reason.message : "Unable to load progress."); });
+    return () => { active = false; };
+  }, [user.id]);
 
-      <div className="dashboard-main-grid">
-        <section className="dashboard-panel dashboard-performance-panel">
-          <div className="dashboard-panel-header">
-            <div>
-              <h2>Performance overview</h2>
-              <p className="muted">Your score and accuracy trend will appear here.</p>
-            </div>
-            <span className="dashboard-period">Last 30 days</span>
-          </div>
-          <div className="dashboard-empty-chart">
-            <svg viewBox="0 0 640 220" role="img" aria-label="Empty performance chart">
-              <line x1="34" y1="30" x2="34" y2="188" />
-              <line x1="34" y1="188" x2="610" y2="188" />
-              <line x1="34" y1="80" x2="610" y2="80" />
-              <line x1="34" y1="134" x2="610" y2="134" />
-            </svg>
-            <div className="dashboard-chart-message">
-              <TrendIcon size={22} />
-              <strong>No performance data yet</strong>
-              <span>Complete a test to start tracking your progress.</span>
-              <Link href="/tests" className="btn btn-outline">Browse tests</Link>
-            </div>
-          </div>
-        </section>
-
-        <aside className="dashboard-panel dashboard-actions-panel">
-          <div className="dashboard-panel-header">
-            <div>
-              <h2>Next actions</h2>
-              <p className="muted">Keep your preparation moving.</p>
-            </div>
-          </div>
-          <div className="dashboard-action-list">
-            {actions.map((action, index) => (
-              <Link href={action.href} className="dashboard-action" key={action.title}>
-                <span className="dashboard-action-number">0{index + 1}</span>
-                <span className="dashboard-action-copy"><strong>{action.title}</strong><small>{action.detail}</small></span>
-                <span className="dashboard-action-arrow">→</span>
-              </Link>
-            ))}
-          </div>
-        </aside>
-      </div>
-
-      <section className="dashboard-panel dashboard-recent-panel">
-        <div className="dashboard-panel-header">
-          <div>
-            <h2>Recent tests</h2>
-            <p className="muted">Your latest attempts will be listed here.</p>
-          </div>
-          <Link href="/tests" className="text-link">View test series →</Link>
-        </div>
-        <div className="dashboard-empty-table">
-          <span>No tests attempted yet.</span>
-          <Link href="/tests" className="btn btn-solid">Start your first test</Link>
-        </div>
-      </section>
-    </section>
-  );
+  const latest = attempts.at(-1);
+  const average = attempts.length ? Math.round(attempts.reduce((total, item) => total + Number(item.score), 0) / attempts.length) : null;
+  const accuracy = attempts.length ? Math.round(attempts.reduce((total, item) => total + Number(item.accuracy_percent || 0), 0) / attempts.length) : null;
+  const previous = attempts.length > 1 ? attempts.at(-2) : null;
+  const scoreChange = latest && previous ? Number(latest.score) - Number(previous.score) : null;
+  return <section className="account-dashboard"><header className="account-dashboard-head"><div><span className="demo-kicker">Your preparation</span><h1>Keep moving, {user.name.split(" ")[0]}.</h1><p>Your test history and plan are tied to this account.</p></div><Link href="/tests" className="btn btn-solid">Browse mock tests</Link></header>{error && <p role="status" className="auth-message">{error}</p>}<div className="account-metrics"><article><span>Plan</span><strong>{billing?.plan === "pro" ? "Pro lifetime" : "Free"}</strong><small>{billing?.plan === "pro" ? "Unlimited mock tests" : `${billing?.freeTestsRemaining ?? "—"} of 1 test left this week`}</small></article><article><span>Tests completed</span><strong>{attempts.length}</strong><small>Saved to your account</small></article><article><span>Latest score</span><strong>{latest ? latest.score : "—"}</strong><small>{latest ? latest.test_name : "Your first result will appear here"}</small></article><article><span>Average score</span><strong>{average ?? "—"}</strong><small>Across completed mocks</small></article></div><div className="account-dashboard-lower"><article className="account-panel"><div className="account-panel-heading"><h2>Recent tests</h2><Link href="/tests">Take a test →</Link></div>{attempts.length ? <div className="account-attempts">{attempts.slice(-5).reverse().map((item) => <div key={item.id}><span>{item.test_name}</span><strong>{item.score} pts</strong><small>{item.attempted_at}</small></div>)}</div> : <p>Your results will appear here after your first full mock.</p>}</article><article className="account-panel account-plan-panel"><h2>{billing?.plan === "pro" ? "All access unlocked" : "Your weekly access"}</h2><p>{billing?.plan === "pro" ? "Practice as often as you like and track your progress here." : "One full mock is included each calendar week. Your allowance resets each Monday."}</p>{billing?.plan === "pro" ? <Link href="/tests" className="btn btn-outline">Choose a mock</Link> : <Link href="/pricings" className="btn btn-outline">Explore Pro · ₹199 lifetime</Link>}</article></div>{billing?.plan === "pro" ? <section className="account-advanced"><div><span className="demo-kicker">Pro analysis</span><h2>Look beyond your score.</h2></div><div className="account-advanced-grid"><article><span>Average accuracy</span><strong>{accuracy === null ? "—" : `${accuracy}%`}</strong><small>Correct answers across completed tests</small></article><article><span>Change from previous test</span><strong>{scoreChange === null ? "—" : `${scoreChange > 0 ? "+" : ""}${scoreChange}`}</strong><small>Points gained or lost on your latest attempt</small></article><article><span>Strongest recent test</span><strong>{attempts.length ? Math.max(...attempts.map((item) => Number(item.score))) : "—"}</strong><small>Your best score so far</small></article></div></section> : null}</section>;
 }

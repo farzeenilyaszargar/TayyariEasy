@@ -13,7 +13,8 @@ export function AuthForm() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const next = params.get("next")?.startsWith("/") ? params.get("next")! : "/tests";
+  const requestedNext = params.get("next") || "";
+  const next = requestedNext.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/tests";
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

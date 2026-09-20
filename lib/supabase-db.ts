@@ -514,6 +514,7 @@ export async function submitBlueprintTest(payload: {
 
 export async function fetchTestInstanceById(testInstanceId: string) {
   const response = await fetch(`/api/tests/instance?testInstanceId=${encodeURIComponent(testInstanceId)}`, {
+    headers: getApiHeaders(),
     cache: "no-store"
   });
 

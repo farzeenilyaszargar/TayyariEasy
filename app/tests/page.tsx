@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SearchIcon, StarIcon } from "@/components/ui-icons";
 import { fetchTestsCatalog, type TestBlueprintRow } from "@/lib/supabase-db";
 import { useAuth } from "@/components/auth-provider";
+import { getStoredSession } from "@/lib/supabase-auth";
 
 type TagTone = "physics" | "chemistry" | "mathematics" | "neutral";
 
@@ -52,14 +53,12 @@ function BlueprintCard({ blueprint, onLaunch, launching }: { blueprint: TestBlue
         </div>
       </div>
       <strong>{blueprint.name}</strong>
-      <div className="test-stats">
+        <div className="test-stats">
         <span>Questions: {blueprint.question_count}</span>
         <span>Duration: {blueprint.duration_minutes} min</span>
-        <span className="test-xp test-xp-formula">
-          <StarIcon size={14} />
-          Max Score: {maxAchievablePoints}
-        </span>
+        {blueprint.id !== "local-jee-main-seed-90" ? <span className="test-xp test-xp-formula"><StarIcon size={14} />Max Score: {maxAchievablePoints}</span> : null}
       </div>
+      {blueprint.id === "local-jee-main-seed-90" ? <p className="test-unscored-note">Practice paper · verified scoring is being prepared</p> : null}
       <div className="test-cta-row">
         <button className="btn btn-solid" onClick={() => onLaunch(blueprint.id)} disabled={launching || !ready}>
           {launching ? "Launching..." : ready ? "Attempt" : "Being prepared"}
@@ -76,6 +75,7 @@ export default function TestsPage() {
   const [catalogError, setCatalogError] = useState("");
   const [launchingId, setLaunchingId] = useState("");
   const { isLoggedIn } = useAuth();
+  const [billing, setBilling] = useState<{ plan: "free" | "pro"; freeTestsRemaining: number } | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -103,6 +103,16 @@ export default function TestsPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const token = getStoredSession()?.accessToken;
+    if (!token) return;
+    fetch("/api/billing/status", { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then(setBilling)
+      .catch(() => setBilling(null));
+  }, [isLoggedIn]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) {
@@ -118,6 +128,10 @@ export default function TestsPage() {
   const startTest = async (blueprintId: string) => {
     if (!isLoggedIn) {
       window.location.assign("/auth?next=/tests");
+      return;
+    }
+    if (blueprintId !== "local-jee-main-seed-90" && billing?.plan === "free" && billing.freeTestsRemaining === 0) {
+      window.location.assign("/pricings");
       return;
     }
     setLaunchingId(blueprintId);
@@ -137,6 +151,7 @@ export default function TestsPage() {
         <h1>JEE Test Series</h1>
         <p className="muted tests-lead">Choose the right level of practice, attempt with focus, and use every test to sharpen your next revision.</p>
       </div>
+      {billing ? <div className="tests-plan-note"><span>{billing.plan === "pro" ? "Pro lifetime · unlimited tests" : `${billing.freeTestsRemaining} free test left this week`}</span>{billing.plan === "free" ? <a href="/pricings">See Pro · ₹199 lifetime →</a> : null}</div> : null}
 
       <label className="search-input-wrap tests-search" htmlFor="test-search">
         <SearchIcon size={17} />

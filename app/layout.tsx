@@ -3,6 +3,7 @@ import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { AuthProvider } from "@/components/auth-provider";
+import { SiteAccess } from "@/components/site-access";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in";
 
@@ -99,7 +100,7 @@ export default function RootLayout({
         />
         <AuthProvider>
           <Navbar />
-          <main className="container">{children}</main>
+          <main className="container"><SiteAccess>{children}</SiteAccess></main>
         </AuthProvider>
       </body>
     </html>

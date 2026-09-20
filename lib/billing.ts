@@ -9,23 +9,25 @@ export type BillingStatus = {
   freeTestsRemaining: number;
 };
 
+export function currentWeekStart() {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+  const part = (kind: string) => Number(parts.find((item) => item.type === kind)?.value);
+  const start = new Date(Date.UTC(part("year"), part("month") - 1, part("day")));
+  start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() + 6) % 7));
+  return start.toISOString().slice(0, 10);
+}
+
 export async function getBillingStatus(userId: string): Promise<BillingStatus> {
-  try {
-    const subscriptions = await supabaseRest<Array<{ plan: "free" | "pro"; status: string }>>(
-      `user_subscriptions?select=plan,status&user_id=eq.${userId}&limit=1`
-    );
-    if (subscriptions[0]?.plan === "pro" && subscriptions[0].status === "active") {
-      return { plan: "pro", canStartTest: true, freeTestsUsed: 0, freeTestsRemaining: 0 };
-    }
-  } catch {
-    // The app stays usable as free while the billing migration is awaiting installation.
+  const subscriptions = await supabaseRest<Array<{ plan: "free" | "pro"; status: string }>>(
+    `user_subscriptions?select=plan,status&user_id=eq.${userId}&limit=1`
+  );
+  if (subscriptions[0]?.plan === "pro" && subscriptions[0].status === "active") {
+    return { plan: "pro", canStartTest: true, freeTestsUsed: 0, freeTestsRemaining: 0 };
   }
 
-  const weekStart = new Date();
-  weekStart.setDate(weekStart.getDate() - 7);
   const used = await supabaseRest<Array<{ id: number }>>(
-    `test_attempts?select=id&user_id=eq.${userId}&attempted_at=gte.${weekStart.toISOString().slice(0, 10)}`
-  ).then((rows) => rows.length).catch(() => 0);
+    `test_usage?select=id&user_id=eq.${userId}&week_start=eq.${currentWeekStart()}`
+  ).then((rows) => rows.length);
 
   return { plan: "free", canStartTest: used < 1, freeTestsUsed: used, freeTestsRemaining: Math.max(0, 1 - used) };
 }

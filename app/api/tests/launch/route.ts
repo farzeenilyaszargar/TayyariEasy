@@ -11,7 +11,7 @@ import { getLocalTestInstance, LOCAL_TEST_ID } from "@/lib/local-test";
 import { supabaseRest } from "@/lib/supabase-server";
 import { sortQuestionsBySubject } from "@/lib/test-order";
 import { getAuthenticatedUser } from "@/lib/server-auth";
-import { getBillingStatus } from "@/lib/billing";
+import { currentWeekStart, getBillingStatus } from "@/lib/billing";
 
 type LaunchBody = {
   blueprintId?: string;
@@ -23,10 +23,6 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Sign in to start your free mock test." }, { status: 401 });
     }
-    const billing = await getBillingStatus(user.id);
-    if (!billing.canStartTest) {
-      return NextResponse.json({ error: "Your weekly free test is used. Upgrade to Pro for unlimited tests." }, { status: 403 });
-    }
     const body = (await request.json()) as LaunchBody;
     const blueprintId = body.blueprintId?.trim();
 
@@ -36,6 +32,11 @@ export async function POST(request: NextRequest) {
 
     if (blueprintId === LOCAL_TEST_ID) {
       return NextResponse.json(getLocalTestInstance());
+    }
+
+    const billing = await getBillingStatus(user.id);
+    if (!billing.canStartTest) {
+      return NextResponse.json({ error: "Your weekly free test is used. Upgrade to Pro for unlimited tests." }, { status: 403 });
     }
 
     await ensureDefaultBlueprints();
@@ -50,6 +51,14 @@ export async function POST(request: NextRequest) {
 
     if (!rows[0] || !blueprint) {
       return NextResponse.json({ error: "Blueprint not found or inactive." }, { status: 404 });
+    }
+
+    if (billing.plan === "free") {
+      try {
+        await supabaseRest("test_usage", "POST", [{ user_id: user.id, week_start: currentWeekStart(), blueprint_id: blueprintId }], "return=minimal");
+      } catch {
+        return NextResponse.json({ error: "Your free test could not be reserved. Check your weekly limit and try again." }, { status: 409 });
+      }
     }
 
     let testInstance = (

@@ -22,6 +22,7 @@ type UserState = {
 };
 
 type AuthContextType = {
+  isReady: boolean;
   isLoggedIn: boolean;
   user: UserState;
   logout: () => Promise<void> | void;
@@ -74,6 +75,7 @@ function resolveAvatarFromSupabaseUser(supabaseUser: SupabaseUser) {
 }
 
 const AuthContext = createContext<AuthContextType>({
+  isReady: false,
   isLoggedIn: false,
   user: defaultUser,
   logout: () => undefined,
@@ -84,6 +86,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [isReady, setIsReady] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<UserState>(defaultUser);
 
@@ -153,6 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       await hydrateUser();
+      if (alive) setIsReady(true);
     };
 
     void run();
@@ -193,6 +197,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo(
     () => ({
+      isReady,
       isLoggedIn,
       user,
       logout,
@@ -201,7 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signUp,
       signInWithGoogle
     }),
-    [isLoggedIn, user, hydrateUser]
+    [isReady, isLoggedIn, user, hydrateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

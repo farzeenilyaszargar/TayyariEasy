@@ -11,7 +11,7 @@ export default function Page() {
           <TrustBadge />
           <h1>Practice smarter. Walk into JEE ready.</h1>
           <p>Practice for JEE Main and JEE Advanced with focused tests, honest score feedback, and a clear next step.</p>
-          <Link href="/tests" className="btn btn-solid main-app-button hero-cta">
+          <Link href="/demo" className="btn btn-solid main-app-button hero-cta">
             Give a mock test now
             <ChevronRightIcon size={18} className="hero-cta-arrow" />
           </Link>

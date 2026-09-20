@@ -12,6 +12,7 @@ import { LOCAL_TEST_ID } from "@/lib/local-test";
 type ExamSession = TestInstanceRow & { launchedAt: number };
 
 type SubmitResult = {
+  unscored?: boolean;
   score: number;
   maxScore: number;
   earnedPoints: number;
@@ -419,6 +420,13 @@ function MockExamPageContent() {
             timeTakenSeconds: session.blueprint.durationMinutes * 60 - remainingSec
           });
 
+      if (session.testInstanceId === LOCAL_TEST_ID) {
+        setResult({ ...res, unscored: true });
+        window.sessionStorage.removeItem(ACTIVE_TEST_KEY);
+        window.localStorage.removeItem(ACTIVE_TEST_FALLBACK_KEY);
+        return;
+      }
+
       const currentAttempt: LocalAttempt = {
         id: makeAttemptId(),
         testName: session.blueprint.name,
@@ -485,6 +493,7 @@ function MockExamPageContent() {
   }
 
   if (result) {
+    if (result.unscored) return <section className="page nta-result-page"><article className="card nta-result-card result-screen"><div className="result-screen-header"><div><p className="result-eyebrow">Practice complete</p><h1>{session.blueprint.name}</h1><p className="muted">You attempted {result.attemptedCount} of {result.totalQuestions} questions.</p></div></div><div className="result-note"><strong>This paper is not scored yet.</strong> Its imported questions have no verified answer key, so showing a score or rank would be misleading. Your six-question demo has a scored result.</div><div className="cta-row"><Link href="/tests" className="btn btn-outline">Back to tests</Link><Link href="/home" className="btn btn-solid">View dashboard</Link></div></article></section>;
     const scorePercent = result.maxScore > 0
       ? Math.max(0, Math.min(100, Math.round((result.score / result.maxScore) * 100)))
       : 0;

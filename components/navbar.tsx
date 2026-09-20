@@ -40,7 +40,7 @@ export function Navbar() {
         <Link href="/" className="brand" aria-label="Tayyari home">
           <Image src="/tayyari-logo.png" alt="Tayyari logo" width={46} height={46} className="brand-logo" priority />
         </Link>
-        {isMainApp ? (
+        {isMainApp && isLoggedIn ? (
           <div className="nav-right">
             <nav className="nav-links" aria-label="Main app links">
               <Link href="/tests" className={`nav-link ${pathname.startsWith("/tests") ? "active" : ""}`}>
