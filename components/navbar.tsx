@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDownIcon, HomeIcon, LogOutIcon, SettingsIcon, UserIcon } from "@/components/ui-icons";
+import { useAuth } from "@/components/auth-provider";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -12,6 +13,7 @@ export function Navbar() {
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement | null>(null);
   const resourcesRef = useRef<HTMLDivElement | null>(null);
+  const { isLoggedIn, user, logout } = useAuth();
 
   useEffect(() => {
     const closeProfile = (event: MouseEvent) => {
@@ -30,7 +32,7 @@ export function Navbar() {
     return null;
   }
 
-  const isMainApp = pathname === "/home" || pathname === "/leaderboards" || pathname.startsWith("/tests") || pathname.startsWith("/resources");
+  const isMainApp = pathname === "/home" || pathname === "/leaderboards" || pathname.startsWith("/tests") || pathname.startsWith("/resources") || pathname === "/pricings";
 
   return (
     <header className="site-header">
@@ -47,6 +49,7 @@ export function Navbar() {
               <Link href="/leaderboards" className={`nav-link ${pathname === "/leaderboards" ? "active" : ""}`}>
                 Leaderboards
               </Link>
+              <Link href="/pricings" className={`nav-link ${pathname === "/pricings" ? "active" : ""}`}>Pricing</Link>
               <div className="resource-nav-menu" ref={resourcesRef}>
                 <button
                   type="button"
@@ -73,13 +76,8 @@ export function Navbar() {
               </div>
             </nav>
             <div className="profile-menu" ref={profileRef}>
-              <button
-                className="profile-menu-trigger mock-profile-button"
-                onClick={() => setProfileOpen((open) => !open)}
-                aria-haspopup="menu"
-                aria-expanded={profileOpen}
-              >
-                <UserIcon size={18} />
+              {isLoggedIn ? <><button className="profile-menu-trigger mock-profile-button" onClick={() => setProfileOpen((open) => !open)} aria-haspopup="menu" aria-expanded={profileOpen} aria-label={`${user.name} profile menu`}>
+                {user.avatarUrl ? <img src={user.avatarUrl} alt="" className="nav-profile-avatar" /> : <UserIcon size={18} />}
               </button>
               {profileOpen ? (
                 <div className="profile-menu-dropdown" role="menu" aria-label="Profile menu">
@@ -87,16 +85,16 @@ export function Navbar() {
                     <HomeIcon size={16} />
                     Dashboard
                   </Link>
-                  <button className="profile-menu-item logout-menu-item" role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <button className="profile-menu-item" role="menuitem" onClick={() => setProfileOpen(false)}>
                     <SettingsIcon size={16} />
                     Settings
                   </button>
-                  <button className="profile-menu-item" role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <button className="profile-menu-item logout-menu-item" role="menuitem" onClick={() => { setProfileOpen(false); void logout(); }}>
                     <LogOutIcon size={16} />
                     Logout
                   </button>
                 </div>
-              ) : null}
+              ) : null}</> : <Link href={`/auth?next=${encodeURIComponent(pathname)}`} className="nav-signin">Sign in</Link>}
             </div>
           </div>
         ) : null}

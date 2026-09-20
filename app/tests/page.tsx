@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { SearchIcon, StarIcon } from "@/components/ui-icons";
 import { fetchTestsCatalog, type TestBlueprintRow } from "@/lib/supabase-db";
+import { useAuth } from "@/components/auth-provider";
 
 type TagTone = "physics" | "chemistry" | "mathematics" | "neutral";
 
@@ -74,6 +75,7 @@ export default function TestsPage() {
   const [, setLoadingCatalog] = useState(true);
   const [catalogError, setCatalogError] = useState("");
   const [launchingId, setLaunchingId] = useState("");
+  const { isLoggedIn } = useAuth();
 
   useEffect(() => {
     let alive = true;
@@ -114,6 +116,10 @@ export default function TestsPage() {
   const fullTests = filtered.filter((item) => item.scope === "full_mock");
 
   const startTest = async (blueprintId: string) => {
+    if (!isLoggedIn) {
+      window.location.assign("/auth?next=/tests");
+      return;
+    }
     setLaunchingId(blueprintId);
     setCatalogError("");
     try {

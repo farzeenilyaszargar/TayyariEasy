@@ -64,7 +64,7 @@ export function getSupabaseAnonKey() {
   return SUPABASE_ANON_KEY ?? "";
 }
 
-function saveSession(payload: SessionPayload) {
+export function saveSupabaseSession(payload: SessionPayload) {
   const session: StoredSession = {
     accessToken: payload.access_token,
     refreshToken: payload.refresh_token,
@@ -139,7 +139,7 @@ export function consumeOAuthSessionFromHash() {
     return null;
   }
 
-  const session = saveSession({
+  const session = saveSupabaseSession({
     access_token: accessToken,
     refresh_token: refreshToken,
     expires_in: Number(expiresIn),
@@ -168,6 +168,31 @@ export async function startGoogleOAuth(redirectTo: string) {
   assertConfig();
   const target = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
   window.location.assign(target);
+}
+
+async function authRequest(path: string, body: Record<string, unknown>) {
+  assertConfig();
+  const response = await fetch(`${SUPABASE_URL}${path}`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(body)
+  });
+
+  const payload = (await response.json().catch(() => ({}))) as SessionPayload & { message?: string; error_description?: string };
+  if (!response.ok) {
+    throw new Error(payload.error_description || payload.message || "Authentication request failed.");
+  }
+  return payload;
+}
+
+export async function signInWithEmail(email: string, password: string) {
+  const payload = await authRequest("/auth/v1/token?grant_type=password", { email, password });
+  return saveSupabaseSession(payload);
+}
+
+export async function signUpWithEmail(email: string, password: string) {
+  const payload = await authRequest("/auth/v1/signup", { email, password });
+  return payload.access_token ? saveSupabaseSession(payload) : null;
 }
 
 export async function sendPhoneOtp(phone: string) {
@@ -207,7 +232,7 @@ export async function verifyPhoneOtp(phone: string, token: string) {
   }
 
   const payload = (await response.json()) as SessionPayload;
-  return saveSession(payload);
+  return saveSupabaseSession(payload);
 }
 
 export async function signOutSupabase(accessToken: string) {

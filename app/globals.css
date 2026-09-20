@@ -87,6 +87,66 @@ a {
   object-fit: contain;
 }
 
+.nav-signin {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #17191d;
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.nav-signin:hover { background: #30343a; }
+.nav-profile-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+
+.auth-page { width: min(460px, 100%); margin: 78px auto 100px; }
+.auth-card { border: 1px solid #e3e5e8; border-radius: 18px; padding: 34px; background: #fff; box-shadow: 0 14px 45px rgba(24, 28, 36, .06); }
+.auth-kicker, .pricing-head > span { color: #5c6675; font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.auth-card h1 { margin: 10px 0 8px; font-size: clamp(1.8rem, 5vw, 2.4rem); letter-spacing: -.05em; }
+.auth-card > p { color: #68717e; line-height: 1.6; }
+.auth-google { width: 100%; min-height: 46px; border: 1px solid #dce0e5; border-radius: 10px; background: #fff; color: #22262c; font: inherit; font-weight: 700; cursor: pointer; }
+.auth-google span { display: inline-block; margin-right: 9px; color: #4285f4; font-size: 1.1rem; }
+.auth-divider { position: relative; margin: 22px 0; text-align: center; border-top: 1px solid #e5e7eb; }
+.auth-divider span { display: inline-block; transform: translateY(-50%); padding: 0 10px; background: #fff; color: #8a919b; font-size: .78rem; }
+.auth-form { display: grid; gap: 15px; }
+.auth-form label { display: grid; gap: 7px; color: #353a42; font-size: .86rem; font-weight: 700; }
+.auth-form input { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid #d8dde3; border-radius: 9px; font: inherit; outline: none; }
+.auth-form input:focus { border-color: #17191d; box-shadow: 0 0 0 3px rgba(23, 25, 29, .08); }
+.auth-submit { width: 100%; justify-content: center; margin-top: 4px; }
+.auth-message { padding: 10px 12px; border-radius: 8px; background: #f4f5f6; color: #444b55 !important; font-size: .86rem; }
+.auth-switch { margin: 20px 0 0; text-align: center; font-size: .86rem; }
+.auth-switch button { padding: 0; border: 0; background: none; color: #181c24; font: inherit; font-weight: 800; cursor: pointer; text-decoration: underline; }
+
+.pricing-page { width: min(940px, 100%); margin: 66px auto 104px; }
+.pricing-head { max-width: 610px; margin: 0 auto 38px; text-align: center; }
+.pricing-head h1 { margin: 10px 0 12px; font-size: clamp(2.2rem, 5.4vw, 4rem); letter-spacing: -.065em; line-height: .98; }
+.pricing-head p { margin: 0; color: #69717d; line-height: 1.7; }
+.pricing-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+.pricing-card { display: flex; flex-direction: column; min-height: 430px; padding: 29px; border: 1px solid #e0e3e7; border-radius: 18px; background: #fff; }
+.pricing-card-pro { border-color: #1c2027; box-shadow: 0 14px 35px rgba(24, 27, 33, .11); }
+.pricing-topline { display: flex; justify-content: space-between; align-items: center; }
+.pricing-label { font-size: .86rem; font-weight: 800; }
+.pricing-badge { padding: 5px 9px; border-radius: 999px; background: #17191d; color: #fff; font-size: .72rem; font-weight: 800; }
+.pricing-card h2 { margin: 18px 0 3px; font-size: 3.15rem; letter-spacing: -.07em; }
+.pricing-period, .pricing-description { margin: 0; color: #67707d; }
+.pricing-description { margin-top: 24px; line-height: 1.6; }
+.pricing-card ul { display: grid; gap: 12px; margin: 25px 0; padding: 0; list-style: none; color: #323841; font-size: .91rem; }
+.pricing-card li { display: flex; gap: 10px; align-items: flex-start; }
+.pricing-card li::before { content: ""; width: 7px; height: 7px; margin-top: .42em; border-radius: 50%; background: #1e232b; flex: 0 0 auto; }
+.pricing-button { width: 100%; justify-content: center; margin-top: auto; }
+.pricing-note { min-height: 24px; margin: 18px 0 0; color: #67707d; text-align: center; font-size: .86rem; }
+
+@media (max-width: 640px) {
+  .auth-page { margin-top: 40px; }
+  .auth-card { padding: 24px; }
+  .pricing-page { margin-top: 40px; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-card { min-height: 0; }
+}
+
 .brand-main {
   line-height: 1;
 }

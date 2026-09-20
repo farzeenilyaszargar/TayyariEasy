@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Sora, Fraunces, Outfit } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
+import { AuthProvider } from "@/components/auth-provider";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in";
 
@@ -108,8 +109,10 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationStructuredData) }}
         />
-        <Navbar />
-        <main className="container">{children}</main>
+        <AuthProvider>
+          <Navbar />
+          <main className="container">{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );

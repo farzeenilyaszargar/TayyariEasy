@@ -10,6 +10,8 @@ import {
 import { getLocalTestInstance, LOCAL_TEST_ID } from "@/lib/local-test";
 import { supabaseRest } from "@/lib/supabase-server";
 import { sortQuestionsBySubject } from "@/lib/test-order";
+import { getAuthenticatedUser } from "@/lib/server-auth";
+import { getBillingStatus } from "@/lib/billing";
 
 type LaunchBody = {
   blueprintId?: string;
@@ -17,6 +19,14 @@ type LaunchBody = {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getAuthenticatedUser(request);
+    if (!user) {
+      return NextResponse.json({ error: "Sign in to start your free mock test." }, { status: 401 });
+    }
+    const billing = await getBillingStatus(user.id);
+    if (!billing.canStartTest) {
+      return NextResponse.json({ error: "Your weekly free test is used. Upgrade to Pro for unlimited tests." }, { status: 403 });
+    }
     const body = (await request.json()) as LaunchBody;
     const blueprintId = body.blueprintId?.trim();
 

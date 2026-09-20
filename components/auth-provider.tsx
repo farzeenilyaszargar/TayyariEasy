@@ -6,8 +6,11 @@ import {
   consumeOAuthSessionFromHash,
   fetchSupabaseUser,
   getStoredSession,
+  signInWithEmail,
+  signUpWithEmail,
   signOutSupabase
 } from "@/lib/supabase-auth";
+import { startGoogleOAuth } from "@/lib/supabase-auth";
 import { fetchOwnProfile } from "@/lib/supabase-db";
 import type { SupabaseUser } from "@/lib/supabase-auth";
 
@@ -23,6 +26,9 @@ type AuthContextType = {
   user: UserState;
   logout: () => Promise<void> | void;
   refreshUser: () => Promise<void> | void;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<{ needsEmailConfirmation: boolean }>;
+  signInWithGoogle: (redirectTo?: string) => Promise<void>;
 };
 
 const defaultUser: UserState = {
@@ -71,7 +77,10 @@ const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
   user: defaultUser,
   logout: () => undefined,
-  refreshUser: () => undefined
+  refreshUser: () => undefined,
+  signIn: async () => undefined,
+  signUp: async () => ({ needsEmailConfirmation: false }),
+  signInWithGoogle: async () => undefined
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -164,12 +173,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.assign("/");
   };
 
+  const signIn = async (email: string, password: string) => {
+    await signInWithEmail(email, password);
+    await hydrateUser();
+  };
+
+  const signUp = async (email: string, password: string) => {
+    const session = await signUpWithEmail(email, password);
+    if (session) {
+      await hydrateUser();
+    }
+    return { needsEmailConfirmation: !session };
+  };
+
+  const signInWithGoogle = async (redirectTo?: string) => {
+    const target = redirectTo || `${window.location.origin}/tests`;
+    await startGoogleOAuth(target);
+  };
+
   const value = useMemo(
     () => ({
       isLoggedIn,
       user,
       logout,
-      refreshUser: hydrateUser
+      refreshUser: hydrateUser,
+      signIn,
+      signUp,
+      signInWithGoogle
     }),
     [isLoggedIn, user, hydrateUser]
   );
