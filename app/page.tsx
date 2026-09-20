@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { TrustBadge } from "@/components/trust-badge";
-import { ChevronRightIcon } from "@/components/ui-icons";
+import { ArrowRightIcon } from "@/components/ui-icons";
 import { AccountEntryLink } from "@/components/account-entry-link";
 
 export default function Page() {
@@ -15,7 +15,7 @@ export default function Page() {
           <div className="hero-actions">
             <Link href="/demo" className="btn btn-solid main-app-button hero-cta">
               Give a mock test now
-              <ChevronRightIcon size={18} className="hero-cta-arrow" />
+              <ArrowRightIcon size={18} className="hero-cta-arrow" />
             </Link>
             <AccountEntryLink className="btn btn-outline hero-signin" />
           </div>

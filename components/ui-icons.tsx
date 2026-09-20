@@ -238,6 +238,15 @@ export function ChevronRightIcon(props: IconProps) {
   );
 }
 
+export function ArrowRightIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M4 12h16" />
+      <path d="m14 6 6 6-6 6" />
+    </BaseIcon>
+  );
+}
+
 export function EditIcon(props: IconProps) {
   return (
     <BaseIcon {...props}>
