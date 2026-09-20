@@ -71,7 +71,7 @@ a {
 }
 
 .brand {
-  font-family: var(--font-display), "Avenir Next", sans-serif;
+  font-family: var(--font-sans), "Avenir Next", sans-serif;
   font-weight: 800;
   font-size: 1.52rem;
   letter-spacing: -0.02em;
@@ -5116,7 +5116,7 @@ button.subject-tag {
 }
 
 .nta-brand strong {
-  font-family: var(--font-display), "Avenir Next", sans-serif;
+  font-family: var(--font-sans), "Avenir Next", sans-serif;
   font-size: 1.35rem;
   letter-spacing: 0.01em;
 }
@@ -6785,7 +6785,7 @@ html[data-theme="dark"] .test-chip.neutral {
 .exam-mode-sleek .exam-brand-lockup strong {
   display: block;
   color: #171c24;
-  font-family: var(--font-display), "Avenir Next", sans-serif;
+  font-family: var(--font-sans), "Avenir Next", sans-serif;
   font-size: 1.3rem;
 }
 
@@ -8268,4 +8268,89 @@ html[data-theme="dark"] .test-chip.neutral {
   .leaderboard-page .leaderboard-badges .leaderboard-badge-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Tayyari typography: one friendly UI voice with an editorial display layer. */
+html { font-size: 16px; }
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  letter-spacing: -0.012em;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-serif), Georgia, serif;
+  font-variation-settings: "SOFT" 40, "WONK" 0;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+}
+
+h1 {
+  line-height: 1.01;
+}
+
+h2 {
+  line-height: 1.08;
+}
+
+.landing-copy h1,
+.pricing-head h1,
+.dashboard-page-header h1,
+.page-head h1,
+.result-screen-header h1 {
+  text-wrap: balance;
+}
+
+.landing-copy h1,
+.pricing-head h1 {
+  font-variation-settings: "SOFT" 55, "WONK" 1;
+  font-weight: 550;
+  letter-spacing: -0.06em;
+}
+
+.landing-copy p:not(.eyebrow),
+.pricing-head p,
+.dashboard-page-header p,
+.page-head p {
+  letter-spacing: -0.016em;
+  line-height: 1.64;
+}
+
+.eyebrow,
+.auth-kicker,
+.pricing-head > span,
+.tests-section-kicker {
+  font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 750;
+  letter-spacing: 0.075em;
+}
+
+.btn,
+.nav-link,
+.nav-signin {
+  font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.018em;
+}
+
+/* The NTA mock deliberately retains the familiar Arial assessment interface. */
+.exam-mode-nta,
+.exam-mode-nta button,
+.exam-mode-nta input,
+.exam-mode-nta select,
+.exam-mode-nta textarea {
+  font-family: Arial, Helvetica, sans-serif !important;
+  letter-spacing: 0 !important;
 }

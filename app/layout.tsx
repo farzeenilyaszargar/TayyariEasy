@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Sora, Fraunces, Outfit } from "next/font/google";
+import { Fraunces, Outfit } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { AuthProvider } from "@/components/auth-provider";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in";
 
-const sora = Sora({
+const outfit = Outfit({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap"
@@ -14,12 +14,6 @@ const sora = Sora({
 
 const fraunces = Fraunces({
   variable: "--font-serif",
-  subsets: ["latin"],
-  display: "swap"
-});
-
-const outfit = Outfit({
-  variable: "--font-display",
   subsets: ["latin"],
   display: "swap"
 });
@@ -103,7 +97,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" data-theme="light">
-      <body className={`${sora.variable} ${fraunces.variable} ${outfit.variable}`}>
+      <body className={`${outfit.variable} ${fraunces.variable}`}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData) }} />
         <script
           type="application/ld+json"
