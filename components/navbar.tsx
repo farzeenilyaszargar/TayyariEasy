@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDownIcon, HomeIcon, LogOutIcon, SettingsIcon, UserIcon } from "@/components/ui-icons";
 import { useAuth } from "@/components/auth-provider";
+import { AccountEntryLink } from "@/components/account-entry-link";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -97,7 +98,7 @@ export function Navbar() {
               ) : null}</> : <Link href={`/auth?next=${encodeURIComponent(pathname)}`} className="nav-signin">Sign in</Link>}
             </div>
           </div>
-        ) : null}
+        ) : pathname === "/" ? <AccountEntryLink className="nav-signin landing-header-signin" /> : null}
       </div>
     </header>
   );

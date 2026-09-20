@@ -100,6 +100,7 @@ a {
 }
 
 .nav-signin:hover { background: #30343a; }
+.landing-header-signin { min-height: 38px; padding: 0 16px; }
 .nav-profile-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
 
 .auth-page { width: min(460px, 100%); margin: 78px auto 100px; }
@@ -395,6 +396,16 @@ a {
   min-width: 122px;
   justify-content: center;
 }
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hero-signin { min-width: 104px; }
 
 .hero-cta-arrow {
   transition: transform 180ms ease;
