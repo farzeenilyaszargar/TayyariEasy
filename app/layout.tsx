@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, Space_Grotesk } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { AuthProvider } from "@/components/auth-provider";
@@ -9,13 +9,6 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in";
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-sans",
   subsets: ["latin"],
-  display: "swap"
-});
-
-const dmSerifDisplay = DM_Serif_Display({
-  variable: "--font-serif",
-  subsets: ["latin"],
-  weight: "400",
   display: "swap"
 });
 
@@ -98,7 +91,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" data-theme="light">
-      <body className={`${spaceGrotesk.variable} ${dmSerifDisplay.variable}`}>
+      <body className={spaceGrotesk.variable}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData) }} />
         <script
           type="application/ld+json"

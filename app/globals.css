@@ -2239,7 +2239,7 @@ h3,
 h4,
 h5 {
   margin: 0;
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.02em;
   color: #171a21;
 }
@@ -3763,7 +3763,7 @@ button.subject-tag {
 .md-h2,
 .md-h3 {
   margin: 0;
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.01em;
 }
 
@@ -4006,7 +4006,7 @@ button.subject-tag {
 
 .stat-lite strong {
   font-size: 1.2rem;
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
 }
 
 .feature-grid {
@@ -8270,7 +8270,7 @@ html[data-theme="dark"] .test-chip.neutral {
   }
 }
 
-/* Tayyari typography: sharp academic UI with a high-contrast editorial display layer. */
+/* Tayyari typography: a single sharp academic UI voice. */
 html { font-size: 16px; }
 
 body,
@@ -8291,9 +8291,9 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: var(--font-serif), Georgia, serif;
-  font-weight: 400;
-  letter-spacing: -0.035em;
+  font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 650;
+  letter-spacing: -0.05em;
 }
 
 h1 {
@@ -8314,7 +8314,7 @@ h2 {
 
 .landing-copy h1,
 .pricing-head h1 {
-  font-weight: 400;
+  font-weight: 650;
   letter-spacing: -0.045em;
 }
 
