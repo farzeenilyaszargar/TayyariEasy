@@ -30,6 +30,17 @@ export default function Page() {
           />
         </div>
       </div>
+      <section className="landing-purpose" aria-labelledby="landing-purpose-title">
+        <span className="demo-kicker">Built for serious JEE preparation</span>
+        <h2 id="landing-purpose-title">A focused place to practise, measure, and improve.</h2>
+        <p>
+          Tayyari is a JEE Main and JEE Advanced preparation platform. Students use realistic mock tests to practise
+          under time pressure, review subject-wise performance, and turn every attempt into a clearer revision plan.
+        </p>
+        <div className="landing-purpose-points">
+          <span>JEE mock tests</span><span>Score and accuracy analysis</span><span>Progress and leaderboards</span>
+        </div>
+      </section>
     </section>
   );
 }
