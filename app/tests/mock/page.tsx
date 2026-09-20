@@ -8,6 +8,7 @@ import { TrophyIcon, TrendIcon } from "@/components/ui-icons";
 import { useAuth } from "@/components/auth-provider";
 import { fetchTestInstanceById, launchBlueprintTest, submitBlueprintTest, type TestInstanceRow } from "@/lib/supabase-db";
 import { LOCAL_TEST_ID } from "@/lib/local-test";
+import { DEMO_QUESTION_POOL, pickDemoQuestions } from "@/lib/demo-questions";
 
 type ExamSession = TestInstanceRow & { launchedAt: number };
 
@@ -47,6 +48,8 @@ type TestUiMode = "sleek" | "nta";
 const LOCAL_ATTEMPTS_KEY = "tayyari-local-test-attempts-v1";
 const ACTIVE_TEST_KEY = "tayyari-active-test";
 const ACTIVE_TEST_FALLBACK_KEY = "tayyari-active-test-fallback";
+const DEMO_TEST_ID = "tayyari-guest-demo";
+const DEMO_SCORES = [23, 19, 16, 12, 10, 7, 4, 0];
 
 function normalizeSubject(subject: string) {
   if (subject === "Mathematics") {
@@ -137,6 +140,7 @@ function MockExamPageContent() {
 
   const queryInstanceId = searchParams.get("instance")?.trim() || "";
   const queryBlueprintId = searchParams.get("blueprint")?.trim() || "";
+  const isDemo = searchParams.get("demo") === "1";
 
   useEffect(() => {
     const savedMode = window.localStorage.getItem("tayyari-test-ui-mode");
@@ -153,6 +157,31 @@ function MockExamPageContent() {
   useEffect(() => {
     const hydrate = async () => {
       setBootError("");
+      if (isDemo) {
+        const questions = pickDemoQuestions();
+        const demoSession: ExamSession = {
+          testInstanceId: DEMO_TEST_ID,
+          blueprint: { id: DEMO_TEST_ID, name: "JEE Starter Mock", scope: "full_mock", subject: null, topic: null, durationMinutes: 12, negativeMarking: true },
+          questions: questions.map((question, position) => ({
+            id: question.id,
+            position: position + 1,
+            questionType: "mcq_single" as const,
+            stemMarkdown: question.prompt,
+            stemLatex: null,
+            subject: question.subject,
+            topic: "Foundation",
+            difficulty: "easy" as const,
+            marks: 4,
+            negativeMarks: 1,
+            options: question.options.map((option, index) => ({ key: (["A", "B", "C", "D"] as const)[index], text: option, latex: null }))
+          })),
+          launchedAt: Date.now()
+        };
+        setSession(demoSession);
+        setVisited({ [demoSession.questions[0].id]: true });
+        setRemainingSec(12 * 60);
+        return;
+      }
       const raw = window.sessionStorage.getItem(ACTIVE_TEST_KEY) || window.localStorage.getItem(ACTIVE_TEST_FALLBACK_KEY);
       if (raw) {
         try {
@@ -215,7 +244,7 @@ function MockExamPageContent() {
     };
 
     void hydrate();
-  }, [queryInstanceId, queryBlueprintId]);
+  }, [queryInstanceId, queryBlueprintId, isDemo]);
 
   useEffect(() => {
     if (!session || remainingSec <= 0) {
@@ -401,6 +430,28 @@ function MockExamPageContent() {
         }
       }
 
+      if (session.testInstanceId === DEMO_TEST_ID) {
+        const scored = session.questions.map((question) => {
+          const source = DEMO_QUESTION_POOL.find((item) => item.id === question.id);
+          const answer = payload[question.id];
+          return { subject: question.subject, attempted: answer !== undefined, correct: source ? answer === (["A", "B", "C", "D"] as const)[source.answer] : false };
+        });
+        const attemptedCount = scored.filter((item) => item.attempted).length;
+        const correctCount = scored.filter((item) => item.correct).length;
+        const score = correctCount * 4 - (attemptedCount - correctCount);
+        const rank = 1 + DEMO_SCORES.filter((item) => item > score).length;
+        const topicBreakdown = ["Physics", "Chemistry", "Mathematics"].map((subject) => {
+          const group = scored.filter((item) => item.subject === subject);
+          const attempted = group.filter((item) => item.attempted).length;
+          const correct = group.filter((item) => item.correct).length;
+          return { topic: subject, attempted, correct, accuracy: attempted ? Math.round(correct / attempted * 100) : 0 };
+        });
+        setTargetRank(rank);
+        setResult({ score, maxScore: 24, earnedPoints: 0, percentile: 0, correctCount, attemptedCount, totalQuestions: 6, savedToCloud: false, topicBreakdown, difficultyBreakdown: [{ difficulty: "easy", attempted: attemptedCount, correct: correctCount, accuracy: attemptedCount ? Math.round(correctCount / attemptedCount * 100) : 0 }] });
+        window.sessionStorage.setItem("tayyari-demo-result", JSON.stringify({ score, correct: correctCount, attempted: attemptedCount, placement: rank, total: DEMO_SCORES.length + 1 }));
+        return;
+      }
+
       const res = session.testInstanceId === LOCAL_TEST_ID
         ? {
             score: 0,
@@ -503,16 +554,16 @@ function MockExamPageContent() {
         <article className="card nta-result-card result-screen">
           <div className="result-screen-header">
             <div>
-              <Link className="exam-back-link" href="/tests">
-                <span aria-hidden="true">←</span> Back to tests
+              <Link className="exam-back-link" href={isDemo ? "/" : "/tests"}>
+                <span aria-hidden="true">←</span> {isDemo ? "Back to home" : "Back to tests"}
               </Link>
-              <p className="result-eyebrow">Mock test complete</p>
+              <p className="result-eyebrow">{isDemo ? "Starter mock complete" : "Mock test complete"}</p>
               <h1>{session.blueprint.name}</h1>
               <p className="muted">Here is a clear snapshot of how this attempt went.</p>
             </div>
             <div className="result-save-status">
               <span className="result-status-dot" />
-              {result.savedToCloud ? "Saved to your profile" : "Saved on this device"}
+              {isDemo ? "Demo result" : result.savedToCloud ? "Saved to your profile" : "Saved on this device"}
             </div>
           </div>
 
@@ -539,11 +590,11 @@ function MockExamPageContent() {
                 <strong>{result.attemptedCount}<small>/{result.totalQuestions}</small></strong>
               </div>
               <div className="result-stat-card">
-                <span>Percentile</span>
-                <strong>{result.percentile}</strong>
+                <span>{isDemo ? "Questions" : "Percentile"}</span>
+                <strong>{isDemo ? result.totalQuestions : result.percentile}</strong>
               </div>
               <div className="result-stat-card result-rank-stat">
-                <span><TrophyIcon size={14} /> Your rank</span>
+                <span><TrophyIcon size={14} /> {isDemo ? "Preview rank" : "Your rank"}</span>
                 <strong>#{animatedRank ?? targetRank ?? 1}</strong>
               </div>
             </div>
@@ -551,9 +602,10 @@ function MockExamPageContent() {
 
           <div className="result-note">
             <strong>JEE Main scoring:</strong> +4 for a correct answer, −1 for an incorrect answer, and 0 for an unattempted question.
+            {isDemo ? <p>Preview rank compares your score with illustrative scores from eight sample candidates, not a live student ranking.</p> : null}
           </div>
 
-          <article className="card nta-inline-leaderboard">
+          {!isDemo ? <article className="card nta-inline-leaderboard">
             <div className="nta-inline-head">
               <h4>Test Leaderboard</h4>
               <span className="nta-inline-chip"><TrendIcon size={14} /> Latest attempt highlighted</span>
@@ -582,7 +634,7 @@ function MockExamPageContent() {
                 </tbody>
               </table>
             </div>
-          </article>
+          </article> : null}
 
           <div className="grid-2">
             <article className="card result-breakdown-card">
@@ -610,8 +662,8 @@ function MockExamPageContent() {
           </div>
 
           <div className="cta-row">
-            <button className="btn btn-solid" onClick={() => router.push("/tests")}>Take another test</button>
-            <button className="btn btn-outline" onClick={() => router.push("/leaderboards")}>Open Leaderboards</button>
+            {isDemo ? <button className="btn btn-solid" onClick={() => router.push("/leaderboards?from=demo")}>See leaderboard</button> : <button className="btn btn-solid" onClick={() => router.push("/tests")}>Take another test</button>}
+            {!isDemo ? <button className="btn btn-outline" onClick={() => router.push("/leaderboards")}>Open Leaderboards</button> : null}
           </div>
         </article>
       </section>

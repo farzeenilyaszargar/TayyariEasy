@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { AuthProvider } from "@/components/auth-provider";
 import { SiteAccess } from "@/components/site-access";
+import { Suspense } from "react";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tayyari.in";
 
@@ -100,7 +101,7 @@ export default function RootLayout({
         />
         <AuthProvider>
           <Navbar />
-          <main className="container"><SiteAccess>{children}</SiteAccess></main>
+          <main className="container"><Suspense fallback={<div className="access-loading" />}><SiteAccess>{children}</SiteAccess></Suspense></main>
         </AuthProvider>
       </body>
     </html>
