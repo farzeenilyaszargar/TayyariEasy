@@ -115,7 +115,7 @@ export default function PaperDetail() {
         </div>
 
         <div className="card stack-sm">
-          <div className="spread"><h3>Top scores</h3><Link href={`/leaderboard?test=${id}`} className="link small">See all</Link></div>
+          <div className="spread"><h3>Top scores</h3></div>
           {board.length === 0 ? <p className="muted small">No scores yet. Be the first!</p> : board.map((e) => (
             <div key={e.userId} className={`lb-row ${e.isYou ? "you" : ""}`} style={{ padding: "8px 10px" }}>
               <span className={`rank rank-${e.rank}`}>{e.rank}</span>
