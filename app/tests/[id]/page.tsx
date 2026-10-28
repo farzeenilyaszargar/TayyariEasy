@@ -1,10 +1,11 @@
 "use client";
 
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { kindLabel } from "@/components/ui";
+import { Loading, Notice, Stat, Stats, kindLabel } from "@/components/ui";
 import { fetchLeaderboard, friendlyError, startAttempt } from "@/lib/api";
 import { MARKS_CORRECT, MARKS_WRONG } from "@/lib/config";
 import { quotaFor } from "@/lib/quota";
@@ -22,13 +23,14 @@ export default function TestDetail() {
   useEffect(() => { fetchLeaderboard("test", id, 10).then(setBoard).catch(() => {}); }, [id, user?.id]);
 
   const test = testMap[id];
-  if (!ready) return <div className="container page muted">Loading…</div>;
-  if (!test) return <div className="container page"><h2>Test not found</h2></div>;
+  if (!ready) return <Loading />;
+  if (!test) return <div className="page"><h1>Test not found</h1></div>;
 
   const inProgress = attempts.find((a) => a.testId === id && !a.submittedAt);
   const past = attempts.filter((a) => a.testId === id && a.submittedAt);
   const quota = quotaFor(user, attempts);
-  const counts = SUBJECTS.map((s) => [s, test.questionIds.filter((q) => questionMap[q]?.subject === s).length] as const).filter(([, n]) => n);
+  const sections = SUBJECTS.map((s) => [s, test.questionIds.filter((q) => questionMap[q]?.subject === s).length] as const).filter(([, n]) => n);
+  const blocked = !!user && !inProgress && quota.remaining <= 0;
 
   async function start() {
     if (!user) return router.push(`/login?next=/tests/${id}`);
@@ -43,70 +45,83 @@ export default function TestDetail() {
     }
   }
 
-  const blocked = !!user && !inProgress && quota.remaining <= 0;
-
   return (
-    <div className="container page">
-      <div className="split">
-        <div className="card stack">
-          <div className="row">
-            <span className="chip chip-gray">{kindLabel[test.kind]}</span>
-            {test.subject && <span className="chip chip-gray">{test.subject}</span>}
+    <div className="page stack">
+      <Link href="/tests" className="row muted small"><ArrowLeft size={15} />All tests</Link>
+      <div className="page-head" style={{ marginBottom: 0 }}>
+        <div>
+          <div className="row" style={{ marginBottom: 8 }}>
+            <span className="tag">{kindLabel[test.kind]}</span>
+            {test.subject && <span className="tag">{test.subject}</span>}
           </div>
           <h1>{test.title}</h1>
-          <p className="muted">{test.description}</p>
-          <div className="grid-4">
-            <div className="stat"><div className="v">{test.questionIds.length}</div><div className="l">Questions</div></div>
-            <div className="stat"><div className="v">{test.durationMin}m</div><div className="l">Duration</div></div>
-            <div className="stat"><div className="v">{test.questionIds.length * MARKS_CORRECT}</div><div className="l">Max marks</div></div>
-          </div>
-          <div>
-            <h3>Instructions</h3>
-            <ul className="muted">
-              <li>+{MARKS_CORRECT} for a correct answer, {MARKS_WRONG} for a wrong answer, 0 if unattempted.</li>
-              <li>Numerical questions need a numeric answer typed in the box.</li>
-              <li>Use &quot;Mark for review&quot; to come back to a question. Marked questions with an answer are evaluated.</li>
-              <li>The test auto-submits when the timer runs out. Progress is saved if you refresh.</li>
-              <li>Sections: {counts.map(([s, n]) => `${s} (${n})`).join(", ")}</li>
+          <p>{test.description}</p>
+        </div>
+      </div>
+
+      <div className="cols-main">
+        <div className="stack">
+          <Stats>
+            <Stat label="Questions" value={test.questionIds.length} />
+            <Stat label="Duration" value={<>{test.durationMin}<small> min</small></>} />
+            <Stat label="Maximum marks" value={test.questionIds.length * MARKS_CORRECT} />
+          </Stats>
+
+          <div className="card stack-sm">
+            <h2>Before you start</h2>
+            <ul className="small" style={{ color: "var(--text-2)" }}>
+              <li>+{MARKS_CORRECT} for a correct answer, {MARKS_WRONG} for a wrong answer, 0 if left blank.</li>
+              <li>Numerical questions take a typed numeric answer.</li>
+              <li>Questions marked for review are still evaluated if answered.</li>
+              <li>The test submits automatically when time runs out. Progress is saved if you refresh.</li>
+              <li>Sections: {sections.map(([s, n]) => `${s} (${n})`).join(", ")}.</li>
             </ul>
           </div>
-          {blocked && (
-            <div className="banner">You&apos;ve used your free tests for this week. They reset on Monday — or <Link href="/pricing"><b>go Pro</b></Link> for unlimited tests.</div>
-          )}
-          {error && <div className="banner">{error}</div>}
+
+          {blocked && <Notice kind="warn">You&apos;ve used this week&apos;s free tests. They reset on Monday, or <Link href="/pricing" className="link">upgrade to Pro</Link> for unlimited tests.</Notice>}
+          {error && <Notice kind="error">{error}</Notice>}
+
           <div className="row">
             <button className="btn btn-lg" onClick={start} disabled={busy || blocked}>
-              {busy ? "Starting…" : !user ? "Log in to start" : inProgress ? "Resume test" : past.length ? "Reattempt test" : "Start test"} →
+              {busy ? "Starting…" : !user ? "Log in to start" : inProgress ? "Resume test" : past.length ? "Reattempt" : "Start test"}
             </button>
-            {!inProgress && user && !quota.unlimited && !blocked && <span className="muted small">Uses 1 of your {quota.remaining} free tests this week</span>}
+            {!inProgress && user && !quota.unlimited && !blocked && (
+              <span className="muted small">Uses 1 of {quota.remaining} free tests left this week</span>
+            )}
           </div>
+
           {past.length > 0 && (
-            <div>
-              <h3>Your attempts</h3>
-              <div className="table-wrap"><table><tbody>
+            <div className="card card-tight">
+              <div className="card-head"><h3>Your attempts</h3></div>
+              <table><tbody>
                 {past.map((a) => (
                   <tr key={a.id}>
-                    <td>{new Date(a.submittedAt!).toLocaleString()}</td>
-                    <td><b>{a.score}</b> / {a.maxScore}</td>
-                    <td><Link className="btn btn-sm btn-outline" href={`/results/${a.id}`}>View analysis</Link></td>
+                    <td className="muted">{new Date(a.submittedAt!).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</td>
+                    <td className="num"><b>{a.score}</b> / {a.maxScore}</td>
+                    <td className="r"><Link className="link" href={`/results/${a.id}`}>Analysis</Link></td>
                   </tr>
                 ))}
-              </tbody></table></div>
+              </tbody></table>
             </div>
           )}
         </div>
-        <div className="card">
-          <h3>🏆 Top scorers</h3>
-          {board.length === 0 ? <p className="muted small">No scores yet. Be the first!</p> : (
+
+        <div className="card card-tight">
+          <div className="card-head">
+            <h3>Top scores</h3>
+            <Link href={`/leaderboard?test=${id}`} className="link xs">View all</Link>
+          </div>
+          {board.length === 0 ? <p className="muted small card-body">No scores yet.</p> : (
             <table><tbody>
               {board.map((e) => (
                 <tr key={e.userId} className={e.isYou ? "you" : ""}>
-                  <td className="rank-cell">#{e.rank}</td><td>{e.name}{e.isYou && " (you)"}</td><td><b>{e.score}</b></td>
+                  <td className="rank">{e.rank}</td>
+                  <td>{e.name}{e.isYou && <span className="muted"> (you)</span>}</td>
+                  <td className="r num">{e.score}</td>
                 </tr>
               ))}
             </tbody></table>
           )}
-          <Link href={`/leaderboard?test=${id}`} className="small muted">Full leaderboard →</Link>
         </div>
       </div>
     </div>

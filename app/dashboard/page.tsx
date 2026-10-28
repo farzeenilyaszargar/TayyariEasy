@@ -3,35 +3,45 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { Bar, LoginPrompt, ProGate, Stat } from "@/components/ui";
+import { TestList } from "@/components/TestList";
+import { Bar, Loading, LoginPrompt, Notice, PageHead, ProGate, Stat, Stats } from "@/components/ui";
 import { fetchLeaderboard, fetchPointsHistory } from "@/lib/api";
 import { nextWeekReset, quotaFor } from "@/lib/quota";
 import { SUBJECTS } from "@/lib/scoring";
 
 type Ledger = Awaited<ReturnType<typeof fetchPointsHistory>>;
-const REASON: Record<string, string> = { test: "Completed a test", reattempt: "Reattempted a test", badge: "Earned a badge" };
+const REASON: Record<string, string> = { test: "Test completed", reattempt: "Test reattempted", badge: "Badge earned" };
+
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+}
 
 export default function Dashboard() {
-  const { user, attempts, ready, logout, testMap, earnedBadges } = useApp();
-  const [rank, setRank] = useState<number | null>(null);
+  const { user, attempts, ready, tests, testMap, earnedBadges } = useApp();
+  const [weekRank, setWeekRank] = useState<number | null>(null);
+  const [allRank, setAllRank] = useState<number | null>(null);
   const [ledger, setLedger] = useState<Ledger>([]);
 
   useEffect(() => {
     if (!user) return;
-    fetchLeaderboard("overall", undefined, 1).then((b) => setRank(b.find((e) => e.isYou)?.rank ?? null)).catch(() => {});
+    fetchLeaderboard("weekly", undefined, 1).then((b) => setWeekRank(b.find((e) => e.isYou)?.rank ?? null)).catch(() => {});
+    fetchLeaderboard("overall", undefined, 1).then((b) => setAllRank(b.find((e) => e.isYou)?.rank ?? null)).catch(() => {});
     fetchPointsHistory().then(setLedger).catch(() => {});
   }, [user, attempts.length]);
 
-  if (!ready) return <div className="container page muted">Loading…</div>;
+  if (!ready) return <Loading />;
   if (!user) return <LoginPrompt message="Log in to see your dashboard." />;
 
   const done = attempts.filter((a) => a.submittedAt).sort((a, b) => b.submittedAt!.localeCompare(a.submittedAt!));
   const inProgress = attempts.filter((a) => !a.submittedAt);
   const quota = quotaFor(user, attempts);
-  const acc = (a: (typeof done)[number]) => ((a.correct ?? 0) + (a.wrong ?? 0) ? (a.correct ?? 0) / ((a.correct ?? 0) + (a.wrong ?? 0)) : 0);
-  const avgAcc = done.length ? done.reduce((s, a) => s + acc(a), 0) / done.length : 0;
+  const taken = new Set(attempts.map((a) => a.testId));
+  const upNext = tests.filter((t) => !taken.has(t.id)).slice(0, 4);
+  const acc = (c: number | null, w: number | null) => ((c ?? 0) + (w ?? 0) ? (c ?? 0) / ((c ?? 0) + (w ?? 0)) : 0);
+  const avgAcc = done.length ? done.reduce((s, a) => s + acc(a.correct, a.wrong), 0) / done.length : 0;
 
-  const subj = SUBJECTS.map((s) => {
+  const mastery = SUBJECTS.map((s) => {
     let correct = 0, total = 0;
     for (const a of done) {
       const b = a.summary?.subjects?.[s];
@@ -41,94 +51,102 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="container page stack">
-      <div className="page-head">
-        <div>
-          <h1>Hi, {(user.name ?? "there").split(" ")[0]} 👋</h1>
-          <p className="muted">
-            {user.plan === "pro" ? <>Pro member{user.proUntil && ` · until ${new Date(user.proUntil).toLocaleDateString()}`}</> : "Free plan"}
-            {" · "}{user.phone ? `+${user.phone}` : user.email}
-          </p>
-        </div>
-        <div className="row">
-          <Link href="/tests" className="btn">Take a test</Link>
-          <button className="btn btn-ghost" onClick={logout}>Log out</button>
-        </div>
-      </div>
-
-      {!quota.unlimited && (
-        <div className="banner banner-info">
-          {quota.remaining} of {quota.limit} free tests left this week (resets {nextWeekReset().toLocaleDateString()}).{" "}
-          <Link href="/pricing"><b>Go Pro</b></Link> for unlimited tests and deep analysis.
-        </div>
-      )}
+    <div className="page stack">
+      <PageHead title={`${greeting()}, ${(user.name ?? "").split(" ")[0]}`} sub={user.plan === "pro" ? "Pro plan" : `Free plan · ${quota.remaining} of ${quota.limit} tests left this week`}>
+        <Link href="/tests" className="btn">Take a test</Link>
+      </PageHead>
 
       {inProgress.map((a) => (
-        <div key={a.id} className="banner">
-          Unfinished: <b>{testMap[a.testId]?.title}</b> · <Link href={`/tests/${a.testId}/attempt?a=${a.id}`}><b>Resume →</b></Link>
-        </div>
+        <Notice key={a.id} kind="warn">
+          You have an unfinished test: <b>{testMap[a.testId]?.title}</b>.{" "}
+          <Link href={`/tests/${a.testId}/attempt?a=${a.id}`} className="link">Resume</Link>
+        </Notice>
       ))}
+      {!quota.unlimited && quota.remaining === 0 && (
+        <Notice>Free tests reset on {nextWeekReset().toLocaleDateString("en-IN", { weekday: "long" })}. <Link href="/pricing" className="link">Pro</Link> removes the weekly limit.</Notice>
+      )}
 
-      <div className="grid-4">
-        <Stat value={`⚡${user.points}`} label="Tayyari points" />
-        <Stat value={done.length} label="Tests completed" />
-        <Stat value={rank ? `#${rank}` : "—"} label="All-time rank" />
-        <Stat value={`${Math.round(avgAcc * 100)}%`} label="Average accuracy" />
-        <Stat value={earnedBadges.length} label="Badges earned" />
-      </div>
+      <Stats>
+        <Stat label="Tests completed" value={done.length} />
+        <Stat label="Average accuracy" value={done.length ? `${Math.round(avgAcc * 100)}%` : "–"} />
+        <Stat label="Rank this week" value={weekRank ?? "–"} />
+        <Stat label="Rank all time" value={allRank ?? "–"} />
+        <Stat label="Points" value={user.points} />
+      </Stats>
 
-      <ProGate title="Progress over time">
-        <h3>Score trend</h3>
-        {done.length === 0 ? <p className="muted">Take a few tests to see your trend.</p> : (
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 140 }}>
-            {[...done].reverse().map((a) => (
-              <div key={a.id} title={`${testMap[a.testId]?.title}: ${a.score}/${a.maxScore}`}
-                style={{ flex: 1, maxWidth: 40, background: "linear-gradient(180deg, var(--primary-2), var(--primary))", borderRadius: 6, height: `${Math.max(4, (Math.max(0, a.score ?? 0) / (a.maxScore || 1)) * 100)}%` }} />
-            ))}
+      <div className="cols-main">
+        <div className="stack">
+          <section className="stack-sm">
+            <div className="spread"><h2>Up next</h2><Link href="/tests" className="link small">All tests</Link></div>
+            {upNext.length ? <TestList tests={upNext} /> : <div className="card muted small">You&apos;ve attempted every test. New ones are added every week.</div>}
+          </section>
+
+          <section className="stack-sm">
+            <div className="spread"><h2>Recent results</h2><Link href="/results" className="link small">All results</Link></div>
+            {done.length === 0 ? <div className="card muted small">Your results will appear here after your first test.</div> : (
+              <div className="card card-tight table-wrap">
+                <table><tbody>
+                  {done.slice(0, 5).map((a) => (
+                    <tr key={a.id}>
+                      <td><Link href={`/results/${a.id}`} style={{ fontWeight: 550 }}>{testMap[a.testId]?.title}</Link></td>
+                      <td className="muted">{new Date(a.submittedAt!).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</td>
+                      <td className="r num"><b>{a.score}</b> / {a.maxScore}</td>
+                      <td className="r num muted">{Math.round(acc(a.correct, a.wrong) * 100)}%</td>
+                    </tr>
+                  ))}
+                </tbody></table>
+              </div>
+            )}
+          </section>
+
+          <ProGate title="Progress over time">
+            <div className="stack">
+              <div className="stack-sm">
+                <h3>Score trend</h3>
+                {done.length === 0 ? <p className="muted small">Take a few tests to see your trend.</p> : (
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 120, borderBottom: "1px solid var(--border)" }}>
+                    {[...done].reverse().slice(-20).map((a) => (
+                      <div key={a.id} title={`${testMap[a.testId]?.title}: ${a.score}/${a.maxScore}`}
+                        style={{ flex: 1, maxWidth: 28, background: "var(--ink)", borderRadius: "3px 3px 0 0", height: `${Math.max(3, (Math.max(0, a.score ?? 0) / (a.maxScore || 1)) * 100)}%` }} />
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="stack-sm">
+                <h3>Subject accuracy</h3>
+                {mastery.map(({ s, correct, total }) => (
+                  <div key={s} className="meter-row">
+                    <span>{s}</span>
+                    <Bar value={total ? correct / total : 0} />
+                    <span className="r">{total ? `${correct}/${total}` : "–"}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </ProGate>
+        </div>
+
+        <aside className="stack">
+          <div className="card card-tight">
+            <div className="card-head"><h3>Badges</h3><Link href="/badges" className="link xs">View all</Link></div>
+            <p className="card-body small">
+              {earnedBadges.length ? <>You&apos;ve earned <b>{earnedBadges.length}</b> badge{earnedBadges.length === 1 ? "" : "s"}.</> : "Finish your first test to earn your first badge."}
+            </p>
           </div>
-        )}
-        <h3 style={{ marginTop: 20 }}>Subject mastery</h3>
-        {subj.map(({ s, correct, total }) => (
-          <div key={s} style={{ marginBottom: 10 }}>
-            <div className="spread small"><b>{s}</b><span>{total ? `${correct}/${total} correct` : "no data"}</span></div>
-            <Bar value={total ? correct / total : 0} />
-          </div>
-        ))}
-      </ProGate>
-
-      <div className="split">
-        <div className="card">
-          <h3>Recent tests</h3>
-          {done.length === 0 ? <p className="muted">No tests yet. <Link href="/tests"><b>Start your first one →</b></Link></p> : (
-            <div className="table-wrap"><table>
-              <thead><tr><th>Test</th><th>Date</th><th>Score</th><th>Accuracy</th><th></th></tr></thead>
-              <tbody>
-                {done.map((a) => (
-                  <tr key={a.id}>
-                    <td>{testMap[a.testId]?.title}</td>
-                    <td>{new Date(a.submittedAt!).toLocaleDateString()}</td>
-                    <td><b>{a.score}</b>/{a.maxScore}</td>
-                    <td>{Math.round(acc(a) * 100)}%</td>
-                    <td><Link href={`/results/${a.id}`} className="btn btn-sm btn-outline">Analysis</Link></td>
+          <div className="card card-tight">
+            <div className="card-head"><h3>Points history</h3></div>
+            {ledger.length === 0 ? <p className="muted small card-body">Points come from finishing tests and earning badges.</p> : (
+              <table><tbody>
+                {ledger.slice(0, 8).map((l) => (
+                  <tr key={l.id}>
+                    <td className="small">{REASON[l.reason] ?? l.reason}<div className="muted xs">{new Date(l.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</div></td>
+                    <td className="r num" style={{ color: "var(--green)" }}>+{l.delta}</td>
                   </tr>
                 ))}
-              </tbody>
-            </table></div>
-          )}
-        </div>
-        <div className="card">
-          <h3>⚡ Points history</h3>
-          {ledger.length === 0 ? <p className="muted small">Earn points by finishing tests and unlocking badges.</p> : (
-            <table><tbody>
-              {ledger.map((l) => (
-                <tr key={l.id}>
-                  <td className="small">{REASON[l.reason] ?? l.reason}<div className="muted small">{new Date(l.created_at).toLocaleDateString()}</div></td>
-                  <td style={{ textAlign: "right" }}><b style={{ color: "var(--green)" }}>+{l.delta}</b></td>
-                </tr>
-              ))}
-            </tbody></table>
-          )}
-        </div>
+              </tbody></table>
+            )}
+          </div>
+        </aside>
       </div>
     </div>
   );

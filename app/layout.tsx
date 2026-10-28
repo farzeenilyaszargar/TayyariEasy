@@ -1,26 +1,23 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { AppProvider } from "@/components/AppProvider";
-import { Nav } from "@/components/Nav";
-import { Onboarding } from "@/components/Onboarding";
+import { AppShell } from "@/components/AppShell";
 import "./globals.css";
 
-const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display-face", display: "swap" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Tayyari — Free JEE Mock Tests, Analysis & Leaderboards",
-  description: "Free weekly JEE Main mock tests, subject-wise and chapter-wise tests, leaderboards, badges and deep performance analysis.",
+  title: "Tayyari — JEE mock tests",
+  description: "Free weekly JEE Main mock tests with leaderboards, badges and detailed performance analysis.",
   metadataBase: new URL("https://tayyari.online"),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable}`}>
+    <html lang="en" className={inter.variable}>
       <body>
         <AppProvider>
-          <Nav />
-          <main><Onboarding>{children}</Onboarding></main>
+          <AppShell>{children}</AppShell>
         </AppProvider>
       </body>
     </html>

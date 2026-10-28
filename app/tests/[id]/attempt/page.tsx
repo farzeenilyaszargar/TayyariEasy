@@ -1,5 +1,6 @@
 "use client";
 
+import { Clock } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "@/components/AppProvider";
@@ -110,8 +111,8 @@ function Exam() {
   const left = Math.max(0, Math.floor((endsAt - now) / 1000));
   useEffect(() => { if (attempt && left === 0) submit(); }, [attempt, left, submit]);
 
-  if (error && !attempt) return <div className="container page"><div className="banner">{error}</div></div>;
-  if (!ready || !test || !attempt || !q) return <div className="container page muted">Loading test…</div>;
+  if (error && !attempt) return <div className="page"><div className="notice notice-error">{error}</div></div>;
+  if (!ready || !test || !attempt || !q) return <div className="page muted small">Loading test…</div>;
 
   const rec = answers[q.id];
   const answeredCount = test.questionIds.filter((x) => answers[x]?.response != null).length;
@@ -129,31 +130,31 @@ function Exam() {
         <div className="spread">
           <div><b>{test.title}</b> <span className="muted small">· {answeredCount}/{test.questionIds.length} answered</span></div>
           <div className="row">
-            <span className={`timer ${left < 300 ? "low" : ""}`}>⏱ {String(Math.floor(left / 60)).padStart(2, "0")}:{String(left % 60).padStart(2, "0")}</span>
-            <button className="btn btn-sm btn-green" disabled={submitting}
+            <span className={`timer ${left < 300 ? "low" : ""}`}><Clock size={14} />{String(Math.floor(left / 60)).padStart(2, "0")}:{String(left % 60).padStart(2, "0")}</span>
+            <button className="btn btn-sm btn-success" disabled={submitting}
               onClick={() => { commitNumerical(); if (confirm("Submit the test? You can't change answers after this.")) submit(); }}>
               {submitting ? "Submitting…" : "Submit"}
             </button>
           </div>
         </div>
         {sections.length > 1 && (
-          <div className="tabs" style={{ marginTop: 10 }}>
+          <div className="seg" style={{ marginTop: 10 }}>
             {sections.map((s) => (
-              <button key={s} className={`tab ${q.subject === s ? "active" : ""}`}
+              <button key={s} className={q.subject === s ? "active" : ""}
                 onClick={() => { commitNumerical(); go(test.questionIds.findIndex((x) => questionMap[x]?.subject === s)); }}>{s}</button>
             ))}
           </div>
         )}
-        {error && <div className="banner" style={{ marginTop: 10 }}>{error}</div>}
+        {error && <div className="notice notice-error" style={{ marginTop: 10 }}>{error}</div>}
       </div>
 
       <div className="exam-body">
         <div className="card">
           <div className="spread">
-            <b>Question {idx + 1}</b>
+            <h3>Question {idx + 1}</h3>
             <div className="row small">
-              <span className="chip chip-gray">{q.type === "mcq" ? "Single correct" : "Numerical"}</span>
-              <span className="chip chip-green">+4</span><span className="chip chip-red">−1</span>
+              <span className="tag">{q.type === "mcq" ? "Single correct" : "Numerical"}</span>
+              <span className="tag num">+4 / −1</span>
             </div>
           </div>
           <div className="q-text">{q.text}</div>
@@ -174,21 +175,21 @@ function Exam() {
 
           <div className="spread" style={{ marginTop: 24 }}>
             <div className="row">
-              <button className="btn btn-ghost btn-sm" onClick={() => { commitNumerical(); go(idx - 1); }} disabled={idx === 0}>← Previous</button>
-              <button className="btn btn-ghost btn-sm" onClick={() => { setNumDraft(""); patch(q.id, { response: null }); }}>Clear response</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => { commitNumerical(); go(idx - 1); }} disabled={idx === 0}>Previous</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => { setNumDraft(""); patch(q.id, { response: null }); }}>Clear response</button>
             </div>
             <div className="row">
-              <button className="btn btn-sm btn-purple"
+              <button className="btn btn-sm btn-secondary"
                 onClick={() => { commitNumerical(); patch(q.id, { markedForReview: !rec?.markedForReview }); go(idx + 1); }}>
-                {rec?.markedForReview ? "Unmark" : "Mark for review"} & Next
+                {rec?.markedForReview ? "Unmark" : "Mark for review"} & next
               </button>
-              <button className="btn btn-sm" onClick={() => { commitNumerical(); go(idx + 1); }}>Save & Next →</button>
+              <button className="btn btn-sm" onClick={() => { commitNumerical(); go(idx + 1); }}>Save & next</button>
             </div>
           </div>
         </div>
 
         <aside className="card stack">
-          <b>Question palette</b>
+          <h3>Questions</h3>
           <div className="palette">
             {test.questionIds.map((x, i) => (
               <button key={x} className={`pal ${statusOf(answers[x])} ${i === idx ? "current" : ""}`} onClick={() => { commitNumerical(); go(i); }}>{i + 1}</button>
@@ -196,9 +197,9 @@ function Exam() {
           </div>
           <div className="legend">
             <span style={{ ["--c" as string]: "var(--green)" }}>Answered</span>
-            <span style={{ ["--c" as string]: "var(--red)" }}>Not answered</span>
+            <span style={{ ["--c" as string]: "var(--red-soft)" }}>Not answered</span>
             <span style={{ ["--c" as string]: "#fff" }}>Not visited</span>
-            <span style={{ ["--c" as string]: "var(--purple)" }}>Marked</span>
+            <span style={{ ["--c" as string]: "var(--violet)" }}>Marked</span>
           </div>
         </aside>
       </div>
@@ -207,5 +208,5 @@ function Exam() {
 }
 
 export default function AttemptPage() {
-  return <Suspense fallback={<div className="container page muted">Loading…</div>}><Exam /></Suspense>;
+  return <Suspense fallback={<div className="page muted small">Loading…</div>}><Exam /></Suspense>;
 }

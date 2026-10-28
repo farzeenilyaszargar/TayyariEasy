@@ -1,70 +1,48 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { kindLabel } from "@/components/ui";
+import { TestList } from "@/components/TestList";
+import { Notice, PageHead } from "@/components/ui";
 import { nextWeekReset, quotaFor } from "@/lib/quota";
-import type { TestKind } from "@/lib/types";
+import type { Subject, TestKind } from "@/lib/types";
 
-const FILTERS: { key: "all" | TestKind; label: string }[] = [
+const KINDS: { key: "all" | TestKind; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "full", label: "Full Mocks" },
-  { key: "subject", label: "Subject-wise" },
-  { key: "chapter", label: "Chapter-wise" },
+  { key: "full", label: "Full mocks" },
+  { key: "subject", label: "Subject" },
+  { key: "chapter", label: "Chapter" },
 ];
-
-const isNew = (d: string) => Date.now() - new Date(d).getTime() < 7 * 864e5;
+const SUBJECTS: ("all" | Subject)[] = ["all", "Physics", "Chemistry", "Mathematics"];
 
 export default function TestsPage() {
-  const { user, attempts, tests: all, ready } = useApp();
-  const [filter, setFilter] = useState<"all" | TestKind>("all");
+  const { user, attempts, tests } = useApp();
+  const [kind, setKind] = useState<"all" | TestKind>("all");
+  const [subject, setSubject] = useState<"all" | Subject>("all");
   const quota = quotaFor(user, attempts);
-  const tests = all.filter((t) => filter === "all" || t.kind === filter);
+  // full mocks cover every subject, so they stay visible under a subject filter
+  const shown = tests.filter((t) => (kind === "all" || t.kind === kind) && (subject === "all" || t.subject === subject || t.kind === "full"));
 
   return (
-    <div className="container page stack">
+    <div className="page stack">
+      <PageHead title="Tests" sub="JEE Main pattern · +4 for correct, −1 for wrong." />
+
+      {user && !quota.unlimited && (
+        <Notice kind={quota.remaining ? "info" : "warn"}>
+          {quota.remaining} of {quota.limit} free tests left this week. Resets {nextWeekReset().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" })}.
+        </Notice>
+      )}
+
       <div className="spread">
-        <div>
-          <h1>Mock Tests</h1>
-          <p className="muted">Full-length, subject-wise and chapter-wise tests in JEE Main pattern.</p>
+        <div className="seg">
+          {KINDS.map((k) => <button key={k.key} className={kind === k.key ? "active" : ""} onClick={() => setKind(k.key)}>{k.label}</button>)}
         </div>
-        {user && (
-          quota.unlimited
-            ? <span className="chip">Pro · unlimited tests</span>
-            : <span className={`chip ${quota.remaining ? "chip-green" : "chip-red"}`}>
-                {quota.remaining}/{quota.limit} free tests left this week · resets {nextWeekReset().toLocaleDateString()}
-              </span>
-        )}
+        <div className="seg">
+          {SUBJECTS.map((s) => <button key={s} className={subject === s ? "active" : ""} onClick={() => setSubject(s)}>{s === "all" ? "All subjects" : s}</button>)}
+        </div>
       </div>
-      <div className="tabs">
-        {FILTERS.map((f) => (
-          <button key={f.key} className={`tab ${filter === f.key ? "active" : ""}`} onClick={() => setFilter(f.key)}>{f.label}</button>
-        ))}
-      </div>
-      {!ready && <p className="muted">Loading tests…</p>}
-      <div className="grid">
-        {tests.map((t) => {
-          const done = attempts.filter((a) => a.testId === t.id && a.submittedAt);
-          const best = done.length ? Math.max(...done.map((a) => a.score ?? 0)) : null;
-          return (
-            <Link key={t.id} href={`/tests/${t.id}`} className="card test-card">
-              <div className={`stripe ${t.kind === "full" ? "subj-full" : `subj-${t.subject}`}`} />
-              <div className="row">
-                <span className="chip chip-gray">{kindLabel[t.kind]}</span>
-                {t.subject && <span className="chip chip-gray">{t.subject}</span>}
-                {isNew(t.releasedAt) && <span className="chip chip-amber">New this week</span>}
-              </div>
-              <h3>{t.title}</h3>
-              <p className="muted small" style={{ margin: 0 }}>{t.description}</p>
-              <div className="meta spread">
-                <span>{t.questionIds.length} Qs · {t.durationMin} min · {t.questionIds.length * 4} marks</span>
-                {best !== null && <span className="chip chip-green">Best {best}</span>}
-              </div>
-            </Link>
-          );
-        })}
-      </div>
+
+      <TestList tests={shown} />
     </div>
   );
 }

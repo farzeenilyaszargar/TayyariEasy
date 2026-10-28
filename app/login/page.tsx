@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { Brand } from "@/components/AppShell";
 import { supabase } from "@/lib/supabase/client";
 
 type Method = "phone" | "email";
@@ -65,21 +66,22 @@ function Login() {
   return (
     <div className="auth-wrap">
       <div className="card auth-card stack">
-        <div className="center">
-          <h2>Welcome to Tayyari</h2>
-          <p className="muted small">Log in or sign up to save scores, climb the leaderboard and earn badges.</p>
+        <div>
+          <div style={{ marginLeft: -10 }}><Brand /></div>
+          <h1 style={{ fontSize: "1.3rem" }}>Log in or sign up</h1>
+          <p className="muted small" style={{ marginTop: 4 }}>New accounts are created automatically.</p>
         </div>
 
-        <button className="btn btn-ghost btn-block" onClick={google} disabled={busy}>
+        <button className="btn btn-secondary btn-block" onClick={google} disabled={busy}>
           <GoogleIcon /> Continue with Google
         </button>
-        <div className="divider">or</div>
+        <div className="or">or</div>
 
-        <div className="tabs" style={{ display: "flex" }}>
+        <div className="seg" style={{ display: "flex" }}>
           {(["phone", "email"] as const).map((m) => (
-            <button key={m} className={`tab ${method === m ? "active" : ""}`} style={{ flex: 1 }}
+            <button key={m} className={method === m ? "active" : ""} style={{ flex: 1 }}
               onClick={() => { setMethod(m); setSent(false); setCode(""); setError(""); }}>
-              {m === "phone" ? "📱 Mobile" : "✉️ Email"}
+              {m === "phone" ? "Mobile number" : "Email"}
             </button>
           ))}
         </div>
@@ -89,8 +91,8 @@ function Login() {
             {method === "phone" ? (
               <div>
                 <label htmlFor="phone">Mobile number</label>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <span className="chip chip-gray" style={{ borderRadius: 12, padding: "0 12px" }}>+91</span>
+                <div className="input-prefix">
+                  <span>+91</span>
                   <input id="phone" type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="98765 43210"
                     value={phone} onChange={(e) => setPhone(e.target.value)} required pattern="[0-9 ]{10,12}" />
                 </div>
@@ -102,11 +104,11 @@ function Login() {
                   value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
             )}
-            <button className="btn btn-block" type="submit" disabled={busy}>{busy ? "Sending…" : "Send OTP"}</button>
+            <button className="btn btn-block btn-lg" type="submit" disabled={busy}>{busy ? "Sending…" : "Send code"}</button>
           </form>
         ) : (
           <form className="stack" onSubmit={verify}>
-            <p className="small muted" style={{ margin: 0 }}>
+            <p className="small muted">
               {method === "phone"
                 ? <>We sent a 6-digit code to <b>{fullPhone}</b>.</>
                 : <>We sent an email to <b>{email}</b>. Click the link in it, or enter the code if it has one.</>}
@@ -116,13 +118,13 @@ function Login() {
               <input id="code" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={8}
                 value={code} onChange={(e) => setCode(e.target.value)} required />
             </div>
-            <button className="btn btn-block" type="submit" disabled={busy}>{busy ? "Verifying…" : "Verify & continue"}</button>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setSent(false)}>Change {method === "phone" ? "number" : "email"}</button>
+            <button className="btn btn-block btn-lg" type="submit" disabled={busy}>{busy ? "Verifying…" : "Verify and continue"}</button>
+            <button type="button" className="btn btn-ghost btn-sm btn-block" onClick={() => setSent(false)}>Change {method === "phone" ? "number" : "email"}</button>
           </form>
         )}
 
-        {error && <div className="banner" style={{ background: "var(--red-soft)", color: "#b42326", borderColor: "#f5c2c3" }}>{error}</div>}
-        <p className="muted small center" style={{ margin: 0 }}>By continuing you agree to our terms. <Link href="/">Back home</Link></p>
+        {error && <div className="notice notice-error">{error}</div>}
+        <p className="muted xs center"><Link href="/" className="link">Back to home</Link></p>
       </div>
     </div>
   );
