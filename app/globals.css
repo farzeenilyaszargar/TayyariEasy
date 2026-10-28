@@ -70,8 +70,8 @@ ul { margin: 0; padding-left: 1.2rem; }
 .pill-stat.streak { color: var(--orange); }
 .pill-stat.points { color: var(--blue); }
 .pill-stat.off { color: var(--faint); }
-.profile-btn { display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border-radius: 999px; border: 2px solid var(--line); background: #fff; cursor: pointer; font-weight: 800; }
-.profile-btn:hover { background: var(--bg-soft); }
+.profile-btn { display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; margin-left: 4px; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--line); transition: box-shadow .15s; }
+.profile-btn:hover, .profile-btn[aria-expanded="true"] { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--blue); }
 .menu { position: absolute; right: 0; top: calc(100% + 8px); width: 240px; background: #fff; border: 2px solid var(--line); border-radius: var(--r); padding: 8px; z-index: 40; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
 .menu a, .menu button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: none; text-align: left; font-weight: 700; cursor: pointer; color: var(--text); }
 .menu a:hover, .menu button:hover { background: var(--bg-soft); }
@@ -79,7 +79,7 @@ ul { margin: 0; padding-left: 1.2rem; }
 @media (max-width: 720px) {
   .nav-inner { height: 60px; gap: 10px; padding: 0 12px; }
   .logo { font-size: 1.35rem; }
-  .nav-link span, .profile-btn .name { display: none; }
+  .nav-link span { display: none; }
   .nav-link { padding: 0 10px; }
   .pill-stat { padding: 0 6px; }
 }
@@ -327,8 +327,6 @@ td.r, th.r { text-align: right; }
 .swatch.on { box-shadow: 0 0 0 3px var(--blue); }
 @media (max-width: 720px) {
   .nav-right { gap: 2px; }
-  .profile-btn { padding: 2px; border: 0; }
-  .profile-btn > svg { display: none; }
 }
 
 /* ---------- Tooltips (data-tip) ---------- */

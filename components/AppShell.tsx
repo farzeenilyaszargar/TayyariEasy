@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, ChevronDown, Crown, Flame, LogOut, Trophy, User, Zap, FileText } from "lucide-react";
+import { BarChart3, Crown, Flame, LogOut, Trophy, User, Zap, FileText } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -76,10 +76,8 @@ function TopNav() {
           </span>
           <Link href="/leaderboard" className={`nav-link ${on("/leaderboard") ? "active" : ""}`}><Trophy size={20} /><span>Leaderboard</span></Link>
           <div ref={ref} style={{ position: "relative" }}>
-            <button className="profile-btn" onClick={() => setOpen(!open)} aria-label="Profile menu">
-              <Avatar name={user.name} url={user.avatarUrl} color={user.avatarColor} size={34} />
-              <span className="name">{(user.name ?? "").split(" ")[0]}</span>
-              <ChevronDown size={16} />
+            <button className="profile-btn" onClick={() => setOpen(!open)} aria-label="Profile menu" aria-expanded={open}>
+              <Avatar name={user.name} url={user.avatarUrl} color={user.avatarColor} size={40} />
             </button>
             {open && (
               <div className="menu">

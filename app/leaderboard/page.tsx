@@ -9,10 +9,10 @@ import { Avatar } from "@/components/Avatar";
 import { fetchLeaderboard } from "@/lib/api";
 import type { LeaderboardEntry, LeaderboardKind } from "@/lib/types";
 
+// Weekly and all-time rank by points; a single paper ranks by marks.
 const MODES: { key: LeaderboardKind; label: string; unit: string }[] = [
-  { key: "weekly", label: "This week", unit: "marks" },
-  { key: "points", label: "Points", unit: "pts" },
-  { key: "overall", label: "All time", unit: "marks" },
+  { key: "weekly", label: "This week", unit: "pts" },
+  { key: "overall", label: "All time", unit: "pts" },
   { key: "test", label: "By paper", unit: "marks" },
 ];
 const PODIUM = [
@@ -47,7 +47,10 @@ function Board() {
           <Trophy size={44} />
         </div>
         <h1>Leaderboard</h1>
-        <p className="muted">{me ? `You're #${me.rank} ${mode === "weekly" ? "this week" : ""}. Keep climbing!` : "Finish a paper to get on the board."}</p>
+        <p className="muted">
+          {me ? `You're #${me.rank}${mode === "weekly" ? " this week" : mode === "overall" ? " overall" : " on this paper"}. Keep climbing!` : "Finish a paper to get on the board."}
+        </p>
+        {mode !== "test" && <p className="faint small">Ranked by points from papers and badges{mode === "weekly" ? ", reset every Monday" : ""}.</p>}
       </div>
 
       <div className="chips" style={{ justifyContent: "center" }}>
