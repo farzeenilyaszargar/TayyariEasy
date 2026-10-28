@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Clock, FileText, Target } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -66,9 +66,9 @@ export default function PaperDetail() {
       <div className="cols-main">
         <div className="stack">
           <div className="stat-tiles">
-            <StatTile icon={<FileText size={20} />} color="var(--blue)" value={test.questionIds.length} label="Questions" />
-            <StatTile icon={<Clock size={20} />} color="var(--orange)" value={`${test.durationMin} min`} label="Duration" />
-            <StatTile icon={<Target size={20} />} color="var(--green)" value={test.questionIds.length * MARKS_CORRECT} label="Max marks" />
+            <StatTile icon="paper" tint="var(--tint-indigo)" value={test.questionIds.length} label="Questions" />
+            <StatTile icon="stopwatch" tint="var(--tint-amber)" value={`${test.durationMin} min`} label="Duration" />
+            <StatTile icon="target" tint="var(--tint-rose)" value={test.questionIds.length * MARKS_CORRECT} label="Max marks" />
           </div>
 
           <div className="card stack-sm">

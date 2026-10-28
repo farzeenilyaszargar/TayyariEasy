@@ -1,20 +1,27 @@
 "use client";
 
-import { Atom, Calculator, Clock, FileText, FlaskConical, Layers, type LucideIcon } from "lucide-react";
+import { Clock, FileText } from "lucide-react";
 import Link from "next/link";
 import type { TestPaper } from "@/lib/types";
 import { useApp } from "./AppProvider";
+import { IconTile, type Icon3DName } from "./Icon3D";
 import { kindLabel } from "./ui";
 
-const SUBJECT_ICON: Record<string, LucideIcon> = { Physics: Atom, Chemistry: FlaskConical, Mathematics: Calculator };
+const SUBJECT_LOOK: Record<string, [Icon3DName, string]> = {
+  Physics: ["atom", "var(--tint-blue)"],
+  Chemistry: ["flask", "var(--tint-green)"],
+  Mathematics: ["abacus", "var(--tint-amber)"],
+};
 
-export function paperColorClass(t: TestPaper) {
-  return t.kind === "full" ? "c-full" : t.kind === "demo" ? "c-demo" : `c-${t.subject}`;
+export function paperLook(t: TestPaper): [Icon3DName, string] {
+  if (t.kind === "full") return ["books", "var(--tint-violet)"];
+  if (t.kind === "demo") return ["memo", "var(--tint-slate)"];
+  return SUBJECT_LOOK[t.subject ?? ""] ?? ["paper", "var(--tint-slate)"];
 }
 
 export function PaperIcon({ test, size = 52 }: { test: TestPaper; size?: number }) {
-  const Icon = test.kind === "full" ? Layers : test.kind === "demo" ? FileText : SUBJECT_ICON[test.subject ?? ""] ?? FileText;
-  return <span className={`paper-icon ${paperColorClass(test)}`} style={{ width: size, height: size }}><Icon size={size * 0.5} /></span>;
+  const [name, tint] = paperLook(test);
+  return <IconTile name={name} tint={tint} size={size} />;
 }
 
 const isNew = (d: string) => Date.now() - new Date(d).getTime() < 7 * 864e5;
@@ -30,7 +37,7 @@ export function PaperCard({ test }: { test: TestPaper }) {
       <div className="spread" style={{ alignItems: "flex-start" }}>
         <PaperIcon test={test} />
         {pending ? <span className="tag tag-yellow">In progress</span>
-          : best !== null ? <span className="tag tag-green">Best {best}</span>
+          : best !== null ? <span className="tag tag-green">Best {best}/{test.questionIds.length * 4}</span>
           : isNew(test.releasedAt) ? <span className="tag tag-blue">New</span> : null}
       </div>
       <div>
@@ -39,7 +46,7 @@ export function PaperCard({ test }: { test: TestPaper }) {
       </div>
       <div className="meta row" style={{ gap: 14 }}>
         <span>{kindLabel[test.kind]}</span>
-        <span>{test.questionIds.length} Qs</span>
+        <span className="row" style={{ gap: 4 }}><FileText size={14} />{test.questionIds.length} questions</span>
         <span className="row" style={{ gap: 4 }}><Clock size={14} />{test.durationMin} min</span>
       </div>
     </Link>

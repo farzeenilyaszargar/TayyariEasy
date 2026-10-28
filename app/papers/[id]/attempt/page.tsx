@@ -1,9 +1,10 @@
 "use client";
 
-import { Clock, Lightbulb, X } from "lucide-react";
+import { Clock, X } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { Icon3D } from "@/components/Icon3D";
 import { fetchAttempt, friendlyError, saveProgress, submitAttempt } from "@/lib/api";
 import { SUBJECTS } from "@/lib/scoring";
 import type { AnswerRecord, Attempt } from "@/lib/types";
@@ -161,7 +162,7 @@ function Exam() {
         <div className="stack-sm">
           {isDemo && tip < TIPS.length && (
             <div className="coach">
-              <span className="bubble"><Lightbulb size={20} /></span>
+              <Icon3D name="bulb" size={32} />
               <span style={{ flex: 1 }}>{TIPS[tip]}</span>
               <button className="btn btn-yellow btn-sm" onClick={() => setTip(tip + 1)}>{tip === TIPS.length - 1 ? "Got it" : "Next tip"}</button>
             </div>
@@ -199,10 +200,10 @@ function Exam() {
               <button className="btn btn-ghost btn-sm" onClick={() => { setNumDraft(""); patch(q.id, { response: null }); }}>Clear</button>
             </div>
             <div className="row">
-              <button className="btn btn-purple btn-sm" onClick={() => { commitNumerical(); patch(q.id, { markedForReview: !rec?.markedForReview }); if (!isLast) go(idx + 1); }}>
+              <button className="btn btn-white btn-sm" onClick={() => { commitNumerical(); patch(q.id, { markedForReview: !rec?.markedForReview }); if (!isLast) go(idx + 1); }}>
                 {rec?.markedForReview ? "Unmark" : "Mark for review"}
               </button>
-              <button className="btn btn-blue btn-sm" onClick={() => { commitNumerical(); if (isLast) setConfirming(true); else go(idx + 1); }}>
+              <button className="btn btn-sm" onClick={() => { commitNumerical(); if (isLast) setConfirming(true); else go(idx + 1); }}>
                 {isLast ? "Finish" : "Save & next"}
               </button>
             </div>

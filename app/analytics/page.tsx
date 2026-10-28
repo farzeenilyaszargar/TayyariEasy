@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, CheckCircle2, FileText, Flame, Target, Trophy } from "lucide-react";
+import { Award } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
@@ -38,11 +38,11 @@ export default function Analytics() {
       <PageHead title="Dashboard" sub="How your preparation is going." />
 
       <div className="stat-tiles">
-        <StatTile icon={<FileText size={20} />} color="var(--blue)" value={done.length} label="Papers done" />
-        <StatTile icon={<CheckCircle2 size={20} />} color="var(--green)" value={done.length ? `${Math.round(avgAcc * 100)}%` : "–"} label="Avg accuracy" />
-        <StatTile icon={<Target size={20} />} color="var(--purple)" value={done.length ? `${best}%` : "–"} label="Best score" />
-        <StatTile icon={<Trophy size={20} />} color="var(--yellow)" value={weekRank ? `#${weekRank}` : "–"} label="Rank this week" />
-        <StatTile icon={<Flame size={20} fill="#fff" />} color="var(--orange)" value={streakDays(attempts)} label="Day streak" />
+        <StatTile icon="paper" tint="var(--tint-indigo)" value={done.length} label="Papers done" />
+        <StatTile icon="check" tint="var(--tint-green)" value={done.length ? `${Math.round(avgAcc * 100)}%` : "–"} label="Avg accuracy" />
+        <StatTile icon="target" tint="var(--tint-rose)" value={done.length ? `${best}%` : "–"} label="Best score" />
+        <StatTile icon="trophy" tint="var(--tint-amber)" value={weekRank ? `#${weekRank}` : "–"} label="Rank this week" />
+        <StatTile icon="fire" tint="var(--tint-amber)" value={streakDays(attempts)} label="Day streak" />
       </div>
 
       <div className="cols-main">

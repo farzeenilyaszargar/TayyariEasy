@@ -1,11 +1,12 @@
 "use client";
 
-import { BarChart3, Camera, Crown, FileText, Flame, Pencil, Trophy, Zap } from "lucide-react";
+import { Camera, ChevronRight, Pencil } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { AVATAR_COLORS, Avatar } from "@/components/Avatar";
 import { BadgeGrid } from "@/components/Badges";
+import { IconTile } from "@/components/Icon3D";
 import { Notice, ProMini, StatTile } from "@/components/ui";
 import { fetchLeaderboard, friendlyError, updateProfile, uploadAvatar } from "@/lib/api";
 import { streakDays } from "@/lib/quota";
@@ -71,20 +72,21 @@ export default function Profile() {
       {error && <Notice kind="red">{error}</Notice>}
 
       <div className="stat-tiles">
-        <StatTile icon={<Flame size={20} fill="#fff" />} color="var(--orange)" value={streakDays(attempts)} label="Day streak" />
-        <StatTile icon={<Zap size={20} fill="#fff" />} color="var(--blue)" value={user.points} label="Total points" />
-        <StatTile icon={<Trophy size={20} />} color="var(--yellow)" value={rank ? `#${rank}` : "–"} label="Points rank" />
-        <StatTile icon={<FileText size={20} />} color="var(--green)" value={done.length} label="Papers done" />
+        <StatTile icon="fire" tint="var(--tint-amber)" value={streakDays(attempts)} label="Day streak" />
+        <StatTile icon="bolt" tint="var(--tint-indigo)" value={user.points} label="Total points" />
+        <StatTile icon="trophy" tint="var(--tint-amber)" value={rank ? `#${rank}` : "–"} label="Points rank" />
+        <StatTile icon="paper" tint="var(--tint-indigo)" value={done.length} label="Papers done" />
       </div>
 
       <div className="cols-2">
         <Link href="/analytics" className="card card-press row" style={{ gap: 14 }}>
-          <span className="paper-icon c-Physics" style={{ width: 44, height: 44 }}><BarChart3 size={22} /></span>
+          <IconTile name="chart" tint="var(--tint-blue)" size={48} />
           <div style={{ flex: 1 }}><h3>Dashboard &amp; analytics</h3><p className="muted small">Scores, trends and subject accuracy</p></div>
+          <ChevronRight size={18} className="faint" />
         </Link>
         {user.plan === "pro" ? (
           <Link href="/pro" className="card card-press row" style={{ gap: 14 }}>
-            <span className="paper-icon c-full" style={{ width: 44, height: 44 }}><Crown size={22} /></span>
+            <IconTile name="crown" tint="var(--tint-amber)" size={48} />
             <div style={{ flex: 1 }}><h3>Your Pro plan</h3><p className="muted small">{user.proUntil ? `Active until ${new Date(user.proUntil).toLocaleDateString("en-IN", { dateStyle: "medium" })}` : "Active"}</p></div>
           </Link>
         ) : <ProMini text="Get unlimited papers and full analysis with Pro." />}

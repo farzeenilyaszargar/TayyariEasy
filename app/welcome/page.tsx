@@ -1,10 +1,11 @@
 "use client";
 
-import { Camera, FileText, X } from "lucide-react";
+import { Camera, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { AVATAR_COLORS, Avatar } from "@/components/Avatar";
+import { Icon3D } from "@/components/Icon3D";
 import { Notice } from "@/components/ui";
 import { friendlyError, startAttempt, updateProfile, uploadAvatar } from "@/lib/api";
 
@@ -74,7 +75,8 @@ export default function Welcome() {
         {step === 0 && (
           <form className="stack" onSubmit={(e) => { e.preventDefault(); if (name.trim().length >= 2) next(); }}>
             <div>
-              <h1>Hey there! What should we call you?</h1>
+              <Icon3D name="wave" size={56} style={{ marginBottom: 14 }} />
+              <h1>Welcome to Tayyari. What should we call you?</h1>
               <p className="muted" style={{ marginTop: 6 }}>This is how you&apos;ll appear on leaderboards (first name and last initial).</p>
             </div>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" aria-label="Full name" autoFocus minLength={2} maxLength={40} />
@@ -111,6 +113,7 @@ export default function Welcome() {
         {step === 2 && (
           <div className="stack">
             <div>
+              <Icon3D name="calendar" size={56} style={{ marginBottom: 14 }} />
               <h1>When are you writing JEE?</h1>
               <p className="muted" style={{ marginTop: 6 }}>We&apos;ll use this to pace your practice.</p>
             </div>
@@ -127,9 +130,7 @@ export default function Welcome() {
 
         {step === 3 && (
           <div className="stack center">
-            <div style={{ width: 120, height: 120, margin: "0 auto", borderRadius: 32, background: "var(--yellow)", boxShadow: "0 6px 0 var(--yellow-dark)", display: "grid", placeItems: "center", color: "#fff", transform: "rotate(-4deg)" }}>
-              <FileText size={60} />
-            </div>
+            <div style={{ display: "grid", placeItems: "center", filter: "drop-shadow(0 18px 22px rgba(16,24,40,.18))" }}><Icon3D name="memo" size={120} /></div>
             <div>
               <h1>Ready for a quick warm-up, {name.split(" ")[0]}?</h1>
               <p className="muted" style={{ marginTop: 8 }}>A 4-question paper to show you how the test screen works. It doesn&apos;t count toward your weekly papers.</p>

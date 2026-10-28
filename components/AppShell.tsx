@@ -1,19 +1,20 @@
 "use client";
 
-import { BarChart3, Crown, Flame, LogOut, Trophy, User, Zap, FileText } from "lucide-react";
+import { BarChart3, Crown, LogOut, Trophy, User, FileText } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { streakDays } from "@/lib/quota";
 import { useApp } from "./AppProvider";
 import { Avatar } from "./Avatar";
+import { Icon3D } from "./Icon3D";
 
 const PUBLIC = [/^\/$/, /^\/login/, /^\/auth/];
 const FOCUS = [/^\/welcome/, /\/attempt$/, /^\/complete\//]; // full-screen, no navbar
 const ONBOARDING_OK = [/^\/welcome/, /^\/papers\/demo\/attempt$/, /^\/complete\//];
 
 export function Logo() {
-  return <Link href="/" className="logo">tayyari</Link>;
+  return <Link href="/" className="logo"><span className="logo-mark">t</span>tayyari</Link>;
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -61,20 +62,20 @@ function TopNav() {
       <div className="nav-inner">
         <Logo />
         <nav className="nav-links">
-          <Link href="/papers" className={`nav-link ${on("/papers") ? "active" : ""}`}><FileText size={20} /><span>Papers</span></Link>
+          <Link href="/papers" className={`nav-link ${on("/papers") ? "active" : ""}`}><FileText size={18} /><span>Papers</span></Link>
         </nav>
         <div className="nav-right">
           <span className={`pill-stat tip streak ${streak ? "" : "off"}`} tabIndex={0}
             aria-label={`${streak}-day streak`}
             data-tip={streak ? `${streak}-day streak · finish a paper every day to keep it going` : "Streak · finish a paper today to start one"}>
-            <Flame size={22} fill="currentColor" />{streak}
+            <Icon3D name="fire" size={22} />{streak}
           </span>
           <span className="pill-stat tip points" tabIndex={0}
             aria-label={`${user.points} points`}
             data-tip={`${user.points} points · earned from papers and badges`}>
-            <Zap size={22} fill="currentColor" />{user.points}
+            <Icon3D name="bolt" size={22} />{user.points}
           </span>
-          <Link href="/leaderboard" className={`nav-link ${on("/leaderboard") ? "active" : ""}`}><Trophy size={20} /><span>Leaderboard</span></Link>
+          <Link href="/leaderboard" className={`nav-link ${on("/leaderboard") ? "active" : ""}`}><Trophy size={18} /><span>Leaderboard</span></Link>
           <div ref={ref} style={{ position: "relative" }}>
             <button className="profile-btn" onClick={() => setOpen(!open)} aria-label="Profile menu" aria-expanded={open}>
               <Avatar name={user.name} url={user.avatarUrl} color={user.avatarColor} size={40} />
@@ -83,7 +84,7 @@ function TopNav() {
               <div className="menu">
                 <Link href="/profile"><User size={18} />Profile</Link>
                 <Link href="/analytics"><BarChart3 size={18} />Dashboard &amp; analytics</Link>
-                {user.plan !== "pro" && <Link href="/pro" style={{ color: "var(--purple-dark)" }}><Crown size={18} />Upgrade to Pro</Link>}
+                {user.plan !== "pro" && <Link href="/pro"><Crown size={18} />Upgrade to Pro</Link>}
                 <hr />
                 <button onClick={logout}><LogOut size={18} />Log out</button>
               </div>

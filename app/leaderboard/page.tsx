@@ -1,10 +1,10 @@
 "use client";
 
-import { Crown, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { Avatar } from "@/components/Avatar";
+import { Icon3D } from "@/components/Icon3D";
 import { fetchLeaderboard } from "@/lib/api";
 import type { LeaderboardEntry, LeaderboardKind } from "@/lib/types";
 
@@ -14,10 +14,10 @@ const MODES: { key: LeaderboardKind; label: string }[] = [
   { key: "overall", label: "All time" },
 ];
 const PODIUM = [
-  { place: 2, color: "#9aa5b1", h: 96 },
-  { place: 1, color: "var(--yellow)", h: 128 },
-  { place: 3, color: "#cd7f32", h: 76 },
-];
+  { place: 2, medal: "silver", h: 84 },
+  { place: 1, medal: "gold", h: 112 },
+  { place: 3, medal: "bronze", h: 64 },
+] as const;
 
 export default function LeaderboardPage() {
   const { user } = useApp();
@@ -36,9 +36,7 @@ export default function LeaderboardPage() {
   return (
     <div className="page page-narrow stack">
       <div className="center stack-sm">
-        <div style={{ width: 84, height: 84, margin: "0 auto", borderRadius: 24, background: "var(--yellow)", boxShadow: "0 5px 0 var(--yellow-dark)", display: "grid", placeItems: "center", color: "#fff" }}>
-          <Trophy size={44} />
-        </div>
+        <div style={{ display: "grid", placeItems: "center", filter: "drop-shadow(0 14px 18px rgba(16,24,40,.16))" }}><Icon3D name="trophy" size={88} /></div>
         <h1>Leaderboard</h1>
         <p className="muted">
           {me ? `You're #${me.rank}${mode === "weekly" ? " this week" : " overall"}. Keep climbing!` : "Finish a paper to get on the board."}
@@ -60,17 +58,18 @@ export default function LeaderboardPage() {
         <>
           {top.length === 3 && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, alignItems: "end" }}>
-              {PODIUM.map(({ place, color, h }) => {
+              {PODIUM.map(({ place, medal, h }) => {
                 const e = top[place - 1];
                 return (
                   <div key={place} className="center">
-                    {place === 1 && <Crown size={26} color="var(--yellow)" fill="var(--yellow)" />}
                     <div style={{ display: "grid", placeItems: "center", margin: "4px 0 8px" }}>
                       <Avatar name={e.name} url={e.avatarUrl} color={e.avatarColor} size={place === 1 ? 64 : 52} />
                     </div>
-                    <div style={{ fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.isYou ? "You" : e.name}</div>
+                    <div style={{ fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.isYou ? "You" : e.name}</div>
                     <div className="muted small">{e.score} {unit}</div>
-                    <div style={{ height: h, marginTop: 8, borderRadius: "14px 14px 0 0", background: color, color: "#fff", display: "grid", placeItems: "center", fontSize: "2rem", fontWeight: 900 }}>{place}</div>
+                    <div style={{ height: h, marginTop: 10, borderRadius: "14px 14px 0 0", background: "#fff", border: "1px solid var(--line)", borderBottom: 0, boxShadow: "var(--shadow-sm)", display: "grid", placeItems: "center" }}>
+                      <Icon3D name={medal} size={place === 1 ? 52 : 42} />
+                    </div>
                   </div>
                 );
               })}

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, CheckCircle2, Clock, Target, Trophy } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -71,10 +71,10 @@ export default function ResultsPage() {
       )}
 
       <div className="stat-tiles">
-        <StatTile icon={<Target size={20} />} color="var(--yellow)" value={`${analysis.score}/${analysis.maxScore}`} label="Score" />
-        <StatTile icon={<Trophy size={20} />} color="var(--blue)" value={rank ? `#${rank}` : "–"} label={`Rank of ${board.length || 1}`} />
-        <StatTile icon={<CheckCircle2 size={20} />} color="var(--green)" value={`${Math.round(analysis.accuracy * 100)}%`} label={`${analysis.correct} right · ${analysis.wrong} wrong`} />
-        <StatTile icon={<Clock size={20} />} color="var(--purple)" value={fmtTime(analysis.timeSec)} label="Time taken" />
+        <StatTile icon="target" tint="var(--tint-rose)" value={`${analysis.score}/${analysis.maxScore}`} label="Score" />
+        <StatTile icon="trophy" tint="var(--tint-amber)" value={rank ? `#${rank}` : "–"} label={`Rank of ${board.length || 1}`} />
+        <StatTile icon="check" tint="var(--tint-green)" value={`${Math.round(analysis.accuracy * 100)}%`} label={`${analysis.correct} right · ${analysis.wrong} wrong`} />
+        <StatTile icon="stopwatch" tint="var(--tint-amber)" value={fmtTime(analysis.timeSec)} label="Time taken" />
       </div>
 
       <div className="card stack-sm">
@@ -95,9 +95,9 @@ export default function ResultsPage() {
 
       <ProGate title="Predicted percentile and rank">
         <div className="stat-tiles">
-          <StatTile icon={<Target size={20} />} color="var(--purple)" value={percentile.toFixed(2)} label="Predicted percentile" />
-          <StatTile icon={<Trophy size={20} />} color="var(--blue)" value={`~${estimateRank(percentile).toLocaleString("en-IN")}`} label="Predicted CRL rank" />
-          <StatTile icon={<CheckCircle2 size={20} />} color="var(--green)" value={delta === null ? "–" : `${delta >= 0 ? "+" : ""}${delta}`} label="vs last attempt" />
+          <StatTile icon="target" tint="var(--tint-rose)" value={percentile.toFixed(2)} label="Predicted percentile" />
+          <StatTile icon="trophy" tint="var(--tint-amber)" value={`~${estimateRank(percentile).toLocaleString("en-IN")}`} label="Predicted CRL rank" />
+          <StatTile icon="check" tint="var(--tint-green)" value={delta === null ? "–" : `${delta >= 0 ? "+" : ""}${delta}`} label="vs last attempt" />
         </div>
         <p className="muted xs" style={{ marginTop: 10 }}>Estimated from a reference curve; becomes data-driven as more students take tests.</p>
       </ProGate>

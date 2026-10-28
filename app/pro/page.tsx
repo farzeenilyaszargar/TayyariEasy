@@ -1,8 +1,9 @@
 "use client";
 
-import { Check, Crown } from "lucide-react";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { Icon3D } from "@/components/Icon3D";
 import { Notice } from "@/components/ui";
 import { FREE_TESTS_PER_WEEK } from "@/lib/config";
 import { PRO_PLANS, rupees, type ProPlan } from "@/lib/plans";
@@ -43,7 +44,7 @@ export default function ProPage() {
         key: order.keyId, order_id: order.orderId, amount: order.amount, currency: order.currency,
         name: "Tayyari", description: `Tayyari Pro, ${plan.label.toLowerCase()}`,
         prefill: { name: user?.name ?? "", ...order.prefill },
-        theme: { color: "#ce82ff" },
+        theme: { color: "#4f46e5" },
         handler: async (resp: any) => {
           const v = await fetch("/api/razorpay/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(resp) });
           const out = await v.json();
@@ -64,9 +65,7 @@ export default function ProPage() {
   return (
     <div className="page page-narrow stack">
       <div className="center stack-sm">
-        <div style={{ width: 84, height: 84, margin: "0 auto", borderRadius: 24, background: "var(--purple)", boxShadow: "0 5px 0 var(--purple-dark)", display: "grid", placeItems: "center", color: "#fff" }}>
-          <Crown size={44} />
-        </div>
+        <div style={{ display: "grid", placeItems: "center", filter: "drop-shadow(0 14px 18px rgba(16,24,40,.16))" }}><Icon3D name="crown" size={88} /></div>
         <h1>{isPro ? "You're on Pro" : "Go further with Pro"}</h1>
         <p className="muted">Practice is always free. Pro adds unlimited papers and analysis that shows exactly where your marks go.</p>
       </div>

@@ -1,9 +1,9 @@
 "use client";
 
-import { Atom, Calculator, FlaskConical, Layers, Sparkles, Timer, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { Icon3D, IconTile, type Icon3DName } from "@/components/Icon3D";
 import { PaperCard } from "@/components/PaperCard";
 import { ProMini } from "@/components/ui";
 import { nextWeekReset, quotaFor } from "@/lib/quota";
@@ -11,12 +11,12 @@ import type { Subject, TestPaper } from "@/lib/types";
 
 const FILTERS: ("All" | Subject)[] = ["All", "Physics", "Chemistry", "Mathematics"];
 
-function Section({ title, sub, icon: Icon, color, tests }: { title: string; sub: string; icon: LucideIcon; color: string; tests: TestPaper[] }) {
+function Section({ title, sub, icon, tint, tests }: { title: string; sub: string; icon: Icon3DName; tint: string; tests: TestPaper[] }) {
   if (!tests.length) return null;
   return (
     <section>
       <div className="section-title">
-        <span className="bubble" style={{ background: color }}><Icon size={20} /></span>
+        <IconTile name={icon} tint={tint} size={44} />
         <div><h2>{title}</h2><p className="muted small">{sub}</p></div>
       </div>
       <div className="grid">{tests.map((t) => <PaperCard key={t.id} test={t} />)}</div>
@@ -36,8 +36,9 @@ export default function Papers() {
   return (
     <div className="page stack">
       <div className="hello">
+        <Icon3D name="student" size={64} style={{ flexShrink: 0 }} />
         <div>
-          <h2>Hi {(user?.name ?? "").split(" ")[0]}! Ready for a paper?</h2>
+          <h2>Welcome back, {(user?.name ?? "").split(" ")[0]}</h2>
           <p style={{ marginTop: 4 }}>
             {quota.unlimited ? "Pro: unlimited papers this week." : `${quota.remaining} of ${quota.limit} free papers left this week · resets ${nextWeekReset().toLocaleDateString("en-IN", { weekday: "long" })}`}
           </p>
@@ -55,12 +56,12 @@ export default function Papers() {
         {FILTERS.map((f) => <button key={f} className={`chip-btn ${filter === f ? "active" : ""}`} onClick={() => setFilter(f)}>{f}</button>)}
       </div>
 
-      <Section title="New this week" sub="Fresh papers, released every Monday." icon={Sparkles} color="var(--yellow)" tests={fresh} />
-      <Section title="Full mock tests" sub="Complete JEE Main papers across Physics, Chemistry and Maths." icon={Layers} color="var(--purple)" tests={by("full")} />
-      <Section title="Physics papers" sub="Subject-wise sectionals." icon={Atom} color="var(--blue)" tests={by("subject", "Physics")} />
-      <Section title="Chemistry papers" sub="Subject-wise sectionals." icon={FlaskConical} color="var(--green)" tests={by("subject", "Chemistry")} />
-      <Section title="Maths papers" sub="Subject-wise sectionals." icon={Calculator} color="var(--orange)" tests={by("subject", "Mathematics")} />
-      <Section title="Chapter sprints" sub="Short papers on one topic, perfect for 10 free minutes." icon={Timer} color="var(--red)" tests={by("chapter")} />
+      <Section title="New this week" sub="Fresh papers, released every Monday." icon="sparkles" tint="var(--tint-amber)" tests={fresh} />
+      <Section title="Full mock tests" sub="Complete JEE Main papers across Physics, Chemistry and Maths." icon="books" tint="var(--tint-violet)" tests={by("full")} />
+      <Section title="Physics papers" sub="Subject-wise sectionals." icon="atom" tint="var(--tint-blue)" tests={by("subject", "Physics")} />
+      <Section title="Chemistry papers" sub="Subject-wise sectionals." icon="flask" tint="var(--tint-green)" tests={by("subject", "Chemistry")} />
+      <Section title="Maths papers" sub="Subject-wise sectionals." icon="abacus" tint="var(--tint-amber)" tests={by("subject", "Mathematics")} />
+      <Section title="Chapter sprints" sub="Short papers on one topic, perfect for 10 free minutes." icon="stopwatch" tint="var(--tint-rose)" tests={by("chapter")} />
     </div>
   );
 }

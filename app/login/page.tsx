@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowLeft, Mail, Smartphone, Trophy, Zap, FileText } from "lucide-react";
+import { ArrowLeft, Mail, Smartphone } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { Icon3D } from "@/components/Icon3D";
 import { Notice } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
@@ -13,19 +14,13 @@ type Method = "phone" | "email";
 function SidePanel() {
   return (
     <aside className="auth-side">
-      <div style={{ position: "relative", width: 240, height: 200 }} aria-hidden>
-        <div style={{ position: "absolute", left: 20, top: 30, width: 150, height: 170, borderRadius: 18, background: "#fff", boxShadow: "0 6px 0 rgba(0,0,0,.15)", transform: "rotate(-8deg)", display: "grid", placeItems: "center", color: "var(--blue)" }}>
-          <FileText size={70} />
-        </div>
-        <div style={{ position: "absolute", right: 10, top: 0, width: 92, height: 92, borderRadius: "50%", background: "var(--yellow)", boxShadow: "0 6px 0 var(--yellow-dark)", display: "grid", placeItems: "center", color: "#fff" }}>
-          <Trophy size={44} />
-        </div>
-        <div style={{ position: "absolute", right: 30, bottom: 0, width: 70, height: 70, borderRadius: 20, background: "var(--blue)", boxShadow: "0 6px 0 var(--blue-dark)", display: "grid", placeItems: "center", color: "#fff", transform: "rotate(10deg)" }}>
-          <Zap size={36} fill="#fff" />
-        </div>
+      <div style={{ position: "relative", width: 260, height: 220 }} aria-hidden>
+        <div style={{ position: "absolute", left: 40, top: 20, filter: "drop-shadow(0 24px 28px rgba(0,0,0,.35))" }}><Icon3D name="student" size={170} /></div>
+        <div style={{ position: "absolute", right: 0, top: 0, transform: "rotate(10deg)", filter: "drop-shadow(0 12px 16px rgba(0,0,0,.3))" }}><Icon3D name="trophy" size={72} /></div>
+        <div style={{ position: "absolute", left: 0, bottom: 10, transform: "rotate(-8deg)", filter: "drop-shadow(0 12px 16px rgba(0,0,0,.3))" }}><Icon3D name="books" size={64} /></div>
       </div>
-      <h2>Practice that actually feels good.</h2>
-      <p>Weekly JEE papers, instant results and a leaderboard full of students just like you.</p>
+      <h2>Practice that moves your rank.</h2>
+      <p>Weekly JEE papers, instant results and a leaderboard of students preparing alongside you.</p>
     </aside>
   );
 }
@@ -98,7 +93,7 @@ function Login() {
 
           {!sent ? (
             <>
-              <button className="btn btn-white btn-block" onClick={google} disabled={busy} style={{ color: "var(--text-strong)" }}>
+              <button className="btn btn-white btn-block" onClick={google} disabled={busy}>
                 <GoogleIcon /> Continue with Google
               </button>
               <div className="or">or</div>
@@ -121,7 +116,7 @@ function Login() {
                   <input type="email" autoComplete="email" placeholder="Email address" aria-label="Email address"
                     value={email} onChange={(e) => setEmail(e.target.value)} required />
                 )}
-                <button className="btn btn-blue btn-block btn-lg" type="submit" disabled={busy}>{busy ? "Sending…" : "Send code"}</button>
+                <button className="btn btn-block btn-lg" type="submit" disabled={busy}>{busy ? "Sending…" : "Send code"}</button>
               </form>
             </>
           ) : (

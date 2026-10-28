@@ -50,3 +50,6 @@ Leaderboards include 10 sample students from the `demo_players` table (scores ar
 ```sql
 delete from public.demo_players;
 ```
+
+## Icons
+3D icons are Microsoft Fluent Emoji (MIT licence), loaded from jsDelivr and pinned to one commit in `components/Icon3D.tsx`.

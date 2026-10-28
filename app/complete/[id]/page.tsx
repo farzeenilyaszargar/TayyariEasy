@@ -1,17 +1,17 @@
 "use client";
 
-import { Award, Target, Trophy, Zap } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { Avatar } from "@/components/Avatar";
+import { Icon3D } from "@/components/Icon3D";
 import { fetchBadges, fetchLeaderboard, fetchPointsHistory, updateProfile } from "@/lib/api";
 import type { Badge, LeaderboardEntry } from "@/lib/types";
 
 const ROW = 60;
 const MAX_ROWS = 7;
-const CONFETTI_COLORS = ["#58cc02", "#1cb0f6", "#ffc800", "#ff4b4b", "#ce82ff", "#ff9600"];
+const CONFETTI_COLORS = ["#4f46e5", "#7c5cff", "#f2b200", "#12a37a", "#3b82f6", "#e5484d"];
 
 function Confetti() {
   const pieces = useMemo(() => Array.from({ length: 70 }, (_, i) => ({
@@ -118,26 +118,26 @@ export default function Complete() {
       <div className="celebrate-inner stack">
         {stage === 0 ? (
           <>
-            <div className="trophy"><Trophy size={60} /></div>
+            <div className="trophy" style={{ width: 132 }}><Icon3D name={isDemo ? "party" : "trophy"} size={132} /></div>
             <div>
               <h1>{isDemo ? "Warm-up complete!" : "Paper complete!"}</h1>
               <p className="muted" style={{ marginTop: 8 }}>{isDemo ? "You know the drill now. Real papers work exactly the same way." : `${test.title} is done. Nice work!`}</p>
             </div>
             <div className="reward-row">
-              <div className="reward" style={{ ["--c" as string]: "var(--yellow)", animationDelay: ".3s" }}>
-                <div className="h">Score</div><div className="b"><Target size={22} />{attempt.score}/{attempt.maxScore}</div>
+              <div className="reward" style={{ animationDelay: ".3s" }}>
+                <div className="h">Score</div><div className="b"><Icon3D name="target" size={24} />{attempt.score}/{attempt.maxScore}</div>
               </div>
-              <div className="reward" style={{ ["--c" as string]: "var(--green)", animationDelay: ".45s" }}>
-                <div className="h">Accuracy</div><div className="b">{acc}%</div>
+              <div className="reward" style={{ animationDelay: ".45s" }}>
+                <div className="h">Accuracy</div><div className="b"><Icon3D name="check" size={24} />{acc}%</div>
               </div>
-              <div className="reward" style={{ ["--c" as string]: "var(--blue)", animationDelay: ".6s" }}>
-                <div className="h">Points</div><div className="b"><Zap size={22} fill="currentColor" />+{earned}</div>
+              <div className="reward" style={{ animationDelay: ".6s" }}>
+                <div className="h">Points earned</div><div className="b"><Icon3D name="bolt" size={24} />+{earned}</div>
               </div>
             </div>
             {newBadges.length > 0 && (
               <div className="card" style={{ textAlign: "left", animation: "rise .5s .75s both" }}>
                 <div className="row">
-                  <span className="badge-medal" style={{ background: "var(--purple)", width: 48, height: 48, margin: 0 }}><Award size={24} /></span>
+                  <Icon3D name="medal" size={44} />
                   <div>
                     <h3>New badge{newBadges.length > 1 ? "s" : ""} unlocked</h3>
                     <p className="muted small">{newBadges.map((b) => b.name).join(", ")}</p>

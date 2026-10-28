@@ -1,20 +1,18 @@
 "use client";
 
-import {
-  Atom, Calculator, CalendarCheck, Crosshair, Flag, FlaskConical, Footprints, Layers, Medal, Moon, ShieldCheck, Trophy, type LucideIcon,
-} from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchBadges } from "@/lib/api";
 import { badgeStatus } from "@/lib/badges";
 import type { Badge } from "@/lib/types";
 import { useApp } from "./AppProvider";
+import { IconTile, type Icon3DName } from "./Icon3D";
 import { Bar } from "./ui";
 
-const LOOK: Record<string, [LucideIcon, string]> = {
-  "first-step": [Footprints, "var(--green)"], "hat-trick": [Layers, "var(--blue)"], decathlete: [Medal, "var(--purple)"],
-  "full-mock": [Flag, "var(--red)"], "physics-ace": [Atom, "var(--blue)"], "chem-ace": [FlaskConical, "var(--green)"],
-  "maths-ace": [Calculator, "var(--orange)"], sharpshooter: [Crosshair, "var(--red)"], "no-guesswork": [ShieldCheck, "#00cd9c"],
-  consistent: [CalendarCheck, "var(--orange)"], "top-10": [Trophy, "var(--yellow)"], "night-owl": [Moon, "#2b70c9"],
+const LOOK: Record<string, [Icon3DName, string]> = {
+  "first-step": ["footprints", "var(--tint-green)"], "hat-trick": ["star", "var(--tint-amber)"], decathlete: ["medal", "var(--tint-violet)"],
+  "full-mock": ["flag", "var(--tint-slate)"], "physics-ace": ["atom", "var(--tint-blue)"], "chem-ace": ["flask", "var(--tint-green)"],
+  "maths-ace": ["abacus", "var(--tint-amber)"], sharpshooter: ["target", "var(--tint-rose)"], "no-guesswork": ["shield", "var(--tint-indigo)"],
+  consistent: ["calendar", "var(--tint-amber)"], "top-10": ["trophy", "var(--tint-amber)"], "night-owl": ["moon", "var(--tint-indigo)"],
 };
 
 export function useBadges() {
@@ -30,14 +28,14 @@ export function BadgeGrid({ limit }: { limit?: number }) {
   return (
     <div className="badge-grid">
       {status.slice(0, limit).map(({ badge, earned, progress }) => {
-        const [Icon, color] = LOOK[badge.id] ?? [Medal, "var(--blue)"];
+        const [icon, tint] = LOOK[badge.id] ?? (["medal", "var(--tint-slate)"] as [Icon3DName, string]);
         return (
           <div key={badge.id} className={`card badge ${earned ? "" : "locked-badge"}`} title={badge.description}>
-            <div className="badge-medal" style={{ background: color }}><Icon size={30} /></div>
+            <IconTile name={icon} tint={tint} size={60} />
             <h3>{badge.name}</h3>
             <p>{badge.description}</p>
             {!earned && progress > 0 && <div style={{ marginTop: 8 }}><Bar value={progress} /></div>}
-            {earned && <p style={{ color: "var(--green-dark)", fontWeight: 800 }}>+{badge.points} pts</p>}
+            {earned && <p style={{ color: "var(--green-dark)", fontWeight: 700 }}>+{badge.points} pts</p>}
           </div>
         );
       })}
