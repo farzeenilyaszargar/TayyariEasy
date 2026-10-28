@@ -1,67 +1,18 @@
-# TayyariEasy (Next.js)
+# Tayyari — tayyari.online
 
-Simple all-in-one JEE preparation UI with:
-- Marketing page
-- Auth-aware home page (hero when logged out, dashboard when logged in)
-- Tests page (topic-wise + full syllabus)
-- Problems chatbot page (UI + backend placeholder)
-- Leaderboards page
-- Resources downloads page
-- Dashboard gamification (points + badges)
+Free JEE mock tests with leaderboards, badges and Pro deep analysis.
 
-## Run
-
+## Run locally
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000
-
-## Supabase Auth Setup
-
-1. Create `.env.local` from `.env.example`.
-2. Fill:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `INTERNAL_INGEST_TOKEN`
-   - `ADMIN_REVIEW_TOKEN`
-   - `DEEPSEEK_API_KEY`
-   - optional: `DEEPSEEK_MODEL` (default `deepseek-chat`)
-3. In Supabase dashboard:
-   - Enable Google provider in `Authentication -> Providers`.
-   - Enable Phone provider (OTP/SMS).
-   - Add `http://localhost:3000/login` (and production login URL) to allowed redirect URLs.
-4. Run SQL setup from `supabase/schema.sql` inside Supabase SQL Editor.
-   - This creates all app tables and seeds tests/resources.
-   - Re-run this SQL after pulling latest schema changes.
-
-Then use `/login` for Google sign-in or phone OTP auth.
-
-## AI Endpoints
-
-- `POST /api/ai/problems` for problems chat
-- `POST /api/ai/dashboard` for dashboard coach analysis
-
-Both use the server-side DeepSeek key from `.env.local`.
-
-## Test Bank Platform (V1)
-
-This repo now includes:
-- Real test engine APIs:
-  - `GET /api/tests/catalog`
-  - `POST /api/tests/launch`
-  - `POST /api/tests/submit`
-- Admin review APIs:
-  - `GET /api/questions/review-queue` (`x-admin-token`)
-  - `POST /api/questions/review` (`x-admin-token`)
-- Internal ingestion APIs:
-  - `POST /internal/ingest/source-document` (`x-internal-token`)
-  - `POST /internal/ingest/questions/bulk` (`x-internal-token`)
-  - `POST /internal/ingest/questions/vet` (`x-internal-token`)
-  - `POST /internal/ingest/stats` (`x-internal-token`)
-  - `POST /internal/generate/questions` (`x-internal-token`)
-  - `POST /internal/review/decision` (`x-internal-token`)
-
-The external worker scaffold is in `/worker`.
+## Structure
+- `app/` — pages: home, tests, exam screen (`tests/[id]/attempt`), results, leaderboard, badges, dashboard, pricing, login
+- `data/` — sample question bank and test papers (to move into Supabase)
+- `lib/config.ts` — free-tier limit, marking scheme, pricing label
+- `lib/scoring.ts` — JEE marking + analysis (free and Pro insights)
+- `lib/quota.ts` — free plan: 2 tests per week (Mon reset)
+- `lib/badges.ts`, `lib/leaderboard.ts` — gamification
+- `lib/store.ts` — data layer (currently browser localStorage; Supabase next)
