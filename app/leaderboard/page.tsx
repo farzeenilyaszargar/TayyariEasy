@@ -1,67 +1,99 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { TESTS, TEST_MAP } from "@/data/tests";
-import { overallLeaderboard, rankOf, testLeaderboard, weeklyLeaderboard } from "@/lib/leaderboard";
+import { fetchLeaderboard } from "@/lib/api";
+import type { LeaderboardEntry, LeaderboardKind } from "@/lib/types";
 
-type Mode = "weekly" | "overall" | "test";
+const MODES: { key: LeaderboardKind; label: string; metric: string }[] = [
+  { key: "weekly", label: "This week", metric: "Score this week" },
+  { key: "overall", label: "All time", metric: "Total best scores" },
+  { key: "points", label: "⚡ Points", metric: "Tayyari points" },
+  { key: "test", label: "By test", metric: "Best score" },
+];
 const MEDALS = ["🥇", "🥈", "🥉"];
 
 function Board() {
   const params = useSearchParams();
-  const { user, attempts } = useApp();
-  const [mode, setMode] = useState<Mode>(params.get("test") ? "test" : "weekly");
-  const [testId, setTestId] = useState(params.get("test") ?? TESTS[0].id);
+  const { user, tests, testMap } = useApp();
+  const [mode, setMode] = useState<LeaderboardKind>(params.get("test") ? "test" : "weekly");
+  const [testId, setTestId] = useState(params.get("test") ?? "");
+  const [entries, setEntries] = useState<LeaderboardEntry[] | null>(null);
+  const tid = testId || tests[0]?.id;
 
-  const entries =
-    mode === "weekly" ? weeklyLeaderboard(user, attempts)
-    : mode === "overall" ? overallLeaderboard(user, attempts)
-    : testLeaderboard(testId, user, attempts);
-  const myRank = user ? rankOf(entries, user.id) : null;
+  useEffect(() => {
+    if (mode === "test" && !tid) return;
+    setEntries(null);
+    fetchLeaderboard(mode, mode === "test" ? tid : undefined, 100).then(setEntries).catch(() => setEntries([]));
+  }, [mode, tid, user?.id]);
+
+  const me = entries?.find((e) => e.isYou);
+  const top3 = entries?.filter((e) => e.rank <= 3).slice(0, 3) ?? [];
+  const metric = MODES.find((m) => m.key === mode)!.metric;
 
   return (
     <div className="container page stack">
-      <div className="spread">
+      <div className="page-head">
         <div>
           <h1>Leaderboard</h1>
-          <p className="muted">Give tests, climb the ranks. Weekly boards reset every Monday.</p>
+          <p className="muted">Give tests, climb the ranks. The weekly board resets every Monday.</p>
         </div>
-        {myRank && <div className="stat"><div className="v">#{myRank}</div><div className="l">Your rank</div></div>}
+        {me && <div className="stat"><div className="v">#{me.rank}</div><div className="l">Your rank · {me.score}</div></div>}
       </div>
 
       <div className="spread">
         <div className="tabs">
-          <button className={`tab ${mode === "weekly" ? "active" : ""}`} onClick={() => setMode("weekly")}>This week</button>
-          <button className={`tab ${mode === "overall" ? "active" : ""}`} onClick={() => setMode("overall")}>All time</button>
-          <button className={`tab ${mode === "test" ? "active" : ""}`} onClick={() => setMode("test")}>By test</button>
+          {MODES.map((m) => (
+            <button key={m.key} className={`tab ${mode === m.key ? "active" : ""}`} onClick={() => setMode(m.key)}>{m.label}</button>
+          ))}
         </div>
         {mode === "test" && (
-          <select className="select" value={testId} onChange={(e) => setTestId(e.target.value)}>
-            {TESTS.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
+          <select className="select" value={tid} onChange={(e) => setTestId(e.target.value)}>
+            {tests.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
           </select>
         )}
       </div>
 
-      {user && !myRank && <div className="banner banner-info">You&apos;re not on this board yet — finish a test to get ranked.</div>}
-
-      <div className="card table-wrap">
-        <table>
-          <thead><tr><th>Rank</th><th>Student</th><th>{mode === "test" ? "Best score" : "Total score"}</th><th>Tests</th></tr></thead>
-          <tbody>
-            {entries.map((e, i) => (
-              <tr key={e.userId} className={e.isYou ? "you" : ""}>
-                <td>{MEDALS[i] ?? `#${i + 1}`}</td>
-                <td>{e.name}{e.isYou && " (you)"}</td>
-                <td><b>{e.score}</b>{mode === "test" && <span className="muted small"> / {TEST_MAP[testId].questionIds.length * 4}</span>}</td>
-                <td>{e.testsTaken}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="muted small">Other students on this board are sample data until accounts go live.</p>
+      {entries === null ? <p className="muted">Loading…</p> : entries.length === 0 ? (
+        <div className="card center">
+          <div style={{ fontSize: "2.4rem" }}>🏁</div>
+          <h3>No one here yet</h3>
+          <p className="muted">Finish a test and you&apos;ll be first on this board.</p>
+          <Link href="/tests" className="btn">Take a test</Link>
+        </div>
+      ) : (
+        <>
+          {top3.length === 3 && (
+            <div className="podium">
+              {[top3[1], top3[0], top3[2]].map((e) => (
+                <div key={e.userId} className={`p ${e.rank === 1 ? "first" : ""}`}>
+                  <div className="medal">{MEDALS[e.rank - 1]}</div>
+                  <div className="name">{e.name}{e.isYou && " (you)"}</div>
+                  <div className="score">{e.score}</div>
+                </div>
+              ))}
+            </div>
+          )}
+          {user && !me && <div className="banner banner-info">You&apos;re not on this board yet — finish a test to get ranked.</div>}
+          <div className="card table-wrap">
+            <table>
+              <thead><tr><th>Rank</th><th>Student</th><th>{metric}</th><th>Tests</th></tr></thead>
+              <tbody>
+                {entries.map((e) => (
+                  <tr key={e.userId} className={e.isYou ? "you" : ""}>
+                    <td className="rank-cell">{MEDALS[e.rank - 1] ?? `#${e.rank}`}</td>
+                    <td>{e.name}{e.isYou && " (you)"}</td>
+                    <td><b>{e.score}</b>{mode === "test" && tid && testMap[tid] && <span className="muted small"> / {testMap[tid].questionIds.length * 4}</span>}</td>
+                    <td>{e.testsTaken}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

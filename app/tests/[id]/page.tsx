@@ -2,44 +2,57 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { kindLabel } from "@/components/ui";
-import { QUESTION_MAP } from "@/data/questions";
-import { TEST_MAP } from "@/data/tests";
+import { fetchLeaderboard, friendlyError, startAttempt } from "@/lib/api";
 import { MARKS_CORRECT, MARKS_WRONG } from "@/lib/config";
-import { testLeaderboard } from "@/lib/leaderboard";
 import { quotaFor } from "@/lib/quota";
 import { SUBJECTS } from "@/lib/scoring";
-import { store, uid } from "@/lib/store";
+import type { LeaderboardEntry } from "@/lib/types";
 
 export default function TestDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { user, attempts, ready } = useApp();
-  const test = TEST_MAP[id];
+  const { user, attempts, ready, testMap, questionMap, refresh } = useApp();
+  const [board, setBoard] = useState<LeaderboardEntry[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => { fetchLeaderboard("test", id, 10).then(setBoard).catch(() => {}); }, [id, user?.id]);
+
+  const test = testMap[id];
+  if (!ready) return <div className="container page muted">Loading…</div>;
   if (!test) return <div className="container page"><h2>Test not found</h2></div>;
 
   const inProgress = attempts.find((a) => a.testId === id && !a.submittedAt);
-  const past = attempts.filter((a) => a.testId === id && a.submittedAt).sort((a, b) => b.submittedAt!.localeCompare(a.submittedAt!));
+  const past = attempts.filter((a) => a.testId === id && a.submittedAt);
   const quota = quotaFor(user, attempts);
-  const board = testLeaderboard(id, user, attempts).slice(0, 10);
-  const counts = SUBJECTS.map((s) => [s, test.questionIds.filter((q) => QUESTION_MAP[q].subject === s).length] as const).filter(([, n]) => n);
+  const counts = SUBJECTS.map((s) => [s, test.questionIds.filter((q) => questionMap[q]?.subject === s).length] as const).filter(([, n]) => n);
 
-  function start() {
-    if (!user) return router.push("/login");
-    if (inProgress) return router.push(`/tests/${id}/attempt?a=${inProgress.id}`);
-    const attempt = { id: uid(), userId: user.id, testId: id, startedAt: new Date().toISOString(), answers: {} };
-    store.saveAttempt(attempt);
-    router.push(`/tests/${id}/attempt?a=${attempt.id}`);
+  async function start() {
+    if (!user) return router.push(`/login?next=/tests/${id}`);
+    setBusy(true); setError("");
+    try {
+      const attempt = await startAttempt(id);
+      await refresh();
+      router.push(`/tests/${id}/attempt?a=${attempt.id}`);
+    } catch (e) {
+      setError(friendlyError(e));
+      setBusy(false);
+    }
   }
 
   const blocked = !!user && !inProgress && quota.remaining <= 0;
 
   return (
     <div className="container page">
-      <div className="grid" style={{ gridTemplateColumns: "minmax(0,2fr) minmax(0,1fr)", alignItems: "start" }}>
+      <div className="split">
         <div className="card stack">
-          <div className="row"><span className="chip chip-gray">{kindLabel[test.kind]}</span>{test.subject && <span className="chip chip-gray">{test.subject}</span>}</div>
+          <div className="row">
+            <span className="chip chip-gray">{kindLabel[test.kind]}</span>
+            {test.subject && <span className="chip chip-gray">{test.subject}</span>}
+          </div>
           <h1>{test.title}</h1>
           <p className="muted">{test.description}</p>
           <div className="grid-4">
@@ -60,16 +73,17 @@ export default function TestDetail() {
           {blocked && (
             <div className="banner">You&apos;ve used your free tests for this week. They reset on Monday — or <Link href="/pricing"><b>go Pro</b></Link> for unlimited tests.</div>
           )}
+          {error && <div className="banner">{error}</div>}
           <div className="row">
-            <button className="btn" onClick={start} disabled={!ready || blocked}>
-              {!user ? "Log in to start" : inProgress ? "Resume test" : past.length ? "Reattempt test" : "Start test"}
+            <button className="btn btn-lg" onClick={start} disabled={busy || blocked}>
+              {busy ? "Starting…" : !user ? "Log in to start" : inProgress ? "Resume test" : past.length ? "Reattempt test" : "Start test"} →
             </button>
             {!inProgress && user && !quota.unlimited && !blocked && <span className="muted small">Uses 1 of your {quota.remaining} free tests this week</span>}
           </div>
           {past.length > 0 && (
             <div>
               <h3>Your attempts</h3>
-              <table><tbody>
+              <div className="table-wrap"><table><tbody>
                 {past.map((a) => (
                   <tr key={a.id}>
                     <td>{new Date(a.submittedAt!).toLocaleString()}</td>
@@ -77,17 +91,21 @@ export default function TestDetail() {
                     <td><Link className="btn btn-sm btn-outline" href={`/results/${a.id}`}>View analysis</Link></td>
                   </tr>
                 ))}
-              </tbody></table>
+              </tbody></table></div>
             </div>
           )}
         </div>
         <div className="card">
-          <h3>Top scorers</h3>
-          <table><tbody>
-            {board.map((e, i) => (
-              <tr key={e.userId} className={e.isYou ? "you" : ""}><td>#{i + 1}</td><td>{e.name}{e.isYou && " (you)"}</td><td><b>{e.score}</b></td></tr>
-            ))}
-          </tbody></table>
+          <h3>🏆 Top scorers</h3>
+          {board.length === 0 ? <p className="muted small">No scores yet. Be the first!</p> : (
+            <table><tbody>
+              {board.map((e) => (
+                <tr key={e.userId} className={e.isYou ? "you" : ""}>
+                  <td className="rank-cell">#{e.rank}</td><td>{e.name}{e.isYou && " (you)"}</td><td><b>{e.score}</b></td>
+                </tr>
+              ))}
+            </tbody></table>
+          )}
           <Link href={`/leaderboard?test=${id}`} className="small muted">Full leaderboard →</Link>
         </div>
       </div>

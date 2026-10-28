@@ -1,14 +1,13 @@
-import { QUESTION_MAP } from "@/data/questions";
-import { TEST_MAP } from "@/data/tests";
 import { MARKS_CORRECT, MARKS_WRONG, MARKS_WRONG_NUMERICAL, NUMERICAL_TOLERANCE } from "./config";
-import type { Attempt, Difficulty, Question, Subject } from "./types";
+import type { AnswerKey, Attempt, Difficulty, Question, Subject, TestPaper } from "./types";
 
 export type Outcome = "correct" | "wrong" | "skipped";
 
-export function outcomeOf(q: Question, response: number | null | undefined): Outcome {
+// Mirrors submit_attempt() in the database, which is the source of truth for scores.
+export function outcomeOf(q: Question, key: AnswerKey, response: number | null | undefined): Outcome {
   if (response === null || response === undefined || Number.isNaN(response)) return "skipped";
-  if (q.type === "mcq") return response === q.answer ? "correct" : "wrong";
-  return Math.abs(response - q.answer) <= NUMERICAL_TOLERANCE ? "correct" : "wrong";
+  if (q.type === "mcq") return response === key.answer ? "correct" : "wrong";
+  return Math.abs(response - key.answer) <= NUMERICAL_TOLERANCE ? "correct" : "wrong";
 }
 
 export function marksFor(q: Question, outcome: Outcome) {
@@ -19,6 +18,7 @@ export function marksFor(q: Question, outcome: Outcome) {
 
 export interface QuestionResult {
   question: Question;
+  key: AnswerKey;
   response: number | null;
   outcome: Outcome;
   marks: number;
@@ -72,14 +72,16 @@ function bucketize(results: QuestionResult[], keyOf: (r: QuestionResult) => stri
   return [...map.values()];
 }
 
-export function analyze(attempt: Attempt): Analysis {
-  const test = TEST_MAP[attempt.testId];
-  const results: QuestionResult[] = test.questionIds.map((id) => {
-    const question = QUESTION_MAP[id];
+export function analyze(
+  attempt: Attempt, test: TestPaper, questionMap: Record<string, Question>, keys: Record<string, AnswerKey>,
+): Analysis {
+  const results: QuestionResult[] = test.questionIds.filter((id) => questionMap[id] && keys[id]).map((id) => {
+    const question = questionMap[id];
+    const key = { answer: Number(keys[id].answer), solution: keys[id].solution };
     const rec = attempt.answers[id];
     const response = rec?.response ?? null;
-    const outcome = outcomeOf(question, response);
-    return { question, response, outcome, marks: marksFor(question, outcome), timeSec: rec?.timeSec ?? 0 };
+    const outcome = outcomeOf(question, key, response);
+    return { question, key, response, outcome, marks: marksFor(question, outcome), timeSec: rec?.timeSec ?? 0 };
   });
 
   const correct = results.filter((r) => r.outcome === "correct").length;
@@ -108,11 +110,6 @@ export function analyze(attempt: Attempt): Analysis {
     strongChapters: byChapter.filter((b) => chapterPct(b) >= 0.75).sort((a, b) => chapterPct(b) - chapterPct(a)),
     weakChapters: byChapter.filter((b) => chapterPct(b) < 0.5).sort((a, b) => chapterPct(a) - chapterPct(b)),
   };
-}
-
-export function scoreAttempt(attempt: Attempt) {
-  const a = analyze(attempt);
-  return { score: a.score, maxScore: a.maxScore };
 }
 
 // Rough score → percentile curve for JEE Main style papers. Placeholder until

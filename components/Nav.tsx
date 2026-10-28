@@ -38,8 +38,9 @@ export function Nav() {
         <div className="nav-user">
           {user ? (
             <Link href="/dashboard" className="user-pill">
-              <span className="avatar">{user.name.charAt(0).toUpperCase()}</span>
-              {user.name.split(" ")[0]}
+              <span className="avatar">{(user.name ?? "S").charAt(0).toUpperCase()}</span>
+              {(user.name ?? "Student").split(" ")[0]}
+              <span className="muted small">⚡{user.points}</span>
               {user.plan === "pro" && <span className="pro-tag">PRO</span>}
             </Link>
           ) : (

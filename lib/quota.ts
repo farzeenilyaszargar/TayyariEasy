@@ -1,5 +1,5 @@
 import { FREE_TESTS_PER_WEEK } from "./config";
-import type { Attempt, User } from "./types";
+import type { Attempt, Profile } from "./types";
 
 // Weeks start Monday 00:00 local time.
 export function startOfWeek(d = new Date()) {
@@ -20,7 +20,7 @@ export function attemptsThisWeek(attempts: Attempt[]) {
   return attempts.filter((a) => new Date(a.startedAt).getTime() >= since);
 }
 
-export function quotaFor(user: User | null, attempts: Attempt[]) {
+export function quotaFor(user: Profile | null, attempts: Attempt[]) {
   if (!user) return { unlimited: false, used: 0, limit: FREE_TESTS_PER_WEEK, remaining: FREE_TESTS_PER_WEEK };
   if (user.plan === "pro") return { unlimited: true, used: 0, limit: Infinity, remaining: Infinity };
   const used = attemptsThisWeek(attempts).length;

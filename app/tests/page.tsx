@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { kindLabel } from "@/components/ui";
-import { TESTS } from "@/data/tests";
 import { nextWeekReset, quotaFor } from "@/lib/quota";
 import type { TestKind } from "@/lib/types";
 
@@ -18,11 +17,10 @@ const FILTERS: { key: "all" | TestKind; label: string }[] = [
 const isNew = (d: string) => Date.now() - new Date(d).getTime() < 7 * 864e5;
 
 export default function TestsPage() {
-  const { user, attempts } = useApp();
+  const { user, attempts, tests: all, ready } = useApp();
   const [filter, setFilter] = useState<"all" | TestKind>("all");
   const quota = quotaFor(user, attempts);
-  const tests = TESTS.filter((t) => filter === "all" || t.kind === filter)
-    .sort((a, b) => b.releasedAt.localeCompare(a.releasedAt));
+  const tests = all.filter((t) => filter === "all" || t.kind === filter);
 
   return (
     <div className="container page stack">
@@ -44,6 +42,7 @@ export default function TestsPage() {
           <button key={f.key} className={`tab ${filter === f.key ? "active" : ""}`} onClick={() => setFilter(f.key)}>{f.label}</button>
         ))}
       </div>
+      {!ready && <p className="muted">Loading tests…</p>}
       <div className="grid">
         {tests.map((t) => {
           const done = attempts.filter((a) => a.testId === t.id && a.submittedAt);

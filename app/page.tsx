@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { kindLabel } from "@/components/ui";
-import { TESTS } from "@/data/tests";
-import { BADGES } from "@/lib/badges";
+import { fetchLeaderboard } from "@/lib/api";
 import { FREE_TESTS_PER_WEEK } from "@/lib/config";
-import { weeklyLeaderboard } from "@/lib/leaderboard";
+import type { LeaderboardEntry } from "@/lib/types";
 
 const FEATURES = [
   { icon: "📝", title: "Feels like the real exam", text: "NTA-style interface: question palette, mark for review, section tabs, +4/−1 marking and auto-submit." },
@@ -18,9 +18,10 @@ const FEATURES = [
 ];
 
 export default function Home() {
-  const { user } = useApp();
-  const weekly = TESTS.slice().sort((a, b) => b.releasedAt.localeCompare(a.releasedAt)).slice(0, 3);
-  const top = weeklyLeaderboard(null, []).slice(0, 5);
+  const { user, tests } = useApp();
+  const weekly = tests.slice(0, 3);
+  const [top, setTop] = useState<LeaderboardEntry[]>([]);
+  useEffect(() => { fetchLeaderboard("points", undefined, 5).then(setTop).catch(() => {}); }, []);
 
   return (
     <>
@@ -35,9 +36,9 @@ export default function Home() {
               <Link href="/leaderboard" className="btn btn-ghost btn-lg">See leaderboard</Link>
             </div>
             <div className="hero-proof">
-              <div><b>{TESTS.length}+</b><span>tests live</span></div>
+              <div><b>{tests.length || "7"}+</b><span>tests live</span></div>
               <div><b>+4 / −1</b><span>JEE Main marking</span></div>
-              <div><b>{BADGES.length}</b><span>badges to earn</span></div>
+              <div><b>12</b><span>badges to earn</span></div>
             </div>
           </div>
 
@@ -117,12 +118,16 @@ export default function Home() {
             </div>
           </div>
           <div className="card">
-            <div className="spread"><h3>🏆 This week&apos;s toppers</h3><Link href="/leaderboard" className="small muted">View all →</Link></div>
-            <table><tbody>
-              {top.map((e, i) => (
-                <tr key={e.userId}><td className="rank-cell">{["🥇", "🥈", "🥉"][i] ?? `#${i + 1}`}</td><td>{e.name}</td><td style={{ textAlign: "right" }}><b>{e.score}</b></td></tr>
-              ))}
-            </tbody></table>
+            <div className="spread"><h3>🏆 Top students</h3><Link href="/leaderboard" className="small muted">View all →</Link></div>
+            {top.length === 0 ? (
+              <p className="muted small">No one on the board yet — your first test puts you here.</p>
+            ) : (
+              <table><tbody>
+                {top.map((e) => (
+                  <tr key={e.userId}><td className="rank-cell">{["🥇", "🥈", "🥉"][e.rank - 1] ?? `#${e.rank}`}</td><td>{e.name}</td><td style={{ textAlign: "right" }}><b>⚡{e.score}</b></td></tr>
+                ))}
+              </tbody></table>
+            )}
           </div>
         </div>
       </section>

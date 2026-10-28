@@ -2,36 +2,49 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { Bar, LoginPrompt, ProGate, Stat } from "@/components/ui";
-import { TEST_MAP } from "@/data/tests";
-import { BADGES, earnedBadgeIds } from "@/lib/badges";
-import { rankOf, testLeaderboard } from "@/lib/leaderboard";
+import { fetchBadges, fetchLeaderboard, fetchReview } from "@/lib/api";
 import { analyze, DIFFICULTIES, estimatePercentile, estimateRank, fmtTime, type Outcome } from "@/lib/scoring";
-import { store } from "@/lib/store";
+import type { AnswerKey, Badge, LeaderboardEntry } from "@/lib/types";
 
 const outcomeChip: Record<Outcome, string> = { correct: "chip-green", wrong: "chip-red", skipped: "chip-gray" };
 
 export default function ResultsPage() {
   const { id } = useParams<{ id: string }>();
-  const { user, attempts, ready } = useApp();
+  const { user, attempts, ready, testMap, questionMap, earnedBadges } = useApp();
   const [reviewFilter, setReviewFilter] = useState<"all" | Outcome>("all");
-  const attempt = ready ? store.getAttempt(id) : undefined;
-  const analysis = useMemo(() => (attempt?.submittedAt ? analyze(attempt) : null), [attempt?.id, attempt?.submittedAt]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [keys, setKeys] = useState<Record<string, AnswerKey> | null>(null);
+  const [board, setBoard] = useState<LeaderboardEntry[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
+  const attempt = attempts.find((a) => a.id === id);
+  const test = attempt ? testMap[attempt.testId] : undefined;
 
-  if (!ready) return null;
+  useEffect(() => {
+    if (!attempt?.submittedAt) return;
+    fetchReview(attempt.id).then(setKeys).catch(() => setKeys({}));
+    fetchLeaderboard("test", attempt.testId, 1000).then(setBoard).catch(() => {});
+    fetchBadges().then(setBadges).catch(() => {});
+  }, [attempt?.id, attempt?.submittedAt, attempt?.testId]);
+
+  const analysis = useMemo(
+    () => (attempt && test && keys ? analyze(attempt, test, questionMap, keys) : null),
+    [attempt, test, questionMap, keys],
+  );
+
+  if (!ready) return <div className="container page muted">Loading…</div>;
   if (!user) return <LoginPrompt message="Log in to see your results." />;
-  if (!attempt || !analysis) return <div className="container page"><h2>Result not found</h2></div>;
+  if (!attempt || !test || !attempt.submittedAt) return <div className="container page"><h2>Result not found</h2></div>;
+  if (!analysis) return <div className="container page muted">Analysing your attempt…</div>;
 
-  const test = TEST_MAP[attempt.testId];
-  const board = testLeaderboard(test.id, user, attempts);
-  const rank = rankOf(board, user.id);
+  const me = board.find((e) => e.isYou);
+  const rank = me?.rank ?? null;
   const percentile = estimatePercentile(analysis.score, analysis.maxScore);
 
-  const before = earnedBadgeIds(user, attempts.filter((a) => a.submittedAt && a.submittedAt < attempt.submittedAt!));
-  const now = earnedBadgeIds(user, attempts.filter((a) => a.submittedAt && a.submittedAt <= attempt.submittedAt!));
-  const newBadges = BADGES.filter((b) => now.has(b.id) && !before.has(b.id));
+  // badges awarded by the submit of this attempt
+  const submittedMs = new Date(attempt.submittedAt).getTime();
+  const newBadges = badges.filter((b) => earnedBadges.some((e) => e.badgeId === b.id && Math.abs(new Date(e.earnedAt).getTime() - submittedMs) < 15000));
 
   const previous = attempts
     .filter((a) => a.testId === test.id && a.submittedAt && a.id !== attempt.id && a.submittedAt < attempt.submittedAt!)
@@ -52,14 +65,14 @@ export default function ResultsPage() {
 
       {newBadges.length > 0 && (
         <div className="banner banner-info">
-          🎉 New badge{newBadges.length > 1 ? "s" : ""} unlocked: {newBadges.map((b) => `${b.emoji} ${b.name}`).join(", ")}
+          🎉 New badge{newBadges.length > 1 ? "s" : ""} unlocked: {newBadges.map((b) => `${b.emoji} ${b.name} (+${b.points}⚡)`).join(", ")}
           {" · "}<Link href="/badges"><b>See all badges</b></Link>
         </div>
       )}
 
       <div className="grid-4">
         <Stat value={<>{analysis.score}<span className="muted small"> / {analysis.maxScore}</span></>} label="Score" />
-        <Stat value={rank ? `#${rank}` : "—"} label={`Rank on this test (of ${board.length})`} />
+        <Stat value={rank ? `#${rank}` : "—"} label={`Rank on this test (of ${board.length || 1})`} />
         <Stat value={`${Math.round(analysis.accuracy * 100)}%`} label="Accuracy" />
         <Stat value={`${analysis.correct} / ${analysis.wrong} / ${analysis.skipped}`} label="Correct / Wrong / Skipped" />
         <Stat value={fmtTime(analysis.timeSec)} label="Time taken" />
@@ -168,15 +181,15 @@ export default function ResultsPage() {
             </div>
             <p style={{ marginTop: 8 }}>{r.question.text}</p>
             {r.question.type === "mcq" ? (
-              r.question.options!.map((o, oi) => (
-                <div key={oi} className={`option ${oi === r.question.answer ? "correct" : oi === r.response ? "wrong" : ""}`} style={{ cursor: "default" }}>
+              (r.question.options ?? []).map((o, oi) => (
+                <div key={oi} className={`option ${oi === r.key.answer ? "correct" : oi === r.response ? "wrong" : ""}`} style={{ cursor: "default" }}>
                   <span className="key">{String.fromCharCode(65 + oi)}</span>{o}
                 </div>
               ))
             ) : (
-              <p className="small">Your answer: <b>{r.response ?? "—"}</b> · Correct answer: <b>{r.question.answer}</b></p>
+              <p className="small">Your answer: <b>{r.response ?? "—"}</b> · Correct answer: <b>{r.key.answer}</b></p>
             )}
-            <div className="solution small"><b>Solution:</b> {r.question.solution}</div>
+            <div className="solution small"><b>Solution:</b> {r.key.solution}</div>
           </div>
         ))}
       </div>

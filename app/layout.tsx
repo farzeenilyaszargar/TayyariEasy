@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import { AppProvider } from "@/components/AppProvider";
 import { Nav } from "@/components/Nav";
+import { Onboarding } from "@/components/Onboarding";
 import "./globals.css";
 
 const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AppProvider>
           <Nav />
-          <main>{children}</main>
+          <main><Onboarding>{children}</Onboarding></main>
         </AppProvider>
       </body>
     </html>

@@ -10,4 +10,3 @@ export const MARKS_WRONG = -1;
 export const MARKS_WRONG_NUMERICAL = -1;
 export const NUMERICAL_TOLERANCE = 0.01;
 
-export const PRO_PRICE_LABEL = "Pricing coming soon";
