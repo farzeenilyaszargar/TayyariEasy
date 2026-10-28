@@ -1,16 +1,17 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Target, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { Bar, Loading, LoginPrompt, Notice, ProGate, Stat, Stats } from "@/components/ui";
+import { Bar, Loading, Notice, ProGate, StatTile } from "@/components/ui";
 import { fetchBadges, fetchLeaderboard, fetchReview } from "@/lib/api";
 import { analyze, DIFFICULTIES, estimatePercentile, estimateRank, fmtTime, type Outcome } from "@/lib/scoring";
 import type { AnswerKey, Badge, LeaderboardEntry } from "@/lib/types";
 
 const outcomeTag: Record<Outcome, string> = { correct: "tag-green", wrong: "tag-red", skipped: "" };
+const SUBJECT_COLOR: Record<string, string> = { Physics: "var(--blue)", Chemistry: "var(--green)", Mathematics: "var(--orange)" };
 const outcomeLabel: Record<Outcome, string> = { correct: "Correct", wrong: "Wrong", skipped: "Skipped" };
 
 export default function ResultsPage() {
@@ -36,7 +37,6 @@ export default function ResultsPage() {
   );
 
   if (!ready) return <Loading />;
-  if (!user) return <LoginPrompt message="Log in to see your results." />;
   if (!attempt || !test || !attempt.submittedAt) return <div className="page"><h1>Result not found</h1></div>;
   if (!analysis) return <Loading />;
 
@@ -51,39 +51,38 @@ export default function ResultsPage() {
 
   return (
     <div className="page stack">
-      <Link href="/results" className="row muted small"><ArrowLeft size={15} />All results</Link>
+      <Link href="/analytics" className="row muted small" style={{ gap: 6 }}><ArrowLeft size={18} />Dashboard</Link>
       <div className="page-head" style={{ marginBottom: 0 }}>
         <div>
           <h1>{test.title}</h1>
           <p>Submitted {new Date(attempt.submittedAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</p>
         </div>
         <div className="row">
-          <Link href={`/tests/${test.id}`} className="btn btn-secondary">Reattempt</Link>
-          <Link href="/tests" className="btn">Next test</Link>
+          <Link href={`/papers/${test.id}`} className="btn btn-white btn-sm">Try again</Link>
+          <Link href="/papers" className="btn btn-sm">Next paper</Link>
         </div>
       </div>
 
       {newBadges.length > 0 && (
-        <Notice kind="ok">
+        <Notice kind="green">
           Badge{newBadges.length > 1 ? "s" : ""} earned: {newBadges.map((b) => `${b.name} (+${b.points} pts)`).join(", ")}.{" "}
-          <Link href="/badges" className="link">View badges</Link>
+          <Link href="/profile" className="link">View badges</Link>
         </Notice>
       )}
 
-      <Stats>
-        <Stat label="Score" value={<>{analysis.score}<small> / {analysis.maxScore}</small></>} />
-        <Stat label="Rank on this test" value={rank ? <>{rank}<small> of {board.length}</small></> : "–"} />
-        <Stat label="Accuracy" value={`${Math.round(analysis.accuracy * 100)}%`} />
-        <Stat label="Correct · Wrong · Skipped" value={<>{analysis.correct} · {analysis.wrong} · {analysis.skipped}</>} />
-        <Stat label="Time taken" value={fmtTime(analysis.timeSec)} />
-      </Stats>
+      <div className="stat-tiles">
+        <StatTile icon={<Target size={20} />} color="var(--yellow)" value={`${analysis.score}/${analysis.maxScore}`} label="Score" />
+        <StatTile icon={<Trophy size={20} />} color="var(--blue)" value={rank ? `#${rank}` : "–"} label={`Rank of ${board.length || 1}`} />
+        <StatTile icon={<CheckCircle2 size={20} />} color="var(--green)" value={`${Math.round(analysis.accuracy * 100)}%`} label={`${analysis.correct} right · ${analysis.wrong} wrong`} />
+        <StatTile icon={<Clock size={20} />} color="var(--purple)" value={fmtTime(analysis.timeSec)} label="Time taken" />
+      </div>
 
       <div className="card stack-sm">
         <h2>By subject</h2>
         {analysis.bySubject.map((b) => (
           <div key={b.key} className="meter-row">
-            <span>{b.key}</span>
-            <Bar value={Math.max(0, b.score) / b.maxScore} />
+            <span style={{ fontWeight: 800 }}>{b.key}</span>
+            <Bar value={Math.max(0, b.score) / b.maxScore} color={SUBJECT_COLOR[b.key]} />
             <span className="r">{b.score} / {b.maxScore}</span>
           </div>
         ))}
@@ -91,15 +90,15 @@ export default function ResultsPage() {
       </div>
 
       <div className="spread" style={{ marginTop: 36 }}>
-        <h2>Detailed analysis <span className="tag tag-pro">PRO</span></h2>
+        <h2>Detailed analysis <span className="tag tag-pro">Pro</span></h2>
       </div>
 
       <ProGate title="Predicted percentile and rank">
-        <Stats>
-          <Stat label="Predicted percentile" value={percentile.toFixed(2)} />
-          <Stat label="Predicted CRL rank" value={`~${estimateRank(percentile).toLocaleString("en-IN")}`} />
-          <Stat label="Change vs last attempt" value={delta === null ? "–" : `${delta >= 0 ? "+" : ""}${delta}`} />
-        </Stats>
+        <div className="stat-tiles">
+          <StatTile icon={<Target size={20} />} color="var(--purple)" value={percentile.toFixed(2)} label="Predicted percentile" />
+          <StatTile icon={<Trophy size={20} />} color="var(--blue)" value={`~${estimateRank(percentile).toLocaleString("en-IN")}`} label="Predicted CRL rank" />
+          <StatTile icon={<CheckCircle2 size={20} />} color="var(--green)" value={delta === null ? "–" : `${delta >= 0 ? "+" : ""}${delta}`} label="vs last attempt" />
+        </div>
         <p className="muted xs" style={{ marginTop: 10 }}>Estimated from a reference curve; becomes data-driven as more students take tests.</p>
       </ProGate>
 
@@ -168,15 +167,15 @@ export default function ResultsPage() {
       </ProGate>
 
       <div className="card card-tight" style={{ marginTop: 36 }}>
-        <div className="card-head">
+        <div className="card-head" style={{ paddingBottom: 0 }}>
           <h2>Solutions</h2>
-          <div className="seg">
+          <div className="chips">
             {(["all", "correct", "wrong", "skipped"] as const).map((f) => (
-              <button key={f} className={filter === f ? "active" : ""} onClick={() => setFilter(f)}>{f === "all" ? "All" : outcomeLabel[f]}</button>
+              <button key={f} className={`chip-btn ${filter === f ? "active" : ""}`} style={{ height: 34 }} onClick={() => setFilter(f)}>{f === "all" ? "All" : outcomeLabel[f]}</button>
             ))}
           </div>
         </div>
-        <div className="divider-y">
+        <div style={{ marginTop: 14 }}>
           {analysis.results.map((r, i) => (filter === "all" || r.outcome === filter) && (
             <div key={r.question.id} className="review-item">
               <div className="spread small">

@@ -20,7 +20,7 @@ export interface AnswerKey {
   solution: string;
 }
 
-export type TestKind = "full" | "subject" | "chapter";
+export type TestKind = "full" | "subject" | "chapter" | "demo";
 
 export interface TestPaper {
   id: string;
@@ -42,6 +42,9 @@ export interface Profile {
   plan: Plan; // effective plan (pro only while pro_until is in the future)
   proUntil: string | null;
   points: number;
+  avatarUrl: string | null;
+  avatarColor: string | null;
+  onboarded: boolean;
 }
 
 export interface AnswerRecord {
@@ -87,4 +90,6 @@ export interface LeaderboardEntry {
   score: number;
   testsTaken: number;
   isYou: boolean;
+  avatarUrl: string | null;
+  avatarColor: string | null;
 }

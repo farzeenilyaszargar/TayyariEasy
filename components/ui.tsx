@@ -1,12 +1,12 @@
 "use client";
 
-import { AlertCircle, CheckCircle2, Info, Lock } from "lucide-react";
+import { AlertCircle, CheckCircle2, Crown, Info, Lock } from "lucide-react";
 import Link from "next/link";
 import { useApp } from "./AppProvider";
 
 export function PageHead({ title, sub, children }: { title: string; sub?: React.ReactNode; children?: React.ReactNode }) {
   return (
-    <div className="page-head">
+    <div className="page-head spread" style={{ alignItems: "flex-end" }}>
       <div>
         <h1>{title}</h1>
         {sub && <p>{sub}</p>}
@@ -24,37 +24,36 @@ export function ProGate({ title, children }: { title: string; children: React.Re
       <div className="locked-content">{children}</div>
       <div className="locked-overlay">
         <div>
-          <Lock size={20} strokeWidth={1.8} />
-          <h3>{title}</h3>
-          <p className="muted small" style={{ margin: "4px 0 14px" }}>Available with Tayyari Pro.</p>
-          <Link href="/pricing" className="btn btn-sm">See Pro</Link>
+          <div className="pro-mini" style={{ display: "inline-flex", background: "#fff" }}>
+            <span className="ic"><Lock size={18} /></span>
+            <div style={{ textAlign: "left" }}>
+              <h3>{title}</h3>
+              <p className="muted xs">Unlock with Tayyari Pro</p>
+            </div>
+            <Link href="/pro" className="btn btn-purple btn-sm">Unlock</Link>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export function LoginPrompt({ message = "Log in to continue." }: { message?: string }) {
+// Small, quiet Pro prompt for profile / analytics / paper limits.
+export function ProMini({ text }: { text: string }) {
+  const { user } = useApp();
+  if (user?.plan === "pro") return null;
   return (
-    <div className="page page-narrow">
-      <div className="card empty">
-        <Lock size={28} strokeWidth={1.5} />
-        <h3>Log in required</h3>
-        <p className="small" style={{ marginBottom: 16 }}>{message}</p>
-        <Link href="/login" className="btn">Log in</Link>
-      </div>
-    </div>
+    <Link href="/pro" className="pro-mini">
+      <span className="ic"><Crown size={18} /></span>
+      <span className="small" style={{ flex: 1, color: "var(--purple-dark)" }}>{text}</span>
+      <span className="tag tag-pro">Pro</span>
+    </Link>
   );
 }
 
-export function Notice({ kind = "info", children }: { kind?: "info" | "warn" | "error" | "ok"; children: React.ReactNode }) {
-  const Icon = kind === "ok" ? CheckCircle2 : kind === "info" ? Info : AlertCircle;
-  return (
-    <div className={`notice ${kind === "info" ? "" : `notice-${kind}`}`}>
-      <Icon size={16} strokeWidth={2} />
-      <div>{children}</div>
-    </div>
-  );
+export function Notice({ kind = "blue", children }: { kind?: "blue" | "yellow" | "red" | "green"; children: React.ReactNode }) {
+  const Icon = kind === "green" ? CheckCircle2 : kind === "blue" ? Info : AlertCircle;
+  return <div className={`notice notice-${kind}`}><Icon size={20} /><div>{children}</div></div>;
 }
 
 export function Bar({ value, color }: { value: number; color?: string }) {
@@ -62,16 +61,17 @@ export function Bar({ value, color }: { value: number; color?: string }) {
   return <div className="bar"><div style={{ width: `${pct}%`, background: color }} /></div>;
 }
 
-export function Stats({ children }: { children: React.ReactNode }) {
-  return <div className="stats">{children}</div>;
-}
-
-export function Stat({ value, label }: { value: React.ReactNode; label: string }) {
-  return <div className="stat"><div className="l">{label}</div><div className="v">{value}</div></div>;
+export function StatTile({ icon, color, value, label }: { icon: React.ReactNode; color: string; value: React.ReactNode; label: string }) {
+  return (
+    <div className="stat-tile">
+      <span className="ic" style={{ background: color, color: "#fff" }}>{icon}</span>
+      <div><div className="v">{value}</div><div className="l">{label}</div></div>
+    </div>
+  );
 }
 
 export function Loading() {
-  return <div className="page muted small">Loading…</div>;
+  return <div className="page muted">Loading…</div>;
 }
 
-export const kindLabel = { full: "Full mock", subject: "Subject", chapter: "Chapter" } as const;
+export const kindLabel = { full: "Full mock", subject: "Subject", chapter: "Chapter", demo: "Warm-up" } as const;

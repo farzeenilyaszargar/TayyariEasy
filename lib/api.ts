@@ -56,12 +56,25 @@ export async function fetchProfile(userId: string): Promise<Profile | null> {
   return {
     id: data.id, name: data.full_name, email: data.email, phone: data.phone, targetYear: data.target_year,
     plan: active ? "pro" : "free", proUntil: data.pro_until, points: data.points,
+    avatarUrl: data.avatar_url, avatarColor: data.avatar_color, onboarded: data.onboarded,
   };
 }
 
-export async function updateProfile(userId: string, patch: { full_name?: string; target_year?: number | null }) {
+type ProfilePatch = { full_name?: string; target_year?: number | null; avatar_url?: string | null; avatar_color?: string; onboarded?: boolean };
+
+export async function updateProfile(userId: string, patch: ProfilePatch) {
   const { error } = await supabase().from("profiles").update(patch).eq("id", userId);
   fail(error);
+}
+
+// Uploads to avatars/<user id>/… (storage policies only allow a user's own folder).
+export async function uploadAvatar(userId: string, file: File) {
+  const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+  const path = `${userId}/avatar-${Date.now()}.${ext}`;
+  const db = supabase();
+  const { error } = await db.storage.from("avatars").upload(path, file, { contentType: file.type, upsert: true });
+  fail(error);
+  return db.storage.from("avatars").getPublicUrl(path).data.publicUrl;
 }
 
 export async function fetchMyAttempts(): Promise<Attempt[]> {
@@ -104,6 +117,7 @@ export async function fetchLeaderboard(kind: LeaderboardKind, testId?: string, l
   fail(error);
   return (data ?? []).map((r: any) => ({
     rank: Number(r.rank), userId: r.user_id, name: r.name, score: Number(r.score), testsTaken: Number(r.tests_taken), isYou: r.is_you,
+    avatarUrl: r.avatar_url, avatarColor: r.avatar_color,
   }));
 }
 

@@ -15,9 +15,20 @@ export function nextWeekReset(d = new Date()) {
   return s;
 }
 
+// The onboarding demo paper never counts toward the weekly limit.
 export function attemptsThisWeek(attempts: Attempt[]) {
   const since = startOfWeek().getTime();
-  return attempts.filter((a) => new Date(a.startedAt).getTime() >= since);
+  return attempts.filter((a) => a.testId !== "demo" && new Date(a.startedAt).getTime() >= since);
+}
+
+// Consecutive days (ending today or yesterday) with at least one submitted paper.
+export function streakDays(attempts: Attempt[]) {
+  const days = new Set(attempts.filter((a) => a.submittedAt).map((a) => new Date(a.submittedAt!).toDateString()));
+  const d = new Date();
+  if (!days.has(d.toDateString())) d.setDate(d.getDate() - 1);
+  let n = 0;
+  while (days.has(d.toDateString())) { n++; d.setDate(d.getDate() - 1); }
+  return n;
 }
 
 export function quotaFor(user: Profile | null, attempts: Attempt[]) {
