@@ -11,7 +11,7 @@ import { fetchLeaderboard, friendlyError, updateProfile, uploadAvatar } from "@/
 import { streakDays } from "@/lib/quota";
 
 export default function Profile() {
-  const { user, attempts, earnedBadges, refresh, logout } = useApp();
+  const { user, attempts, earnedBadges, refresh } = useApp();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name ?? "");
   const [busy, setBusy] = useState(false);
@@ -98,7 +98,6 @@ export default function Profile() {
         <BadgeGrid />
       </section>
 
-      <div className="center"><button className="btn btn-ghost" onClick={logout} style={{ color: "var(--red)" }}>Log out</button></div>
     </div>
   );
 }
