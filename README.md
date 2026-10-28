@@ -44,3 +44,9 @@ Old tables from the previous version were moved to the `legacy` schema (not expo
 
 ## Content
 `supabase/seed.sql` holds the badge catalogue and 36 sample questions / 7 tests. Add real questions to `questions` + `question_keys` and assemble papers in `tests` + `test_questions`.
+
+## Sample students on leaderboards
+Leaderboards include 10 sample students from the `demo_players` table (scores are generated per paper by `demo_score()`), so boards don't look empty at launch. Remove them with:
+```sql
+delete from public.demo_players;
+```

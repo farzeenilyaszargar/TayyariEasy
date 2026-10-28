@@ -330,3 +330,15 @@ td.r, th.r { text-align: right; }
   .profile-btn { padding: 2px; border: 0; }
   .profile-btn > svg { display: none; }
 }
+
+/* ---------- Tooltips (data-tip) ---------- */
+.tip { position: relative; cursor: default; }
+.tip::before, .tip::after { position: absolute; left: 50%; opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; z-index: 60; }
+.tip::after {
+  content: attr(data-tip); top: calc(100% + 10px); transform: translate(-50%, -4px);
+  background: var(--text-strong); color: #fff; font-size: .8rem; font-weight: 700; letter-spacing: 0; text-transform: none;
+  padding: 8px 12px; border-radius: 10px; white-space: nowrap;
+}
+.tip::before { content: ""; top: calc(100% + 4px); transform: translate(-50%, -4px); border: 6px solid transparent; border-bottom-color: var(--text-strong); border-top: 0; }
+.tip:hover::before, .tip:hover::after, .tip:focus-visible::before, .tip:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 720px) { .tip::after { white-space: normal; width: 200px; } }

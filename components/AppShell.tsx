@@ -64,8 +64,16 @@ function TopNav() {
           <Link href="/papers" className={`nav-link ${on("/papers") ? "active" : ""}`}><FileText size={20} /><span>Papers</span></Link>
         </nav>
         <div className="nav-right">
-          <span className={`pill-stat streak ${streak ? "" : "off"}`} title={`${streak}-day streak`}><Flame size={22} fill="currentColor" />{streak}</span>
-          <span className="pill-stat points" title="Points"><Zap size={22} fill="currentColor" />{user.points}</span>
+          <span className={`pill-stat tip streak ${streak ? "" : "off"}`} tabIndex={0}
+            aria-label={`${streak}-day streak`}
+            data-tip={streak ? `${streak}-day streak · finish a paper every day to keep it going` : "Streak · finish a paper today to start one"}>
+            <Flame size={22} fill="currentColor" />{streak}
+          </span>
+          <span className="pill-stat tip points" tabIndex={0}
+            aria-label={`${user.points} points`}
+            data-tip={`${user.points} points · earned from papers and badges`}>
+            <Zap size={22} fill="currentColor" />{user.points}
+          </span>
           <Link href="/leaderboard" className={`nav-link ${on("/leaderboard") ? "active" : ""}`}><Trophy size={20} /><span>Leaderboard</span></Link>
           <div ref={ref} style={{ position: "relative" }}>
             <button className="profile-btn" onClick={() => setOpen(!open)} aria-label="Profile menu">
