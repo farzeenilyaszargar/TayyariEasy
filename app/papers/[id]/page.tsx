@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { Avatar } from "@/components/Avatar";
+import { IconTile, type IconName } from "@/components/Icon";
 import { PaperIcon } from "@/components/PaperCard";
 import { Loading, Notice, ProMini, StatTile, kindLabel } from "@/components/ui";
 import { fetchLeaderboard, friendlyError, startAttempt } from "@/lib/api";
@@ -66,32 +67,39 @@ export default function PaperDetail() {
       <div className="cols-main">
         <div className="stack">
           <div className="stat-tiles">
-            <StatTile icon="paper" tint="var(--tint-indigo)" value={test.questionIds.length} label="Questions" />
-            <StatTile icon="stopwatch" tint="var(--tint-amber)" value={`${test.durationMin} min`} label="Duration" />
-            <StatTile icon="target" tint="var(--tint-rose)" value={test.questionIds.length * MARKS_CORRECT} label="Max marks" />
+            <StatTile solid icon="paper" value={test.questionIds.length} label="Questions" />
+            <StatTile solid icon="stopwatch" value={`${test.durationMin} min`} label="Duration" />
+            <StatTile solid icon="medal" value={test.questionIds.length * MARKS_CORRECT} label="Max marks" />
           </div>
 
-          <div className="card stack-sm">
-            <h2>How it works</h2>
-            <ul className="muted" style={{ fontWeight: 700 }}>
-              <li>+{MARKS_CORRECT} for a correct answer, {MARKS_WRONG} for a wrong one, 0 if skipped.</li>
-              <li>Numerical questions need a typed number.</li>
-              <li>Marked-for-review answers still count.</li>
-              <li>The paper submits itself when the timer hits zero. Refreshing won&apos;t lose your answers.</li>
-              <li>Sections: {sections.map(([s, n]) => `${s} (${n})`).join(", ")}.</li>
-            </ul>
+          <div className="card">
+            <h2 style={{ marginBottom: 16 }}>How it <em>works</em></h2>
+            <div className="rules">
+              {([
+                ["target", `+${MARKS_CORRECT} for a correct answer, ${MARKS_WRONG} for a wrong one, 0 if skipped.`],
+                ["abacus", "Numerical questions need a typed number."],
+                ["flag", "Marked-for-review answers still count."],
+                ["stopwatch", "The paper submits itself at zero. Refreshing won't lose your answers."],
+              ] as [IconName, string][]).map(([icon, text]) => (
+                <div key={text} className="rule"><IconTile name={icon} size={36} /><span>{text}</span></div>
+              ))}
+            </div>
           </div>
 
           {blocked && <Notice kind="yellow">You&apos;ve used this week&apos;s free papers. They come back on Monday.</Notice>}
           {error && <Notice kind="red">{error}</Notice>}
 
-          <div className="stack-sm" style={{ maxWidth: 420 }}>
-            <button className="btn btn-lg btn-block" onClick={start} disabled={busy || blocked}>
+          <div className="start-card">
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <h3>{inProgress ? "Pick up where you left off" : <>Ready when <em className="serif">you are.</em></>}</h3>
+              <p className="small" style={{ marginTop: 4 }}>
+                {sections.map(([s, n]) => `${s} ${n}`).join(" · ")}
+                {!isDemo && !inProgress && !blocked && !quota.unlimited && <> · uses 1 of {quota.remaining} free this week</>}
+              </p>
+            </div>
+            <button className="btn btn-lg btn-cream" onClick={start} disabled={busy || blocked} style={{ minWidth: 200 }}>
               {busy ? "Starting…" : inProgress ? "Resume paper" : past.length ? "Try again" : "Start paper"}
             </button>
-            {!isDemo && !inProgress && !blocked && !quota.unlimited && (
-              <p className="muted small center">Uses 1 of your {quota.remaining} free paper{quota.remaining === 1 ? "" : "s"} this week</p>
-            )}
           </div>
 
           {!isDemo && !inProgress && !quota.unlimited && quota.remaining <= 1 && (
@@ -115,8 +123,8 @@ export default function PaperDetail() {
         </div>
 
         <div className="card stack-sm">
-          <div className="spread"><h3>Top scores</h3></div>
-          {board.length === 0 ? <p className="muted small">No scores yet. Be the first!</p> : board.map((e) => (
+          <div className="spread"><h3>Top scores</h3><Link href="/leaderboard" className="xs muted">Leaderboard</Link></div>
+          {board.length === 0 ? <p className="muted small">No scores yet. Be the first!</p> : board.slice(0, 6).map((e) => (
             <div key={e.userId} className={`lb-row ${e.isYou ? "you" : ""}`} style={{ padding: "8px 10px" }}>
               <span className={`rank rank-${e.rank}`}>{e.rank}</span>
               <Avatar name={e.name} url={e.avatarUrl} color={e.avatarColor} size={30} />

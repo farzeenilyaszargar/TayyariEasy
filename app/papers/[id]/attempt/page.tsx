@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { IconTile } from "@/components/Icon";
+import { Loading } from "@/components/ui";
 import { fetchAttempt, friendlyError, saveProgress, submitAttempt } from "@/lib/api";
 import { SUBJECTS } from "@/lib/scoring";
 import type { AnswerRecord, Attempt } from "@/lib/types";
@@ -121,7 +122,7 @@ function Exam() {
   useEffect(() => { if (attempt && left === 0) submit(); }, [attempt, left, submit]);
 
   if (error && !attempt) return <div className="page"><div className="notice notice-red">{error}</div></div>;
-  if (!ready || !test || !attempt || !q) return <div className="page muted">Loading paper…</div>;
+  if (!ready || !test || !attempt || !q) return <Loading />;
 
   const rec = answers[q.id];
   const answeredCount = test.questionIds.filter((x) => answers[x]?.response != null).length;
@@ -162,7 +163,7 @@ function Exam() {
         <div className="stack-sm">
           {isDemo && tip < TIPS.length && (
             <div className="coach">
-              <IconTile name="bulb" tint="var(--tint-amber)" size={36} />
+              <IconTile name="bulb" size={36} />
               <span style={{ flex: 1 }}>{TIPS[tip]}</span>
               <button className="btn btn-yellow btn-sm" onClick={() => setTip(tip + 1)}>{tip === TIPS.length - 1 ? "Got it" : "Next tip"}</button>
             </div>
@@ -210,13 +211,18 @@ function Exam() {
           </div>
         </div>
 
-        <aside className="card stack-sm">
-          <h3>Questions</h3>
-          <div className="palette">
-            {test.questionIds.map((x, i) => (
-              <button key={x} className={`pal ${statusOf(answers[x])} ${i === idx ? "current" : ""}`} onClick={() => { commitNumerical(); go(i); }}>{i + 1}</button>
-            ))}
-          </div>
+        <aside className="card exam-side">
+          <div className="spread"><h3>Questions</h3><span className="xs muted num">{answeredCount}/{test.questionIds.length} answered</span></div>
+          {(sections.length > 1 ? sections : [null]).map((sec) => (
+            <div key={sec ?? "all"} className="pal-group">
+              {sec && <div className="upper faint">{sec}</div>}
+              <div className="palette">
+                {test.questionIds.map((x, i) => (!sec || questionMap[x]?.subject === sec) && (
+                  <button key={x} className={`pal ${statusOf(answers[x])} ${i === idx ? "current" : ""}`} onClick={() => { commitNumerical(); go(i); }}>{i + 1}</button>
+                ))}
+              </div>
+            </div>
+          ))}
           <div className="legend">
             <span style={{ ["--c" as string]: "var(--ink)" }}>Answered</span>
             <span style={{ ["--c" as string]: "var(--red-soft)" }}>Skipped</span>
@@ -241,5 +247,5 @@ function Exam() {
 }
 
 export default function AttemptPage() {
-  return <Suspense fallback={<div className="page muted">Loading…</div>}><Exam /></Suspense>;
+  return <Suspense fallback={<Loading />}><Exam /></Suspense>;
 }

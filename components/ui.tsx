@@ -51,6 +51,19 @@ export function ProMini({ text }: { text: string }) {
   );
 }
 
+// Apple-style segmented control with a sliding thumb.
+export function Segmented<T extends string>({ options, value, onChange }: { options: { key: T; label: React.ReactNode }[]; value: T; onChange: (v: T) => void }) {
+  const i = Math.max(0, options.findIndex((o) => o.key === value));
+  return (
+    <div className="segmented" role="tablist">
+      <span className="thumb" style={{ width: `calc((100% - 8px) / ${options.length})`, transform: `translateX(${i * 100}%)` }} />
+      {options.map((o) => (
+        <button key={o.key} role="tab" aria-selected={o.key === value} className={o.key === value ? "on" : ""} onClick={() => onChange(o.key)}>{o.label}</button>
+      ))}
+    </div>
+  );
+}
+
 export function Notice({ kind = "blue", children }: { kind?: "blue" | "yellow" | "red" | "green"; children: React.ReactNode }) {
   const Icon = kind === "green" ? CheckCircle2 : kind === "blue" ? Info : AlertCircle;
   return <div className={`notice notice-${kind}`}><Icon size={18} /><div>{children}</div></div>;
@@ -61,17 +74,22 @@ export function Bar({ value, color }: { value: number; color?: string }) {
   return <div className="bar"><div style={{ width: `${pct}%`, background: color }} /></div>;
 }
 
-export function StatTile({ icon, tint = "var(--tint-indigo)", value, label }: { icon: IconName; tint?: string; value: React.ReactNode; label: string }) {
+export function StatTile({ icon, tint = "var(--tint-indigo)", value, label, solid }: { icon: IconName; tint?: string; value: React.ReactNode; label: string; solid?: boolean }) {
   return (
-    <div className="stat-tile">
+    <div className={`stat-tile ${solid ? "solid" : ""}`}>
       <IconTile name={icon} size={44} tint={tint} />
       <div><div className="v">{value}</div><div className="l">{label}</div></div>
     </div>
   );
 }
 
-export function Loading() {
-  return <div className="page muted">Loading…</div>;
+// Circular spinner; `full` centres it in the viewport for page-level loads.
+export function Spinner({ size = 28 }: { size?: number }) {
+  return <span className="spinner" style={{ width: size, height: size }} role="status" aria-label="Loading" />;
+}
+
+export function Loading({ full = true }: { full?: boolean }) {
+  return <div className={full ? "loading-screen" : "loading-inline"}><Spinner size={full ? 34 : 26} /></div>;
 }
 
 export const kindLabel = { full: "Full mock", subject: "Subject", chapter: "Chapter", demo: "Warm-up" } as const;

@@ -33,12 +33,12 @@ export function IconTile({ name, size = 44, tint = "var(--tint-indigo)" }: { nam
   );
 }
 
-// Larger round emblem for page headers and the completion screen.
+// Larger round emblem for page headers and the completion screen: one solid ink disc, cream icon.
 export function Medallion({ name, size = 72, tint = "var(--tint-amber)" }: { name: IconName; size?: number; tint?: string }) {
   const ink = INK;
   return (
     <span className="medallion" style={{ width: size, height: size, background: tint, color: ink }}>
-      <Glyph name={name} size={Math.round(size * 0.42)} color={ink} strokeWidth={1.7} />
+      <Glyph name={name} size={Math.round(size * 0.42)} color="var(--cream)" strokeWidth={1.6} />
     </span>
   );
 }

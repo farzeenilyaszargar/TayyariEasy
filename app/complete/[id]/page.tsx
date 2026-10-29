@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { Avatar } from "@/components/Avatar";
 import { Medallion } from "@/components/Icon";
+import { Loading } from "@/components/ui";
 import { fetchBadges, fetchLeaderboard, fetchPointsHistory, updateProfile } from "@/lib/api";
 import type { Badge, LeaderboardEntry } from "@/lib/types";
 
@@ -106,7 +107,7 @@ export default function Complete() {
   }, [isDemo, user, refresh]);
 
   if (!ready) return null;
-  if (!attempt || !test || !attempt.submittedAt) return <div className="page muted">Loading…</div>;
+  if (!attempt || !test || !attempt.submittedAt) return <Loading />;
 
   const acc = (attempt.correct ?? 0) + (attempt.wrong ?? 0) ? Math.round(((attempt.correct ?? 0) / ((attempt.correct ?? 0) + (attempt.wrong ?? 0))) * 100) : 0;
   const at = new Date(attempt.submittedAt).getTime();

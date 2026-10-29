@@ -8,6 +8,7 @@ import { streakDays } from "@/lib/quota";
 import { useApp } from "./AppProvider";
 import { Avatar } from "./Avatar";
 import { Mark } from "./Mark";
+import { Loading } from "./ui";
 
 const PUBLIC = [/^\/$/, /^\/login/, /^\/auth/];
 const FOCUS = [/^\/welcome/, /\/attempt$/, /^\/complete\//]; // full-screen, no navbar
@@ -34,7 +35,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [ready, user, isPublic, needsOnboarding, path, router]);
 
   if (isPublic) return <>{children}</>;
-  if (!ready || !user) return <div className="page muted">Loading…</div>;
+  if (!ready || !user) return <Loading />;
   if (FOCUS.some((r) => r.test(path))) return <>{children}</>;
   return (
     <>
