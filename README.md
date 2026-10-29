@@ -52,4 +52,4 @@ delete from public.demo_players;
 ```
 
 ## Icons
-3D icons are Microsoft Fluent Emoji (MIT licence), loaded from jsDelivr and pinned to one commit in `components/Icon3D.tsx`.
+All icons are Lucide line icons, mapped by name in `components/Icon.tsx` (`Glyph`, `IconTile`, `Medallion`). No emoji.

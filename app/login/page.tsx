@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowLeft, Mail, Smartphone } from "lucide-react";
+import { ArrowLeft, Check, Mail, Smartphone } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { Icon3D } from "@/components/Icon3D";
+import { Logo } from "@/components/AppShell";
+import { ScoreRing } from "@/components/ScoreRing";
 import { Notice } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 
@@ -14,13 +15,27 @@ type Method = "phone" | "email";
 function SidePanel() {
   return (
     <aside className="auth-side">
-      <div style={{ position: "relative", width: 260, height: 220 }} aria-hidden>
-        <div style={{ position: "absolute", left: 40, top: 20, filter: "drop-shadow(0 24px 28px rgba(0,0,0,.35))" }}><Icon3D name="student" size={170} /></div>
-        <div style={{ position: "absolute", right: 0, top: 0, transform: "rotate(10deg)", filter: "drop-shadow(0 12px 16px rgba(0,0,0,.3))" }}><Icon3D name="trophy" size={72} /></div>
-        <div style={{ position: "absolute", left: 0, bottom: 10, transform: "rotate(-8deg)", filter: "drop-shadow(0 12px 16px rgba(0,0,0,.3))" }}><Icon3D name="books" size={64} /></div>
+      <div className="auth-side-inner">
+        <Logo />
+        <div>
+          <h2>Practice that moves your rank.</h2>
+          <ul className="auth-points">
+            {["Real JEE Main exam interface", "Instant score, rank and solutions", "Weekly leaderboard and streaks"].map((t) => (
+              <li key={t}><Check size={16} strokeWidth={2.4} />{t}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="auth-preview" aria-hidden>
+          <div className="row" style={{ gap: 16, flexWrap: "nowrap" }}>
+            <ScoreRing value={212} max={300} size={84} stroke={8} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, color: "var(--text-strong)" }}>Full Mock #4</div>
+              <div className="muted xs" style={{ marginTop: 2 }}>Rank 12 of 1,480 · +56 pts</div>
+              <div className="bar" style={{ height: 6, marginTop: 10 }}><div style={{ width: "71%" }} /></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <h2>Practice that moves your rank.</h2>
-      <p>Weekly JEE papers, instant results and a leaderboard of students preparing alongside you.</p>
     </aside>
   );
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { Icon3D, IconTile, type Icon3DName } from "@/components/Icon3D";
+import { IconTile, type IconName } from "@/components/Icon";
 import { PaperCard } from "@/components/PaperCard";
 import { ProMini } from "@/components/ui";
 import { nextWeekReset, quotaFor } from "@/lib/quota";
@@ -11,7 +11,7 @@ import type { Subject, TestPaper } from "@/lib/types";
 
 const FILTERS: ("All" | Subject)[] = ["All", "Physics", "Chemistry", "Mathematics"];
 
-function Section({ title, sub, icon, tint, tests }: { title: string; sub: string; icon: Icon3DName; tint: string; tests: TestPaper[] }) {
+function Section({ title, sub, icon, tint, tests }: { title: string; sub: string; icon: IconName; tint: string; tests: TestPaper[] }) {
   if (!tests.length) return null;
   return (
     <section>
@@ -36,7 +36,6 @@ export default function Papers() {
   return (
     <div className="page stack">
       <div className="hello">
-        <Icon3D name="student" size={64} style={{ flexShrink: 0 }} />
         <div>
           <h2>Welcome back, {(user?.name ?? "").split(" ")[0]}</h2>
           <p style={{ marginTop: 4 }}>

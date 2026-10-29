@@ -3,7 +3,7 @@
 import { AlertCircle, CheckCircle2, ChevronRight, Info } from "lucide-react";
 import Link from "next/link";
 import { useApp } from "./AppProvider";
-import { Icon3D, IconTile, type Icon3DName } from "./Icon3D";
+import { IconTile, type IconName } from "./Icon";
 
 export function PageHead({ title, sub, children }: { title: string; sub?: React.ReactNode; children?: React.ReactNode }) {
   return (
@@ -25,7 +25,7 @@ export function ProGate({ title, children }: { title: string; children: React.Re
       <div className="locked-content">{children}</div>
       <div className="locked-overlay">
         <div className="pro-mini" style={{ boxShadow: "var(--shadow-lg)" }}>
-          <Icon3D name="lock" size={30} />
+          <IconTile name="lock" tint="var(--tint-slate)" size={40} />
           <div style={{ textAlign: "left" }}>
             <h3>{title}</h3>
             <p className="muted xs">Included with Tayyari Pro</p>
@@ -43,7 +43,7 @@ export function ProMini({ text }: { text: string }) {
   if (user?.plan === "pro") return null;
   return (
     <Link href="/pro" className="pro-mini">
-      <Icon3D name="crown" size={28} />
+      <IconTile name="crown" tint="var(--tint-violet)" size={36} />
       <span className="small" style={{ flex: 1, fontWeight: 600 }}>{text}</span>
       <span className="tag tag-pro">Pro</span>
       <ChevronRight size={16} className="faint" />
@@ -61,7 +61,7 @@ export function Bar({ value, color }: { value: number; color?: string }) {
   return <div className="bar"><div style={{ width: `${pct}%`, background: color }} /></div>;
 }
 
-export function StatTile({ icon, tint = "var(--tint-indigo)", value, label }: { icon: Icon3DName; tint?: string; value: React.ReactNode; label: string }) {
+export function StatTile({ icon, tint = "var(--tint-indigo)", value, label }: { icon: IconName; tint?: string; value: React.ReactNode; label: string }) {
   return (
     <div className="stat-tile">
       <IconTile name={icon} size={44} tint={tint} />

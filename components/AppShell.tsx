@@ -1,20 +1,21 @@
 "use client";
 
-import { BarChart3, Crown, LogOut, Trophy, User, FileText } from "lucide-react";
+import { BarChart3, Crown, Flame, LogOut, Trophy, User, Zap } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { streakDays } from "@/lib/quota";
 import { useApp } from "./AppProvider";
 import { Avatar } from "./Avatar";
-import { Icon3D } from "./Icon3D";
 
 const PUBLIC = [/^\/$/, /^\/login/, /^\/auth/];
 const FOCUS = [/^\/welcome/, /\/attempt$/, /^\/complete\//]; // full-screen, no navbar
 const ONBOARDING_OK = [/^\/welcome/, /^\/papers\/demo\/attempt$/, /^\/complete\//];
 
+// Signed-in students land on Papers, so the logo takes them there.
 export function Logo() {
-  return <Link href="/" className="logo"><span className="logo-mark">t</span>tayyari</Link>;
+  const { user } = useApp();
+  return <Link href={user ? "/papers" : "/"} className="logo"><span className="logo-mark">t</span>tayyari</Link>;
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -61,19 +62,16 @@ function TopNav() {
     <header className="nav">
       <div className="nav-inner">
         <Logo />
-        <nav className="nav-links">
-          <Link href="/papers" className={`nav-link ${on("/papers") ? "active" : ""}`}><FileText size={18} /><span>Papers</span></Link>
-        </nav>
         <div className="nav-right">
           <span className={`pill-stat tip streak ${streak ? "" : "off"}`} tabIndex={0}
             aria-label={`${streak}-day streak`}
             data-tip={streak ? `${streak}-day streak · finish a paper every day to keep it going` : "Streak · finish a paper today to start one"}>
-            <Icon3D name="fire" size={22} />{streak}
+            <Flame size={19} strokeWidth={2} color={streak ? "#ea580c" : undefined} fill={streak ? "#fdba74" : "none"} />{streak}
           </span>
           <span className="pill-stat tip points" tabIndex={0}
             aria-label={`${user.points} points`}
             data-tip={`${user.points} points · earned from papers and badges`}>
-            <Icon3D name="bolt" size={22} />{user.points}
+            <Zap size={19} strokeWidth={2} color="#4f46e5" fill="#c7d2fe" />{user.points}
           </span>
           <Link href="/leaderboard" className={`nav-link ${on("/leaderboard") ? "active" : ""}`}><Trophy size={18} /><span>Leaderboard</span></Link>
           <div ref={ref} style={{ position: "relative" }}>
@@ -82,6 +80,14 @@ function TopNav() {
             </button>
             {open && (
               <div className="menu">
+                <div className="menu-head">
+                  <Avatar name={user.name} url={user.avatarUrl} color={user.avatarColor} size={36} />
+                  <div style={{ minWidth: 0 }}>
+                    <div className="menu-name">{user.name}</div>
+                    <div className="xs muted">{user.plan === "pro" ? "Pro plan" : "Free plan"} · {user.points} pts</div>
+                  </div>
+                </div>
+                <hr />
                 <Link href="/profile"><User size={18} />Profile</Link>
                 <Link href="/analytics"><BarChart3 size={18} />Dashboard &amp; analytics</Link>
                 {user.plan !== "pro" && <Link href="/pro"><Crown size={18} />Upgrade to Pro</Link>}

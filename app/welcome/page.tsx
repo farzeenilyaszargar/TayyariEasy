@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { AVATAR_COLORS, Avatar } from "@/components/Avatar";
-import { Icon3D } from "@/components/Icon3D";
+import { IconTile, Medallion } from "@/components/Icon";
 import { Notice } from "@/components/ui";
 import { friendlyError, startAttempt, updateProfile, uploadAvatar } from "@/lib/api";
 
@@ -75,7 +75,7 @@ export default function Welcome() {
         {step === 0 && (
           <form className="stack" onSubmit={(e) => { e.preventDefault(); if (name.trim().length >= 2) next(); }}>
             <div>
-              <Icon3D name="wave" size={56} style={{ marginBottom: 14 }} />
+              <div style={{ marginBottom: 16 }}><IconTile name="wave" tint="var(--tint-indigo)" size={44} /></div>
               <h1>Welcome to Tayyari. What should we call you?</h1>
               <p className="muted" style={{ marginTop: 6 }}>This is how you&apos;ll appear on leaderboards (first name and last initial).</p>
             </div>
@@ -113,7 +113,7 @@ export default function Welcome() {
         {step === 2 && (
           <div className="stack">
             <div>
-              <Icon3D name="calendar" size={56} style={{ marginBottom: 14 }} />
+              <div style={{ marginBottom: 16 }}><IconTile name="calendar" tint="var(--tint-indigo)" size={44} /></div>
               <h1>When are you writing JEE?</h1>
               <p className="muted" style={{ marginTop: 6 }}>We&apos;ll use this to pace your practice.</p>
             </div>
@@ -130,7 +130,7 @@ export default function Welcome() {
 
         {step === 3 && (
           <div className="stack center">
-            <div style={{ display: "grid", placeItems: "center", filter: "drop-shadow(0 18px 22px rgba(16,24,40,.18))" }}><Icon3D name="memo" size={120} /></div>
+            <div style={{ display: "grid", placeItems: "center" }}><Medallion name="memo" size={80} tint="var(--tint-indigo)" /></div>
             <div>
               <h1>Ready for a quick warm-up, {name.split(" ")[0]}?</h1>
               <p className="muted" style={{ marginTop: 8 }}>A 4-question paper to show you how the test screen works. It doesn&apos;t count toward your weekly papers.</p>

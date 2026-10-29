@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { Avatar } from "@/components/Avatar";
-import { Icon3D } from "@/components/Icon3D";
+import { Medallion } from "@/components/Icon";
 import { fetchLeaderboard } from "@/lib/api";
 import type { LeaderboardEntry, LeaderboardKind } from "@/lib/types";
 
@@ -36,7 +36,7 @@ export default function LeaderboardPage() {
   return (
     <div className="page page-narrow stack">
       <div className="center stack-sm">
-        <div style={{ display: "grid", placeItems: "center", filter: "drop-shadow(0 14px 18px rgba(16,24,40,.16))" }}><Icon3D name="trophy" size={88} /></div>
+        <div style={{ display: "grid", placeItems: "center" }}><Medallion name="trophy" size={64} tint="var(--tint-amber)" /></div>
         <h1>Leaderboard</h1>
         <p className="muted">
           {me ? `You're #${me.rank}${mode === "weekly" ? " this week" : " overall"}. Keep climbing!` : "Finish a paper to get on the board."}
@@ -68,7 +68,7 @@ export default function LeaderboardPage() {
                     <div style={{ fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.isYou ? "You" : e.name}</div>
                     <div className="muted small">{e.score} {unit}</div>
                     <div style={{ height: h, marginTop: 10, borderRadius: "14px 14px 0 0", background: "#fff", border: "1px solid var(--line)", borderBottom: 0, boxShadow: "var(--shadow-sm)", display: "grid", placeItems: "center" }}>
-                      <Icon3D name={medal} size={place === 1 ? 52 : 42} />
+                      <span className={`podium-num podium-${medal}`}>{place}</span>
                     </div>
                   </div>
                 );

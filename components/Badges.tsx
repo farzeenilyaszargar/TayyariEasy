@@ -5,10 +5,10 @@ import { fetchBadges } from "@/lib/api";
 import { badgeStatus } from "@/lib/badges";
 import type { Badge } from "@/lib/types";
 import { useApp } from "./AppProvider";
-import { IconTile, type Icon3DName } from "./Icon3D";
+import { IconTile, type IconName } from "./Icon";
 import { Bar } from "./ui";
 
-const LOOK: Record<string, [Icon3DName, string]> = {
+const LOOK: Record<string, [IconName, string]> = {
   "first-step": ["footprints", "var(--tint-green)"], "hat-trick": ["star", "var(--tint-amber)"], decathlete: ["medal", "var(--tint-violet)"],
   "full-mock": ["flag", "var(--tint-slate)"], "physics-ace": ["atom", "var(--tint-blue)"], "chem-ace": ["flask", "var(--tint-green)"],
   "maths-ace": ["abacus", "var(--tint-amber)"], sharpshooter: ["target", "var(--tint-rose)"], "no-guesswork": ["shield", "var(--tint-indigo)"],
@@ -28,7 +28,7 @@ export function BadgeGrid({ limit }: { limit?: number }) {
   return (
     <div className="badge-grid">
       {status.slice(0, limit).map(({ badge, earned, progress }) => {
-        const [icon, tint] = LOOK[badge.id] ?? (["medal", "var(--tint-slate)"] as [Icon3DName, string]);
+        const [icon, tint] = LOOK[badge.id] ?? (["medal", "var(--tint-slate)"] as [IconName, string]);
         return (
           <div key={badge.id} className={`card badge ${earned ? "" : "locked-badge"}`} title={badge.description}>
             <IconTile name={icon} tint={tint} size={60} />

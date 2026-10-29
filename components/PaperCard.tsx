@@ -4,16 +4,16 @@ import { Clock, FileText } from "lucide-react";
 import Link from "next/link";
 import type { TestPaper } from "@/lib/types";
 import { useApp } from "./AppProvider";
-import { IconTile, type Icon3DName } from "./Icon3D";
+import { IconTile, type IconName } from "./Icon";
 import { kindLabel } from "./ui";
 
-const SUBJECT_LOOK: Record<string, [Icon3DName, string]> = {
+const SUBJECT_LOOK: Record<string, [IconName, string]> = {
   Physics: ["atom", "var(--tint-blue)"],
   Chemistry: ["flask", "var(--tint-green)"],
   Mathematics: ["abacus", "var(--tint-amber)"],
 };
 
-export function paperLook(t: TestPaper): [Icon3DName, string] {
+export function paperLook(t: TestPaper): [IconName, string] {
   if (t.kind === "full") return ["books", "var(--tint-violet)"];
   if (t.kind === "demo") return ["memo", "var(--tint-slate)"];
   return SUBJECT_LOOK[t.subject ?? ""] ?? ["paper", "var(--tint-slate)"];

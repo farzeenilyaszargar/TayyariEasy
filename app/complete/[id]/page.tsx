@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { Avatar } from "@/components/Avatar";
-import { Icon3D } from "@/components/Icon3D";
+import { Medallion } from "@/components/Icon";
 import { fetchBadges, fetchLeaderboard, fetchPointsHistory, updateProfile } from "@/lib/api";
 import type { Badge, LeaderboardEntry } from "@/lib/types";
 
@@ -118,26 +118,26 @@ export default function Complete() {
       <div className="celebrate-inner stack">
         {stage === 0 ? (
           <>
-            <div className="trophy" style={{ width: 132 }}><Icon3D name={isDemo ? "party" : "trophy"} size={132} /></div>
+            <div className="trophy" style={{ display: "grid", placeItems: "center" }}><Medallion name={isDemo ? "check" : "trophy"} size={88} tint={isDemo ? "var(--tint-green)" : "var(--tint-amber)"} /></div>
             <div>
               <h1>{isDemo ? "Warm-up complete!" : "Paper complete!"}</h1>
               <p className="muted" style={{ marginTop: 8 }}>{isDemo ? "You know the drill now. Real papers work exactly the same way." : `${test.title} is done. Nice work!`}</p>
             </div>
             <div className="reward-row">
               <div className="reward" style={{ animationDelay: ".3s" }}>
-                <div className="h">Score</div><div className="b"><Icon3D name="target" size={24} />{attempt.score}/{attempt.maxScore}</div>
+                <div className="h">Score</div><div className="b">{attempt.score}<span className="muted" style={{ fontSize: ".9rem", fontWeight: 600 }}>/{attempt.maxScore}</span></div>
               </div>
               <div className="reward" style={{ animationDelay: ".45s" }}>
-                <div className="h">Accuracy</div><div className="b"><Icon3D name="check" size={24} />{acc}%</div>
+                <div className="h">Accuracy</div><div className="b">{acc}%</div>
               </div>
               <div className="reward" style={{ animationDelay: ".6s" }}>
-                <div className="h">Points earned</div><div className="b"><Icon3D name="bolt" size={24} />+{earned}</div>
+                <div className="h">Points earned</div><div className="b" style={{ color: "var(--indigo)" }}>+{earned}</div>
               </div>
             </div>
             {newBadges.length > 0 && (
               <div className="card" style={{ textAlign: "left", animation: "rise .5s .75s both" }}>
                 <div className="row">
-                  <Icon3D name="medal" size={44} />
+                  <Medallion name="medal" size={44} tint="var(--tint-violet)" />
                   <div>
                     <h3>New badge{newBadges.length > 1 ? "s" : ""} unlocked</h3>
                     <p className="muted small">{newBadges.map((b) => b.name).join(", ")}</p>

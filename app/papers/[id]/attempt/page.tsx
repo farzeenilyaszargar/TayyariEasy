@@ -4,7 +4,7 @@ import { Clock, X } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { Icon3D } from "@/components/Icon3D";
+import { IconTile } from "@/components/Icon";
 import { fetchAttempt, friendlyError, saveProgress, submitAttempt } from "@/lib/api";
 import { SUBJECTS } from "@/lib/scoring";
 import type { AnswerRecord, Attempt } from "@/lib/types";
@@ -162,7 +162,7 @@ function Exam() {
         <div className="stack-sm">
           {isDemo && tip < TIPS.length && (
             <div className="coach">
-              <Icon3D name="bulb" size={32} />
+              <IconTile name="bulb" tint="var(--tint-amber)" size={36} />
               <span style={{ flex: 1 }}>{TIPS[tip]}</span>
               <button className="btn btn-yellow btn-sm" onClick={() => setTip(tip + 1)}>{tip === TIPS.length - 1 ? "Got it" : "Next tip"}</button>
             </div>

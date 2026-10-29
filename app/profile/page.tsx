@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { AVATAR_COLORS, Avatar } from "@/components/Avatar";
 import { BadgeGrid } from "@/components/Badges";
-import { IconTile } from "@/components/Icon3D";
+import { IconTile } from "@/components/Icon";
 import { Notice, ProMini, StatTile } from "@/components/ui";
 import { fetchLeaderboard, friendlyError, updateProfile, uploadAvatar } from "@/lib/api";
 import { streakDays } from "@/lib/quota";
