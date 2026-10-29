@@ -76,7 +76,7 @@ export default function Welcome() {
           <form className="stack" onSubmit={(e) => { e.preventDefault(); if (name.trim().length >= 2) next(); }}>
             <div>
               <div style={{ marginBottom: 16 }}><IconTile name="wave" tint="var(--tint-indigo)" size={44} /></div>
-              <h1>Welcome to Tayyari. What should we call you?</h1>
+              <h1>Welcome to Tayyari. What should we <em>call you?</em></h1>
               <p className="muted" style={{ marginTop: 6 }}>This is how you&apos;ll appear on leaderboards (first name and last initial).</p>
             </div>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" aria-label="Full name" autoFocus minLength={2} maxLength={40} />
@@ -87,13 +87,13 @@ export default function Welcome() {
         {step === 1 && (
           <div className="stack">
             <div>
-              <h1>Pick your look</h1>
+              <h1>Pick your <em>look</em></h1>
               <p className="muted" style={{ marginTop: 6 }}>Upload a photo or choose a colour.</p>
             </div>
             <div className="row" style={{ gap: 24 }}>
               <button onClick={() => fileRef.current?.click()} style={{ position: "relative", border: 0, background: "none", padding: 0, cursor: "pointer" }} aria-label="Upload photo">
                 <Avatar name={name} url={photo} color={color} size={112} />
-                <span style={{ position: "absolute", right: 0, bottom: 0, width: 36, height: 36, borderRadius: "50%", background: "var(--blue)", color: "#fff", display: "grid", placeItems: "center", border: "3px solid #fff" }}><Camera size={18} /></span>
+                <span style={{ position: "absolute", right: 0, bottom: 0, width: 36, height: 36, borderRadius: "50%", background: "var(--ink)", color: "var(--cream)", display: "grid", placeItems: "center", border: "3px solid var(--bg)" }}><Camera size={18} /></span>
               </button>
               <div className="stack-sm">
                 <div className="color-swatches">
@@ -114,7 +114,7 @@ export default function Welcome() {
           <div className="stack">
             <div>
               <div style={{ marginBottom: 16 }}><IconTile name="calendar" tint="var(--tint-indigo)" size={44} /></div>
-              <h1>When are you writing JEE?</h1>
+              <h1>When are you writing <em>JEE?</em></h1>
               <p className="muted" style={{ marginTop: 6 }}>We&apos;ll use this to pace your practice.</p>
             </div>
             <div className="stack-sm">
@@ -132,7 +132,7 @@ export default function Welcome() {
           <div className="stack center">
             <div style={{ display: "grid", placeItems: "center" }}><Medallion name="memo" size={80} tint="var(--tint-indigo)" /></div>
             <div>
-              <h1>Ready for a quick warm-up, {name.split(" ")[0]}?</h1>
+              <h1>Ready for a quick <em>warm-up</em>, {name.split(" ")[0]}?</h1>
               <p className="muted" style={{ marginTop: 8 }}>A 4-question paper to show you how the test screen works. It doesn&apos;t count toward your weekly papers.</p>
             </div>
             <div className="stack-sm" style={{ maxWidth: 360, margin: "28px auto 0" }}>

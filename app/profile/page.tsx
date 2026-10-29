@@ -45,7 +45,7 @@ export default function Profile() {
         <div className="row" style={{ gap: 24, alignItems: "flex-start" }}>
           <button onClick={() => fileRef.current?.click()} style={{ position: "relative", border: 0, background: "none", padding: 0, cursor: "pointer" }} aria-label="Change photo" disabled={busy}>
             <Avatar name={user.name} url={user.avatarUrl} color={user.avatarColor} size={112} />
-            <span style={{ position: "absolute", right: 0, bottom: 0, width: 36, height: 36, borderRadius: "50%", background: "var(--blue)", color: "#fff", display: "grid", placeItems: "center", border: "3px solid #fff" }}><Camera size={18} /></span>
+            <span style={{ position: "absolute", right: 0, bottom: 0, width: 36, height: 36, borderRadius: "50%", background: "var(--ink)", color: "var(--cream)", display: "grid", placeItems: "center", border: "3px solid var(--bg)" }}><Camera size={18} /></span>
           </button>
           <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => onFile(e.target.files?.[0])} />
           <div style={{ flex: 1, minWidth: 220 }} className="stack-sm">

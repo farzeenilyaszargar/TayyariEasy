@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useApp } from "./AppProvider";
 import { IconTile, type IconName } from "./Icon";
 
-export function PageHead({ title, sub, children }: { title: string; sub?: React.ReactNode; children?: React.ReactNode }) {
+export function PageHead({ title, sub, children }: { title: React.ReactNode; sub?: React.ReactNode; children?: React.ReactNode }) {
   return (
     <div className="page-head spread" style={{ alignItems: "flex-end" }}>
       <div>

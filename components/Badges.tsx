@@ -35,7 +35,7 @@ export function BadgeGrid({ limit }: { limit?: number }) {
             <h3>{badge.name}</h3>
             <p>{badge.description}</p>
             {!earned && progress > 0 && <div style={{ marginTop: 8 }}><Bar value={progress} /></div>}
-            {earned && <p style={{ color: "var(--green-dark)", fontWeight: 700 }}>+{badge.points} pts</p>}
+            {earned && <p style={{ color: "var(--ink)", fontWeight: 600 }}>+{badge.points} pts</p>}
           </div>
         );
       })}

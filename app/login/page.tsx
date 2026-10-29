@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { Logo } from "@/components/AppShell";
+import { Mark } from "@/components/Mark";
 import { ScoreRing } from "@/components/ScoreRing";
 import { Notice } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
@@ -15,10 +16,11 @@ type Method = "phone" | "email";
 function SidePanel() {
   return (
     <aside className="auth-side">
+      <Mark size={460} grain spin className="side-mark" color="var(--cream)" />
       <div className="auth-side-inner">
         <Logo />
         <div>
-          <h2>Practice that moves your rank.</h2>
+          <h2>Practice that moves <em>your rank.</em></h2>
           <ul className="auth-points">
             {["Real JEE Main exam interface", "Instant score, rank and solutions", "Weekly leaderboard and streaks"].map((t) => (
               <li key={t}><Check size={16} strokeWidth={2.4} />{t}</li>
@@ -29,7 +31,7 @@ function SidePanel() {
           <div className="row" style={{ gap: 16, flexWrap: "nowrap" }}>
             <ScoreRing value={212} max={300} size={84} stroke={8} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, color: "var(--text-strong)" }}>Full Mock #4</div>
+              <div style={{ fontWeight: 600, color: "var(--text-strong)" }}>Full Mock #4</div>
               <div className="muted xs" style={{ marginTop: 2 }}>Rank 12 of 1,480 · +56 pts</div>
               <div className="bar" style={{ height: 6, marginTop: 10 }}><div style={{ width: "71%" }} /></div>
             </div>
@@ -98,11 +100,11 @@ function Login() {
         <div className="auth-card stack">
           <Link href="/" className="row muted small" style={{ gap: 6 }}><ArrowLeft size={18} />Back</Link>
           <div>
-            <h1>{sent ? "Enter your code" : "Log in or sign up"}</h1>
+            <h1>{sent ? <>Enter your <em>code</em></> : <>Welcome to <em>Tayyari</em></>}</h1>
             <p className="muted" style={{ marginTop: 6 }}>
               {sent
                 ? method === "phone" ? `We sent a 6-digit code to ${fullPhone}.` : `We emailed ${email}. Tap the link or type the code.`
-                : "New here? We'll create your account automatically."}
+                : "Log in or sign up. New here? We'll create your account automatically."}
             </p>
           </div>
 

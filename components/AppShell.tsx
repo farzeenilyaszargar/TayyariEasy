@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { streakDays } from "@/lib/quota";
 import { useApp } from "./AppProvider";
 import { Avatar } from "./Avatar";
+import { Mark } from "./Mark";
 
 const PUBLIC = [/^\/$/, /^\/login/, /^\/auth/];
 const FOCUS = [/^\/welcome/, /\/attempt$/, /^\/complete\//]; // full-screen, no navbar
@@ -15,7 +16,7 @@ const ONBOARDING_OK = [/^\/welcome/, /^\/papers\/demo\/attempt$/, /^\/complete\/
 // Signed-in students land on Papers, so the logo takes them there.
 export function Logo() {
   const { user } = useApp();
-  return <Link href={user ? "/papers" : "/"} className="logo"><span className="logo-mark">t</span>tayyari</Link>;
+  return <Link href={user ? "/papers" : "/"} className="logo"><Mark size={26} className="logo-mark" />tayyari</Link>;
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -66,12 +67,12 @@ function TopNav() {
           <span className={`pill-stat tip streak ${streak ? "" : "off"}`} tabIndex={0}
             aria-label={`${streak}-day streak`}
             data-tip={streak ? `${streak}-day streak · finish a paper every day to keep it going` : "Streak · finish a paper today to start one"}>
-            <Flame size={19} strokeWidth={2} color={streak ? "#ea580c" : undefined} fill={streak ? "#fdba74" : "none"} />{streak}
+            <Flame size={18} strokeWidth={1.8} fill={streak ? "currentColor" : "none"} />{streak}
           </span>
           <span className="pill-stat tip points" tabIndex={0}
             aria-label={`${user.points} points`}
             data-tip={`${user.points} points · earned from papers and badges`}>
-            <Zap size={19} strokeWidth={2} color="#4f46e5" fill="#c7d2fe" />{user.points}
+            <Zap size={18} strokeWidth={1.8} />{user.points}
           </span>
           <Link href="/leaderboard" className={`nav-link ${on("/leaderboard") ? "active" : ""}`}><Trophy size={18} /><span>Leaderboard</span></Link>
           <div ref={ref} style={{ position: "relative" }}>

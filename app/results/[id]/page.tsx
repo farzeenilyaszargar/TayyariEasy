@@ -11,7 +11,7 @@ import { analyze, DIFFICULTIES, estimatePercentile, estimateRank, fmtTime, type 
 import type { AnswerKey, Badge, LeaderboardEntry } from "@/lib/types";
 
 const outcomeTag: Record<Outcome, string> = { correct: "tag-green", wrong: "tag-red", skipped: "" };
-const SUBJECT_COLOR: Record<string, string> = { Physics: "var(--blue)", Chemistry: "var(--green)", Mathematics: "var(--orange)" };
+const SUBJECT_COLOR: Record<string, string> = { Physics: "var(--sub-physics)", Chemistry: "var(--sub-chem)", Mathematics: "var(--sub-maths)" };
 const outcomeLabel: Record<Outcome, string> = { correct: "Correct", wrong: "Wrong", skipped: "Skipped" };
 
 export default function ResultsPage() {

@@ -37,7 +37,7 @@ export default function LeaderboardPage() {
     <div className="page page-narrow stack">
       <div className="center stack-sm">
         <div style={{ display: "grid", placeItems: "center" }}><Medallion name="trophy" size={64} tint="var(--tint-amber)" /></div>
-        <h1>Leaderboard</h1>
+        <h1>The <em>leaderboard</em></h1>
         <p className="muted">
           {me ? `You're #${me.rank}${mode === "weekly" ? " this week" : " overall"}. Keep climbing!` : "Finish a paper to get on the board."}
         </p>
@@ -67,7 +67,7 @@ export default function LeaderboardPage() {
                     </div>
                     <div style={{ fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.isYou ? "You" : e.name}</div>
                     <div className="muted small">{e.score} {unit}</div>
-                    <div style={{ height: h, marginTop: 10, borderRadius: "14px 14px 0 0", background: "#fff", border: "1px solid var(--line)", borderBottom: 0, boxShadow: "var(--shadow-sm)", display: "grid", placeItems: "center" }}>
+                    <div style={{ height: h, marginTop: 10, borderRadius: "14px 14px 0 0", background: "var(--surface)", border: "1px solid var(--line)", borderBottom: 0, boxShadow: "var(--shadow-sm)", display: "grid", placeItems: "center" }}>
                       <span className={`podium-num podium-${medal}`}>{place}</span>
                     </div>
                   </div>

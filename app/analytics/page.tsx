@@ -11,7 +11,7 @@ import { fetchLeaderboard } from "@/lib/api";
 import { streakDays } from "@/lib/quota";
 import { SUBJECTS } from "@/lib/scoring";
 
-const SUBJECT_COLOR: Record<string, string> = { Physics: "var(--blue)", Chemistry: "var(--green)", Mathematics: "var(--orange)" };
+const SUBJECT_COLOR: Record<string, string> = { Physics: "var(--sub-physics)", Chemistry: "var(--sub-chem)", Mathematics: "var(--sub-maths)" };
 
 export default function Analytics() {
   const { user, attempts, testMap } = useApp();
@@ -35,7 +35,7 @@ export default function Analytics() {
 
   return (
     <div className="page stack">
-      <PageHead title="Dashboard" sub="How your preparation is going." />
+      <PageHead title={<>Your <em>dashboard</em></>} sub="How your preparation is going." />
 
       <div className="stat-tiles">
         <StatTile icon="paper" tint="var(--tint-indigo)" value={done.length} label="Papers done" />
@@ -88,7 +88,7 @@ export default function Analytics() {
                 ? [...done].reverse().slice(-16).map((a) => Math.max(0, (a.score ?? 0) / (a.maxScore || 1)))
                 : [0.3, 0.45, 0.4, 0.6, 0.55, 0.7, 0.65, 0.8] // placeholder shape behind the Pro lock
               ).map((pct, i) => (
-                <div key={i} style={{ flex: 1, maxWidth: 32, height: `${Math.max(6, pct * 100)}%`, background: "var(--blue)", borderRadius: "8px 8px 0 0" }} />
+                <div key={i} style={{ flex: 1, maxWidth: 32, height: `${Math.max(6, pct * 100)}%`, background: "var(--ink)", borderRadius: "6px 6px 0 0" }} />
               ))}
             </div>
           </ProGate>

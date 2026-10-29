@@ -16,24 +16,16 @@ const ICONS = {
 
 export type IconName = keyof typeof ICONS;
 
-// Tile tint → matching icon ink, so callers only choose a tint.
-const INK: Record<string, string> = {
-  "var(--tint-indigo)": "#4338ca",
-  "var(--tint-blue)": "#1d4ed8",
-  "var(--tint-green)": "#15803d",
-  "var(--tint-amber)": "#b45309",
-  "var(--tint-violet)": "#6d28d9",
-  "var(--tint-rose)": "#be123c",
-  "var(--tint-slate)": "#475569",
-};
+// Every tile is charcoal ink on cream; `tint` is kept for call sites but all tints resolve to cream.
+const INK = "var(--ink)";
 
-export function Glyph({ name, size = 18, color, strokeWidth = 1.9, style }: { name: IconName; size?: number; color?: string; strokeWidth?: number; style?: React.CSSProperties }) {
+export function Glyph({ name, size = 18, color, strokeWidth = 1.6, style }: { name: IconName; size?: number; color?: string; strokeWidth?: number; style?: React.CSSProperties }) {
   const I = ICONS[name];
   return <I size={size} color={color} strokeWidth={strokeWidth} style={{ flexShrink: 0, ...style }} aria-hidden />;
 }
 
 export function IconTile({ name, size = 44, tint = "var(--tint-indigo)" }: { name: IconName; size?: number; tint?: string }) {
-  const ink = INK[tint] ?? "#4338ca";
+  const ink = INK;
   return (
     <span className="icon-tile" style={{ width: size, height: size, background: tint, color: ink }}>
       <Glyph name={name} size={Math.round(size * 0.44)} color={ink} />
@@ -43,7 +35,7 @@ export function IconTile({ name, size = 44, tint = "var(--tint-indigo)" }: { nam
 
 // Larger round emblem for page headers and the completion screen.
 export function Medallion({ name, size = 72, tint = "var(--tint-amber)" }: { name: IconName; size?: number; tint?: string }) {
-  const ink = INK[tint] ?? "#4338ca";
+  const ink = INK;
   return (
     <span className="medallion" style={{ width: size, height: size, background: tint, color: ink }}>
       <Glyph name={name} size={Math.round(size * 0.42)} color={ink} strokeWidth={1.7} />

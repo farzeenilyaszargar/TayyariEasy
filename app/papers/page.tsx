@@ -8,6 +8,7 @@ import { PaperCard } from "@/components/PaperCard";
 import { ProMini } from "@/components/ui";
 import { nextWeekReset, quotaFor } from "@/lib/quota";
 import type { Subject, TestPaper } from "@/lib/types";
+import { Mark } from "@/components/Mark";
 
 const FILTERS: ("All" | Subject)[] = ["All", "Physics", "Chemistry", "Mathematics"];
 
@@ -36,15 +37,16 @@ export default function Papers() {
   return (
     <div className="page stack">
       <div className="hello">
+        <Mark size={260} grain className="hello-mark" />
         <div>
-          <h2>Welcome back, {(user?.name ?? "").split(" ")[0]}</h2>
+          <h2>Welcome back, <em>{(user?.name ?? "").split(" ")[0]}</em></h2>
           <p style={{ marginTop: 4 }}>
             {quota.unlimited ? "Pro: unlimited papers this week." : `${quota.remaining} of ${quota.limit} free papers left this week · resets ${nextWeekReset().toLocaleDateString("en-IN", { weekday: "long" })}`}
           </p>
         </div>
         {pending
-          ? <Link href={`/papers/${pending.testId}/attempt?a=${pending.id}`} className="btn btn-white">Resume paper</Link>
-          : fresh[0] && <Link href={`/papers/${fresh[0].id}`} className="btn btn-white">Start {fresh[0].kind === "full" ? "mock" : "paper"}</Link>}
+          ? <Link href={`/papers/${pending.testId}/attempt?a=${pending.id}`} className="btn">Resume paper</Link>
+          : fresh[0] && <Link href={`/papers/${fresh[0].id}`} className="btn">Start {fresh[0].kind === "full" ? "mock" : "paper"}</Link>}
       </div>
 
       {!quota.unlimited && quota.remaining <= 1 && (

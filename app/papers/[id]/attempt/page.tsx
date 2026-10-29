@@ -174,7 +174,7 @@ function Exam() {
               <span className="upper muted">Question {idx + 1} of {test.questionIds.length}</span>
               <div className="row" style={{ gap: 6 }}>
                 <span className={`tag ${q.type === "mcq" ? "tag-blue" : "tag-purple"}`}>{q.type === "mcq" ? "Single correct" : "Numerical"}</span>
-                <span className="tag tag-green">+4</span><span className="tag tag-red">−1</span>
+                <span className="tag tag-blue">+4</span><span className="tag tag-red">−1</span>
               </div>
             </div>
             <div className="q-text">{q.text}</div>
@@ -218,10 +218,10 @@ function Exam() {
             ))}
           </div>
           <div className="legend">
-            <span style={{ ["--c" as string]: "var(--green)" }}>Answered</span>
+            <span style={{ ["--c" as string]: "var(--ink)" }}>Answered</span>
             <span style={{ ["--c" as string]: "var(--red-soft)" }}>Skipped</span>
-            <span style={{ ["--c" as string]: "#fff" }}>Not visited</span>
-            <span style={{ ["--c" as string]: "var(--purple)" }}>Marked</span>
+            <span style={{ ["--c" as string]: "var(--surface)" }}>Not visited</span>
+            <span style={{ ["--c" as string]: "var(--cream-3)" }}>Marked</span>
           </div>
         </aside>
       </div>

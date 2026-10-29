@@ -44,7 +44,7 @@ export default function ProPage() {
         key: order.keyId, order_id: order.orderId, amount: order.amount, currency: order.currency,
         name: "Tayyari", description: `Tayyari Pro, ${plan.label.toLowerCase()}`,
         prefill: { name: user?.name ?? "", ...order.prefill },
-        theme: { color: "#4f46e5" },
+        theme: { color: "#1d1c1a" },
         handler: async (resp: any) => {
           const v = await fetch("/api/razorpay/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(resp) });
           const out = await v.json();
@@ -66,7 +66,7 @@ export default function ProPage() {
     <div className="page page-narrow stack">
       <div className="center stack-sm">
         <div style={{ display: "grid", placeItems: "center" }}><Medallion name="crown" size={64} tint="var(--tint-violet)" /></div>
-        <h1>{isPro ? "You're on Pro" : "Go further with Pro"}</h1>
+        <h1>{isPro ? <>You&apos;re on <em>Pro</em></> : <>Go further with <em>Pro</em></>}</h1>
         <p className="muted">Practice is always free. Pro adds unlimited papers and analysis that shows exactly where your marks go.</p>
       </div>
 

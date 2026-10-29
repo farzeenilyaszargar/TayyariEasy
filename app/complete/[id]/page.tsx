@@ -11,7 +11,7 @@ import type { Badge, LeaderboardEntry } from "@/lib/types";
 
 const ROW = 60;
 const MAX_ROWS = 7;
-const CONFETTI_COLORS = ["#4f46e5", "#7c5cff", "#f2b200", "#12a37a", "#3b82f6", "#e5484d"];
+const CONFETTI_COLORS = ["#1d1c1a", "#3a3833", "#77726a", "#a39d90", "#c7c0b1"];
 
 function Confetti() {
   const pieces = useMemo(() => Array.from({ length: 70 }, (_, i) => ({
@@ -120,7 +120,7 @@ export default function Complete() {
           <>
             <div className="trophy" style={{ display: "grid", placeItems: "center" }}><Medallion name={isDemo ? "check" : "trophy"} size={88} tint={isDemo ? "var(--tint-green)" : "var(--tint-amber)"} /></div>
             <div>
-              <h1>{isDemo ? "Warm-up complete!" : "Paper complete!"}</h1>
+              <h1>{isDemo ? <>Warm-up <em>complete.</em></> : <>Paper <em>complete.</em></>}</h1>
               <p className="muted" style={{ marginTop: 8 }}>{isDemo ? "You know the drill now. Real papers work exactly the same way." : `${test.title} is done. Nice work!`}</p>
             </div>
             <div className="reward-row">
